@@ -1,5 +1,5 @@
 import { serviceContext } from "@/lib/demo";
-import { bearerOr, fail, handle, ok, secretMatches } from "@/lib/http";
+import { bearerOr, fail, handle, ok, secretMatches, strongSecret } from "@/lib/http";
 import { handleInboundSms } from "@/lib/services/sms";
 import { inboundSmsSchema } from "@/lib/validation/schemas";
 
@@ -18,8 +18,8 @@ async function readPayload(req: Request): Promise<unknown> {
  */
 export async function POST(req: Request) {
   return handle(async () => {
-    const expected = process.env.SMS_GATEWAY_TOKEN;
-    if (!expected) return fail(503, "NOT_CONFIGURED", "SMS gateway token not configured");
+    const expected = strongSecret("SMS_GATEWAY_TOKEN");
+    if (!expected) return fail(503, "NOT_CONFIGURED", "SMS_GATEWAY_TOKEN missing or shorter than 32 characters");
     if (!secretMatches(bearerOr(req, "x-gateway-token"), expected)) return fail(401, "UNAUTHORIZED", "Bad gateway token");
 
     const sms = inboundSmsSchema.parse(await readPayload(req));

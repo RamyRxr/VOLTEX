@@ -13,7 +13,23 @@ const { PHASE_DEVELOPMENT_SERVER } = nextConstants;
 export default function nextConfig(phase) {
   return {
     reactStrictMode: true,
+    poweredByHeader: false,
     distDir: phase === PHASE_DEVELOPMENT_SERVER ? ".next-dev" : ".next",
+    /** Defence in depth for a health-data app (no inline-script CSP: hydration needs it). */
+    async headers() {
+      return [
+        {
+          source: "/:path*",
+          headers: [
+            { key: "X-Content-Type-Options", value: "nosniff" },
+            { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+            { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+            { key: "Content-Security-Policy", value: "frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" },
+            { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
+          ],
+        },
+      ];
+    },
     /** The first prototype used /doctor and /patient; CLAUDE.md §3 uses /d and /p. */
     async redirects() {
       return [

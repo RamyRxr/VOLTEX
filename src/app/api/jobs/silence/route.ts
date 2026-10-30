@@ -1,5 +1,5 @@
 import { serviceContext } from "@/lib/demo";
-import { bearerOr, fail, handle, ok, secretMatches } from "@/lib/http";
+import { bearerOr, fail, handle, ok, secretMatches, strongSecret } from "@/lib/http";
 import { runSilenceJob } from "@/lib/services/jobs";
 
 export const dynamic = "force-dynamic";
@@ -11,8 +11,9 @@ export const dynamic = "force-dynamic";
  */
 async function run(req: Request) {
   return handle(async () => {
-    if (!process.env.CRON_SECRET) return fail(503, "NOT_CONFIGURED", "CRON_SECRET not configured");
-    if (!secretMatches(bearerOr(req, "x-cron-secret"), process.env.CRON_SECRET)) return fail(401, "UNAUTHORIZED", "Bad secret");
+    const expected = strongSecret("CRON_SECRET");
+    if (!expected) return fail(503, "NOT_CONFIGURED", "CRON_SECRET missing or shorter than 32 characters");
+    if (!secretMatches(bearerOr(req, "x-cron-secret"), expected)) return fail(401, "UNAUTHORIZED", "Bad secret");
     return ok(await runSilenceJob(await serviceContext()));
   });
 }

@@ -3,10 +3,10 @@ import { getRepo } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
-/** Deploy check: the store is reachable and seeded. No patient data. */
+/** Deploy check: the store is reachable and seeded. Reveals nothing about patients. */
 export async function GET() {
   return handle(async () => {
-    const repo = await getRepo();
-    return ok({ ok: true, patients: (await repo.listPatients()).length });
+    await getRepo();
+    return ok({ ok: true });
   });
 }
