@@ -1,4 +1,4 @@
-// Contract: spec §7. Models are added in the next step.
+// Contract: spec §7. Ask before adding or renaming tables or fields.
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,4 +7,205 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  PATIENT
+  DOCTOR
+}
+
+enum LinkStatus {
+  PENDING
+  ACCEPTED
+  REFUSED
+}
+
+enum MeasureSource {
+  MANUAL
+  DEVICE
+}
+
+enum SessionStatus {
+  NORMAL
+  HYPERTENSIVE
+  SEVERE_PENDING
+  SEVERE_CONFIRMED
+  SEVERE_NOT_CONFIRMED
+  SEVERE_EXPIRED
+}
+
+enum RiskCategory {
+  LOW
+  MODERATE
+  HIGH
+}
+
+enum AlertLevel {
+  EMERGENCY
+  SEVERE
+  HIGH
+  WATCH
+  SILENT
+}
+
+enum AlertStatus {
+  OPEN
+  ACKNOWLEDGED
+  CLOSED
+}
+
+/// One per Supabase auth user; id = auth.users.id.
+model Profile {
+  id        String   @id @db.Uuid
+  role      Role
+  fullName  String
+  phone     String?
+  createdAt DateTime @default(now())
+  patient   Patient?
+  doctor    Doctor?
+}
+
+model Doctor {
+  id        String        @id @default(uuid()) @db.Uuid
+  profileId String        @unique @db.Uuid
+  profile   Profile       @relation(fields: [profileId], references: [id])
+  invites   InviteCode[]
+  links     LinkRequest[]
+  notes     DoctorNote[]
+}
+
+model Patient {
+  id                     String           @id @default(uuid()) @db.Uuid
+  profileId              String           @unique @db.Uuid
+  profile                Profile          @relation(fields: [profileId], references: [id])
+  birthDate              DateTime
+  /// One of dueDate / lmpDate is required (validated in the API).
+  dueDate                DateTime?
+  lmpDate                DateTime?
+  firstPregnancy         Boolean
+  multiplePregnancy      Boolean
+  chronicHypertension    Boolean
+  previousPreeclampsia   Boolean
+  preexistingDiabetes    Boolean
+  gestationalDiabetes    Boolean
+  kidneyDisease          Boolean
+  autoimmuneDisease      Boolean
+  familyPreeclampsia     Boolean
+  familyHypertension     Boolean
+  ivfPregnancy           Boolean
+  heightCm               Int?
+  weightKg               Float?
+  treatments             String?
+  expectedSessionsPerDay Int              @default(2)
+  consentAt              DateTime
+  /// Pre-generated for demo patients.
+  aiSummary              String?
+  sessions               BpSession[]
+  questionnaires         Questionnaire[]
+  risks                  RiskAssessment[]
+  alerts                 Alert[]
+  links                  LinkRequest[]
+  notes                  DoctorNote[]
+}
+
+model InviteCode {
+  id        String    @id @default(uuid()) @db.Uuid
+  code      String    @unique
+  doctorId  String    @db.Uuid
+  doctor    Doctor    @relation(fields: [doctorId], references: [id])
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model LinkRequest {
+  id        String     @id @default(uuid()) @db.Uuid
+  patientId String     @db.Uuid
+  patient   Patient    @relation(fields: [patientId], references: [id])
+  doctorId  String     @db.Uuid
+  doctor    Doctor     @relation(fields: [doctorId], references: [id])
+  status    LinkStatus @default(PENDING)
+  createdAt DateTime   @default(now())
+  decidedAt DateTime?
+  messages  Message[]
+}
+
+model BpSession {
+  id                   String        @id @default(uuid()) @db.Uuid
+  patientId            String        @db.Uuid
+  patient              Patient       @relation(fields: [patientId], references: [id])
+  sys                  Int
+  dia                  Int
+  pulse                Int?
+  takenAt              DateTime
+  source               MeasureSource @default(MANUAL)
+  status               SessionStatus
+  confirmedBySessionId String?       @db.Uuid
+  createdAt            DateTime      @default(now())
+
+  @@index([patientId, takenAt])
+}
+
+model Questionnaire {
+  id         String   @id @default(uuid()) @db.Uuid
+  patientId  String   @db.Uuid
+  patient    Patient  @relation(fields: [patientId], references: [id])
+  /// { [itemCode]: boolean }
+  answers    Json
+  answeredAt DateTime
+
+  @@index([patientId, answeredAt])
+}
+
+model RiskAssessment {
+  id        String       @id @default(uuid()) @db.Uuid
+  patientId String       @db.Uuid
+  patient   Patient      @relation(fields: [patientId], references: [id])
+  category  RiskCategory
+  /// [{ code, label, weight }]
+  factors   Json
+  /// "PROFILE" | "SESSION" | "QUESTIONNAIRE"
+  trigger   String
+  createdAt DateTime     @default(now())
+}
+
+model Alert {
+  id        String      @id @default(uuid()) @db.Uuid
+  patientId String      @db.Uuid
+  patient   Patient     @relation(fields: [patientId], references: [id])
+  level     AlertLevel
+  /// e.g. "DANGER_ITEM", "CONFIRMED_SEVERE", "TWO_OF_THREE", "TREND", "SILENCE"
+  evidence  String
+  /// French, human readable
+  reason    String
+  /// Session or questionnaire id
+  sourceId  String?     @db.Uuid
+  status    AlertStatus @default(OPEN)
+  createdAt DateTime    @default(now())
+  ackAt     DateTime?
+
+  @@index([patientId, status])
+}
+
+model DoctorNote {
+  id        String   @id @default(uuid()) @db.Uuid
+  patientId String   @db.Uuid
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  doctorId  String   @db.Uuid
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  body      String
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id        String      @id @default(uuid()) @db.Uuid
+  /// Conversation = accepted link.
+  linkId    String      @db.Uuid
+  link      LinkRequest @relation(fields: [linkId], references: [id])
+  /// Profile.id of the sender.
+  senderId  String      @db.Uuid
+  body      String
+  createdAt DateTime    @default(now())
+
+  @@index([linkId, createdAt])
 }
