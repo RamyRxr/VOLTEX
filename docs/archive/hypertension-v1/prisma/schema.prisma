@@ -1,0 +1,262 @@
+// TensioCare — starter schema
+// Copy this file to  prisma/schema.prisma  in the app repo.
+//
+// Design notes (see ALERT-RULES.md for the reasoning):
+//  - A *session* is one measurement occasion: 2 readings on web, 1 via SMS.
+//  - A *confirmation* is a second session that validates a PENDING one.
+//    The first session absorbs the second's readings; the second is then
+//    marked superseded and excluded from every statistic.
+//  - Only EMERGENCY / CRISIS / ORANGE are stored as alerts. YELLOW / SILENT /
+//    GREEN are computed on read, so a patient can never accumulate duplicates.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PATIENT
+  DOCTOR
+}
+
+enum Sex {
+  F
+  M
+}
+
+enum Channel {
+  WEB
+  SMS
+}
+
+enum SessionStatus {
+  PENDING
+  CONFIRMED
+}
+
+enum AlertLevel {
+  EMERGENCY
+  CRISIS
+  ORANGE
+  YELLOW
+  SILENT
+}
+
+enum AlertStatus {
+  OPEN
+  ACKNOWLEDGED
+  CLOSED
+}
+
+enum Symptom {
+  HEADACHE
+  DIZZINESS
+  NOSEBLEED
+  CHEST_PAIN
+  VISION
+  CONFUSION
+  WEAKNESS
+  SPEECH
+}
+
+enum MessageRole {
+  DOCTOR
+  PATIENT
+}
+
+model User {
+  id        String   @id @default(cuid())
+  role      Role
+  phone     String   @unique
+  name      String
+  language  String   @default("fr") // "fr" | "ar"
+  createdAt DateTime @default(now())
+
+  patient Patient?
+  doctor  Doctor?
+}
+
+model Doctor {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  backupContactPhone String?
+  digestTime         String?  @default("20:00")
+  createdAt          DateTime @default(now())
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  patients Patient[]
+
+  @@index([userId])
+}
+
+model Patient {
+  id     String @id @default(cuid())
+  userId String @unique
+  doctorId String
+
+  age                      Int
+  sex                      Sex?
+  treatmentNames           String?
+  emergencyContactPhone    String?
+  consentAt                DateTime?
+
+  // Clinical context
+  targetSys Int? // null -> engine falls back to 135
+  targetDia Int? // null -> engine falls back to 85
+  lastOfficeSys Int?
+  lastOfficeDia Int?
+  lastOfficeAt  DateTime?
+
+  // Follow-up schedule — drives the per-patient silence window
+  expectedReadingsPerWeek Int     @default(3)
+  highRisk                Boolean @default(false)
+
+  // Pre-generated for the demo (never a live LLM call on stage)
+  demoSummary String?
+
+  createdAt DateTime @default(now())
+
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  doctor   Doctor           @relation(fields: [doctorId], references: [id])
+  sessions ReadingSession[]
+  alerts   Alert[]
+  messages Message[]
+  notes    PatientNote[]
+
+  @@index([doctorId])
+}
+
+model ReadingSession {
+  id        String        @id @default(cuid())
+  patientId String
+  startedAt DateTime      @default(now())
+  channel   Channel       @default(WEB)
+  status    SessionStatus @default(PENDING)
+
+  // Average of this session's readings. Recomputed when a confirmation merges in.
+  avgSys   Int
+  avgDia   Int
+  avgPulse Int?
+
+  // null = not reported. Never treat null as "missed".
+  pillTaken Boolean?
+
+  confirmedAt DateTime?
+
+  // Set on the *second* session when it has been folded into the first.
+  // Plain scalar (no relation) on purpose: keeps the schema simple and the
+  // query trivial — `WHERE supersededBySessionId IS NULL`.
+  supersededBySessionId String?
+
+  createdAt DateTime @default(now())
+
+  patient  Patient          @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  readings Reading[]
+  symptoms SessionSymptom[]
+  alerts   Alert[]
+
+  @@index([patientId, startedAt])
+  @@index([patientId, status])
+}
+
+model Reading {
+  id        String @id @default(cuid())
+  sessionId String
+  position  Int // 1 or 2 within the session
+  sys       Int
+  dia       Int
+  pulse     Int?
+  takenAt   DateTime @default(now())
+
+  session ReadingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, position])
+}
+
+model SessionSymptom {
+  sessionId String
+  symptom   Symptom
+
+  session ReadingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@id([sessionId, symptom])
+  @@index([symptom])
+}
+
+model Alert {
+  id        String @id @default(cuid())
+  patientId String
+  sessionId String?
+  level     AlertLevel
+  ruleId    String
+  evidence  String
+  status    AlertStatus @default(OPEN)
+  createdAt DateTime    @default(now())
+  ackAt     DateTime?
+  ackByDoctorId String?
+  closedAt  DateTime?
+
+  patient Patient         @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  session ReadingSession? @relation(fields: [sessionId], references: [id])
+
+  @@index([patientId, level, status])
+  @@index([status, createdAt])
+}
+
+model Message {
+  id        String      @id @default(cuid())
+  patientId String
+  fromRole  MessageRole
+  body      String
+  createdAt DateTime    @default(now())
+  readAt    DateTime?
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId, createdAt])
+}
+
+model PatientNote {
+  id        String   @id @default(cuid())
+  patientId String
+  doctorId  String
+  body      String
+  createdAt DateTime @default(now())
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId, createdAt])
+}
+
+model AdviceItem {
+  id         String   @id @default(cuid())
+  situation  String // "high_with_headache" | "low_with_dizziness" | "missed_pill" ...
+  language   String   @default("fr")
+  text       String
+  reviewedBy String? // partner doctor's name — say it on stage
+  createdAt  DateTime @default(now())
+
+  @@unique([situation, language])
+}
+
+// Written by the hourly cron so the indicators page has a time series without
+// storing a row for every yellow/silent state change.
+model MetricSnapshot {
+  id            String   @id @default(cuid())
+  day           DateTime @unique @db.Date
+  totalPatients Int
+  green         Int
+  yellow        Int
+  orange        Int
+  red           Int
+  silent        Int
+  controlRate   Float
+  regularity    Float
+  avgSys        Float
+  avgDia        Float
+  alertsCount   Int      @default(0)
+}
