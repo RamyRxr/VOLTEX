@@ -31,7 +31,7 @@ export function useTriage(initial?: TriageDto) {
 function useTriageQuery(initial?: TriageDto) {
   return useQuery({
     queryKey: keys.triage,
-    queryFn: ({ signal }) => apiGet<TriageDto>("/api/doctor/patients?sort=risk", signal),
+    queryFn: ({ signal }) => apiGet<TriageDto>("/api/prototype/triage", signal),
     refetchInterval: CONFIG.dashboardPollMs,
     refetchIntervalInBackground: true,
     initialData: initial,
