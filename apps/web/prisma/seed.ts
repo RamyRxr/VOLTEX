@@ -9,11 +9,12 @@ import { db } from "../src/server/db";
 import { toRiskProfile } from "../src/server/mappers";
 import { reassess } from "../src/server/pipeline";
 import { supabaseAdmin } from "../src/server/supabase";
+import { DEMO_DOCTOR, EXTRA_DOCTORS, EXTRA_PLANS, type DoctorPlan } from "./seed/extra";
 import { PLANS, type PatientPlan } from "./seed/plans";
 
 /** Public demo password (spec §12): only for fictional @demo.dz accounts on a demo project. */
 const DEMO_PASSWORD = process.env.DEMO_PASSWORD ?? "Demo1234!";
-const DOCTOR = { email: "docteur@demo.dz", fullName: "Dr Karima Benali" };
+const ALL_PLANS: readonly PatientPlan[] = [...PLANS, ...EXTRA_PLANS];
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
 
@@ -40,12 +41,12 @@ async function ensureUser(users: Map<string, string>, email: string, fullName: s
   return data.user.id;
 }
 
-async function ensureDoctor(users: Map<string, string>): Promise<string> {
-  const id = await ensureUser(users, DOCTOR.email, DOCTOR.fullName);
+async function ensureDoctor(users: Map<string, string>, plan: DoctorPlan): Promise<string> {
+  const id = await ensureUser(users, plan.email, plan.fullName);
   await db.profile.upsert({
     where: { id },
-    create: { id, role: "DOCTOR", fullName: DOCTOR.fullName },
-    update: { role: "DOCTOR", fullName: DOCTOR.fullName },
+    create: { id, role: "DOCTOR", fullName: plan.fullName },
+    update: { role: "DOCTOR", fullName: plan.fullName },
   });
   const doctor = await db.doctor.upsert({ where: { profileId: id }, create: { profileId: id }, update: {} });
   return doctor.id;
@@ -82,7 +83,8 @@ function resolveReadings(plan: PatientPlan, now: Date) {
   );
 }
 
-async function seedPatient(plan: PatientPlan, doctorId: string, users: Map<string, string>, now: Date): Promise<void> {
+/** Seeds one patient; returns her level ("PENDING" for a request not yet accepted). */
+async function seedPatient(plan: PatientPlan, doctorId: string, users: Map<string, string>, now: Date): Promise<string> {
   const email = `${plan.key}@demo.dz`;
   const profileId = await ensureUser(users, email, plan.fullName);
   await db.profile.upsert({
@@ -155,12 +157,17 @@ async function seedPatient(plan: PatientPlan, doctorId: string, users: Map<strin
     data: { patientId: patient.id, category: initial.category, factors: initial.factors.map((f) => ({ ...f })), trigger: "PROFILE", createdAt: consentAt },
   });
   if (plan.note) await db.doctorNote.create({ data: { patientId: patient.id, doctorId, body: plan.note, createdAt: ago(now, 48) } });
-  if (plan.link !== "ACCEPTED" || records.length === 0) return;
+  if (plan.link !== "ACCEPTED" || records.length === 0) return "PENDING";
 
   // Same path as the API after a new reading: expire, assess, alert.
-  const { result, risk } = await reassess(patient.id, "SESSION", now);
-  console.log(`  ${plan.key.padEnd(8)} level=${result.level.padEnd(9)} risk=${risk.category}${result.unconfirmedSevere ? " +unconfirmed severe" : ""}`);
+  const { result } = await reassess(patient.id, "SESSION", now);
+  return result.unconfirmedSevere && result.level === "OK" ? "OK + sévère non confirmée" : result.level;
 }
+
+const tally = (levels: readonly string[]): string =>
+  Object.entries(levels.reduce<Record<string, number>>((acc, l) => ({ ...acc, [l]: (acc[l] ?? 0) + 1 }), {}))
+    .map(([level, count]) => `${level} ${count}`)
+    .join(", ");
 
 /** The seed deletes demo patients' data and creates accounts with a public password: never by accident. */
 function assertDemoTarget(): void {
@@ -173,10 +180,20 @@ async function main(): Promise<void> {
   assertDemoTarget();
   const now = new Date();
   const users = await existingUsers();
-  const doctorId = await ensureDoctor(users);
-  console.log(`Doctor ready: ${DOCTOR.email}`);
-  for (const plan of PLANS) await seedPatient(plan, doctorId, users, now);
-  console.log(`Seeded ${PLANS.length} patients (password for every demo account: ${DEMO_PASSWORD}).`);
+  const doctors = [DEMO_DOCTOR, ...EXTRA_DOCTORS];
+  const doctorIds = new Map<string, string>();
+  for (const doctor of doctors) doctorIds.set(doctor.email, await ensureDoctor(users, doctor));
+  console.log(`${doctors.length} doctors ready.`);
+
+  for (const doctor of doctors) {
+    const plans = ALL_PLANS.filter((p) => (p.doctorEmail ?? DEMO_DOCTOR.email) === doctor.email);
+    const doctorId = doctorIds.get(doctor.email);
+    if (!doctorId) throw new Error(`Doctor missing: ${doctor.email}`);
+    const levels: string[] = [];
+    for (const plan of plans) levels.push(await seedPatient(plan, doctorId, users, now));
+    console.log(`  ${doctor.email.padEnd(22)} ${plans.length} patients — ${tally(levels)}`);
+  }
+  console.log(`Seeded ${ALL_PLANS.length} patients (password for every demo account: ${DEMO_PASSWORD}).`);
 }
 
 main()

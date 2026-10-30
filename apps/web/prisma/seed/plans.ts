@@ -43,6 +43,8 @@ export interface PatientPlan {
   readonly readings: readonly Reading[];
   readonly answers: readonly Answer[];
   readonly link: "ACCEPTED" | "PENDING";
+  /** Doctor of the link; the main demo doctor when absent. */
+  readonly doctorEmail?: string;
   readonly aiSummary?: string;
   readonly note?: string;
 }
