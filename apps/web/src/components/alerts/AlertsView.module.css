@@ -21,9 +21,8 @@
   border-bottom: 0;
 }
 
-.urgent {
-  background: #fff7f5;
-  box-shadow: inset 4px 0 0 var(--danger);
+.urgent .patient {
+  color: var(--danger);
 }
 
 .body {

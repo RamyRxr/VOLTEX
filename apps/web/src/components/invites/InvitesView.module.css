@@ -35,8 +35,7 @@
 }
 
 .codeNew {
-  border-color: var(--focus);
-  background: var(--accent-soft);
+  border-color: var(--accent);
 }
 
 .codeValue {

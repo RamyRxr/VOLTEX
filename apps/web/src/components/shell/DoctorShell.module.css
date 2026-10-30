@@ -62,8 +62,8 @@
 }
 
 .navLink[aria-current="page"] {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--surface-sunken);
+  color: var(--text);
 }
 
 .navLink span:nth-child(2) {
@@ -82,8 +82,7 @@
 }
 
 .countUrgent {
-  background: var(--danger);
-  color: #fff;
+  color: var(--danger);
 }
 
 .footer {
@@ -112,8 +111,8 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--surface-sunken);
+  color: var(--text-2);
   font-size: var(--text-xs);
   font-weight: 700;
 }

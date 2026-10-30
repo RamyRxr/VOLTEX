@@ -345,7 +345,7 @@
   padding: 3px 10px;
   border: 1px solid var(--warning-edge);
   border-radius: 999px;
-  background: var(--warning-bg);
+  background: var(--surface);
   color: var(--warning);
   font-size: var(--text-xs);
   font-weight: 650;
@@ -358,7 +358,7 @@
 
 /* Right rail */
 .summary {
-  background: linear-gradient(180deg, var(--accent-soft), var(--surface) 140px);
+  background: var(--surface);
 }
 
 .summary h2,
@@ -399,7 +399,8 @@
 
 .notes li {
   padding-left: var(--space-3);
-  border-left: 3px solid var(--accent-soft);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border);
 }
 
 .notes p {
