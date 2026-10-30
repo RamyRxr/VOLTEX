@@ -92,11 +92,23 @@ les écrans ne changent pas.
 - **Pile** : CSS maison conservé (pas Tailwind), graphiques SVG maison (pas
   Recharts), formulaires sans React Hook Form ; Zod partout.
 
+## Sécurité
+
+- Session : JWT signé (HS256) dans un cookie httpOnly SameSite=Lax ; `/d`,
+  `/p` et `/dev` protégés par le middleware et revérifiés par chaque page.
+- Chaque requête médecin est filtrée par `doctorId` ; « absent » et « pas à
+  vous » donnent la même réponse 404 (tests `src/lib/services/__tests__/security.test.ts`).
+- CSRF : `Sec-Fetch-Site` + type exactement `application/json` sur toute mutation.
+- Limitation de débit en mémoire (connexion, inscription, mesures, messages,
+  simulateur), plafond de patients par médecin, corps JSON ≤ 64 Ko.
+- Secrets passerelle et cron : 32 caractères minimum, sinon l'API répond 503.
+- En-têtes : `nosniff`, `frame-ancestors 'none'`, HSTS, politique de référent.
+
 ## Pas encore fait
 
 - Base de données : la démo tourne **en mémoire, sur une seule machine**
   (`next start`). Sur Vercel (plusieurs instances), il faut le Repo Prisma.
 - Envoi réel des SMS sortants : le webhook renvoie le texte de réponse ; le
   format exact dépend de l'application passerelle (question ouverte §18).
-- Arabe (dictionnaire vide), Darija, résumé médecin, SMS au proche, escalade,
-  limitation de débit des API.
+- Arabe (dictionnaire vide), Darija, résumé médecin, SMS au proche, escalade.
+- Limitation de débit partagée (Redis) si l'app tourne sur plusieurs instances.

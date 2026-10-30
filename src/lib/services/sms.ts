@@ -1,7 +1,7 @@
 import { normalizePhone } from "@/lib/domain/phone";
 import { parseSms } from "@/lib/domain/sms/parse";
 import { smsReplyKind, smsReplyText, type SmsReplyKind } from "@/lib/domain/sms/reply";
-import type { Ctx } from "./context";
+import { ServiceError, type Ctx, type Viewer } from "./context";
 import { ingestSession } from "./ingest";
 
 export interface InboundSms {
@@ -46,4 +46,19 @@ export async function handleInboundSms(ctx: Ctx, sms: InboundSms): Promise<SmsOu
   });
   const kind = smsReplyKind(result.evaluation, result.assessment, { sys, dia });
   return { reply: smsReplyText(kind, { sys, dia }, user.language), kind, patientId: patient.id, sessionId: result.session.id };
+}
+
+/**
+ * The simulator stands in for the gateway, but only for the signed-in
+ * doctor's own patients: another doctor's numbers answer like unknown ones.
+ */
+export async function handleSimulatedSms(ctx: Ctx, viewer: Viewer, sms: InboundSms): Promise<SmsOutcome> {
+  if (viewer.role !== "DOCTOR") throw new ServiceError("FORBIDDEN", "Doctors only");
+  const phone = normalizePhone(sms.from);
+  const user = phone ? await ctx.repo.findUserByPhone(phone) : null;
+  const patient = user?.role === "PATIENT" ? await ctx.repo.getPatientByUserId(user.id) : null;
+  if (!patient || patient.doctorId !== viewer.doctorId) {
+    return { reply: smsReplyText("UNKNOWN", null), kind: "UNKNOWN", patientId: null, sessionId: null };
+  }
+  return handleInboundSms(ctx, sms);
 }

@@ -35,14 +35,41 @@ export async function handle<T>(work: () => Promise<NextResponse<ApiResponse<T>>
   }
 }
 
+const MAX_BODY_BYTES = 64 * 1024;
+export const MIN_SECRET_LENGTH = 32;
+
 /**
- * Cookie-authenticated mutations accept JSON only: a cross-site form cannot
- * send application/json without a CORS preflight, which closes CSRF.
+ * CSRF, layer 1: browsers send Sec-Fetch-Site; only same-origin (or a typed
+ * URL) may mutate. Callers without the header (curl, old browsers) fall
+ * through to layer 2 (exact JSON content type) and the SameSite=Lax cookie.
+ */
+export function assertSameOrigin(req: Request): void {
+  const site = req.headers.get("sec-fetch-site");
+  if (site && site !== "same-origin" && site !== "none") throw new ServiceError("FORBIDDEN", "Cross-site request");
+}
+
+/**
+ * CSRF, layer 2: the media type must be exactly application/json, which a
+ * cross-site page cannot send without a CORS preflight we never approve.
  */
 export async function readJson<S extends z.ZodType>(req: Request, schema: S): Promise<z.infer<S>> {
-  const type = req.headers.get("content-type") ?? "";
-  if (!type.includes("application/json")) throw new ServiceError("INVALID", "Expected application/json");
-  return schema.parse(await req.json());
+  assertSameOrigin(req);
+  const essence = (req.headers.get("content-type") ?? "").split(";")[0]?.trim().toLowerCase();
+  if (essence !== "application/json") throw new ServiceError("INVALID", "Expected application/json");
+  if (Number(req.headers.get("content-length") ?? 0) > MAX_BODY_BYTES) throw new ServiceError("INVALID", "Body too large");
+  const text = await req.text();
+  if (text.length > MAX_BODY_BYTES) throw new ServiceError("INVALID", "Body too large");
+  return schema.parse(JSON.parse(text));
+}
+
+/** An env secret, only if long enough to resist guessing; otherwise null (route answers 503). */
+export function strongSecret(name: "CRON_SECRET" | "SMS_GATEWAY_TOKEN"): string | null {
+  const value = process.env[name];
+  return value && value.length >= MIN_SECRET_LENGTH ? value : null;
+}
+
+export function tooManyRequests(): NextResponse<ApiResponse<never>> {
+  return fail(429, "RATE_LIMITED", "Too many requests");
 }
 
 /** Constant-time comparison for shared secrets. */

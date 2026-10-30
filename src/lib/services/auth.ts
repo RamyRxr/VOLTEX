@@ -4,6 +4,8 @@ import { ServiceError, type Ctx } from "./context";
 
 /** Fixed demo code: real OTP is roadmap (spec §4.1). */
 export const DEMO_LOGIN_CODE = "1234";
+/** A scripted flood of sign-ups must not be able to bury real patients. */
+export const MAX_PATIENTS_PER_DOCTOR = 500;
 
 export interface Identity {
   readonly userId: string;
@@ -57,6 +59,9 @@ export async function registerPatient(ctx: Ctx, input: Registration): Promise<Id
   if (await ctx.repo.findUserByPhone(phone)) throw new ServiceError("INVALID", "Phone already registered");
   const doctor = await ctx.repo.findDoctorByInviteCode(input.inviteCode.trim().toUpperCase());
   if (!doctor) throw new ServiceError("NOT_FOUND", "Unknown invite code");
+  if ((await ctx.repo.listPatients(doctor.id)).length >= MAX_PATIENTS_PER_DOCTOR) {
+    throw new ServiceError("INVALID", "Doctor at capacity");
+  }
 
   const emergency = input.emergencyContactPhone ? normalizePhone(input.emergencyContactPhone) : null;
   const user = await ctx.repo.createUser({ role: "PATIENT", phone, name: input.name.trim(), language: input.language, createdAt: ctx.now });
