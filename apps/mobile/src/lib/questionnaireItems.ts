@@ -1,33 +1,23 @@
-/**
- * Daily questionnaire items (spec §6.3) — lists TO VALIDATE with a doctor or midwife.
- * Move to `packages/shared` (DANGER_ITEMS / WATCH_ITEMS) once Ramy adds them there.
- */
-export const DANGER_ITEMS = [
-  "SEVERE_HEADACHE",
-  "VISION_PROBLEMS",
-  "UPPER_ABDOMINAL_PAIN",
-  "SUDDEN_SWELLING_FACE_HANDS",
-  "BREATHING_DIFFICULTY",
-  "REDUCED_FETAL_MOVEMENT",
-] as const;
+import { answeredYes, DANGER_ITEMS, QUESTIONNAIRE_ITEMS, type QuestionnaireItem } from "shared";
 
-export const WATCH_ITEMS = ["MILD_HEADACHE", "SWELLING_LEGS", "NAUSEA_VOMITING", "UNUSUAL_FATIGUE"] as const;
+/** Display helpers over the questionnaire lists from "shared" (spec §6.3, lists TO VALIDATE). */
+export type { QuestionnaireItem };
 
-export type DangerItem = (typeof DANGER_ITEMS)[number];
-export type WatchItem = (typeof WATCH_ITEMS)[number];
-export type QuestionnaireItem = DangerItem | WatchItem;
+export const ALL_ITEMS: readonly QuestionnaireItem[] = QUESTIONNAIRE_ITEMS;
 
-export const ALL_ITEMS: readonly QuestionnaireItem[] = [...DANGER_ITEMS, ...WATCH_ITEMS];
-
-export function isDangerItem(code: string): code is DangerItem {
+export function isDangerItem(code: string): boolean {
   return (DANGER_ITEMS as readonly string[]).includes(code);
 }
 
+type AnswerMap = Readonly<Partial<Record<string, boolean>>>;
+const yesOnly = (answers: AnswerMap): Record<string, boolean> =>
+  Object.fromEntries(Object.entries(answers).filter((e): e is [string, boolean] => e[1] === true));
+
 /** True when any danger item is answered yes — used only as an offline safety net on the phone. */
-export function hasDangerAnswer(answers: Readonly<Record<string, boolean>>): boolean {
-  return DANGER_ITEMS.some((item) => answers[item] === true);
+export function hasDangerAnswer(answers: AnswerMap): boolean {
+  return answeredYes(yesOnly(answers), DANGER_ITEMS).length > 0;
 }
 
-export function yesItems(answers: Readonly<Record<string, boolean>>): QuestionnaireItem[] {
-  return ALL_ITEMS.filter((item) => answers[item] === true);
+export function yesItems(answers: AnswerMap): QuestionnaireItem[] {
+  return answeredYes(yesOnly(answers), QUESTIONNAIRE_ITEMS);
 }

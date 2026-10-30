@@ -1,11 +1,35 @@
-import type { Api } from "./contract";
-import { ApiError, type DateRange } from "./types";
+import {
+  alertsListSchema,
+  inviteSchema,
+  invitesSchema,
+  linkOutputSchema,
+  linkRequestsSchema,
+  linkStateSchema,
+  meSchema,
+  patientFileSchema,
+  profileOutputSchema,
+  questionnaireOutputSchema,
+  questionnaireSchema,
+  riskSchema,
+  sessionOutputSchema,
+  sessionSchema,
+  triageSchema,
+  type AlertAction,
+  type Answers,
+  type LinkDecision,
+  type ProfileInput,
+  type RangeQuery,
+  type SessionInput,
+} from "shared";
+import { z } from "zod";
+import { accessToken } from "@/auth/supabase";
 import { ENV } from "@/config/env";
-import { getAccessToken } from "@/auth/tokenStore";
+import { t } from "@/i18n";
+import { ApiError, errorFromResponse, networkError } from "./errors";
 
 const TIMEOUT_MS = 15_000;
 
-function query(range?: DateRange): string {
+function query(range?: RangeQuery): string {
   const params = new URLSearchParams();
   if (range?.from) params.set("from", range.from);
   if (range?.to) params.set("to", range.to);
@@ -13,12 +37,15 @@ function query(range?: DateRange): string {
   return s ? `?${s}` : "";
 }
 
-async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
+/** One API call with the Supabase token; the answer is checked against its shared Zod schema. */
+async function request<S extends z.ZodType>(schema: S, method: string, path: string, body?: unknown): Promise<z.output<S>> {
+  const token = await accessToken();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  const token = getAccessToken();
+  let res: Response;
+  let data: unknown;
   try {
-    const res = await fetch(`${ENV.apiUrl}${path}`, {
+    res = await fetch(`${ENV.apiUrl}${path}`, {
       method,
       signal: controller.signal,
       headers: {
@@ -28,51 +55,48 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
       },
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
-    if (!res.ok) throw new ApiError(res.status, `HTTP ${res.status} on ${path}`);
-    if (res.status === 204) return undefined as T;
-    return (await res.json()) as T;
+    if (!res.ok) throw await errorFromResponse(res);
+    data = await res.json();
   } catch (err) {
     if (err instanceof ApiError) throw err;
-    throw new ApiError(0, "network");
+    throw networkError();
   } finally {
     clearTimeout(timer);
   }
+  const parsed = schema.safeParse(data);
+  if (!parsed.success) throw new ApiError(res.status, "BAD_RESPONSE", t("common.error"));
+  return parsed.data;
 }
 
-const notWired = (what: string) => () => Promise.reject(new ApiError(501, `${what} is not wired to Supabase yet`));
+const id = (value: string) => encodeURIComponent(value);
+const ignored = z.unknown();
 
-/**
- * Next.js API client (spec §8). Auth and chat go through Supabase in production;
- * those parts are wired when the Supabase project exists (see README "Next steps").
- */
-export const httpApi: Api = {
-  auth: {
-    signIn: notWired("auth.signIn"),
-    signUp: notWired("auth.signUp"),
-    signOut: () => Promise.resolve(),
-  },
+/** Next.js API routes (spec §8). Chat is not here: it goes straight to Supabase (`features/chat`). */
+export const api = {
+  getMe: () => request(meSchema, "GET", "/api/me"),
+  saveProfile: (input: ProfileInput) => request(profileOutputSchema, "POST", "/api/patient/profile", input),
+  getRisk: () => request(riskSchema, "GET", "/api/patient/risk"),
 
-  getMe: () => request("GET", "/api/me"),
-  saveProfile: (input) => request("POST", "/api/patient/profile", input),
-  getRisk: () => request("GET", "/api/patient/risk"),
+  submitLinkCode: (code: string) => request(linkOutputSchema, "POST", "/api/patient/link", { code }),
+  getLink: () => request(linkStateSchema, "GET", "/api/patient/link"),
 
-  submitLinkCode: (code) => request("POST", "/api/patient/link", { code }),
-  getLink: () => request("GET", "/api/patient/link"),
+  addSession: (input: SessionInput) => request(sessionOutputSchema, "POST", "/api/patient/sessions", input),
+  addQuestionnaire: (answers: Answers) =>
+    request(questionnaireOutputSchema, "POST", "/api/patient/questionnaires", { answers }),
+  listSessions: (range?: RangeQuery) => request(z.array(sessionSchema), "GET", `/api/patient/sessions${query(range)}`),
+  listQuestionnaires: (range?: RangeQuery) =>
+    request(z.array(questionnaireSchema), "GET", `/api/patient/questionnaires${query(range)}`),
 
-  addSession: (input) => request("POST", "/api/patient/sessions", input),
-  addQuestionnaire: (answers) => request("POST", "/api/patient/questionnaires", { answers }),
-  listSessions: (range) => request("GET", `/api/patient/sessions${query(range)}`),
-  listQuestionnaires: (range) => request("GET", `/api/patient/questionnaires${query(range)}`),
-
-  askAssistant: (question) => request("POST", "/api/patient/assistant", { question }),
-
-  listDoctorAlerts: (status) => request("GET", `/api/doctor/alerts?status=${status}`),
-  updateDoctorAlert: (id, action) => request("PATCH", `/api/doctor/alerts/${encodeURIComponent(id)}`, { action }),
-  registerPushToken: (token) => request("POST", "/api/doctor/push-token", { token }),
-
-  chat: {
-    list: notWired("chat.list"),
-    send: notWired("chat.send"),
-    subscribe: () => () => undefined,
+  doctor: {
+    listPatients: () => request(triageSchema, "GET", "/api/doctor/patients"),
+    getPatient: (patientId: string) => request(patientFileSchema, "GET", `/api/doctor/patients/${id(patientId)}`),
+    listAlerts: (status: "OPEN" | "ACKNOWLEDGED") => request(alertsListSchema, "GET", `/api/doctor/alerts?status=${status}`),
+    updateAlert: (alertId: string, action: AlertAction["action"]) =>
+      request(ignored, "PATCH", `/api/doctor/alerts/${id(alertId)}`, { action }),
+    createInvite: () => request(inviteSchema, "POST", "/api/doctor/invites"),
+    listInvites: () => request(invitesSchema, "GET", "/api/doctor/invites"),
+    listLinkRequests: () => request(linkRequestsSchema, "GET", "/api/doctor/link-requests"),
+    decideLinkRequest: (requestId: string, action: LinkDecision["action"]) =>
+      request(ignored, "PATCH", `/api/doctor/link-requests/${id(requestId)}`, { action }),
   },
 };

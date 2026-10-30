@@ -1,26 +1,21 @@
 import { Tabs } from "expo-router/js-tabs";
-import { useEffect } from "react";
 import { useDoctorAlerts } from "@/api/queries";
 import { tabIcon } from "@/components/tabIcon";
 import { t } from "@/i18n";
 import { useDoctorAlertNotifier } from "@/notifications/doctorAlerts";
-import { registerDoctorPush } from "@/notifications/push";
 import { colors } from "@/theme";
 
 export const unstable_settings = { anchor: "alerts" };
 
 /**
- * The doctor's light mobile space: alerts + notifications only.
+ * The doctor's light mobile space: alerts + local notifications while the app runs
+ * (server push is on the roadmap, spec §11).
  * The full patient file stays on the web dashboard.
  */
 export default function DoctorLayout() {
   useDoctorAlertNotifier();
   const open = useDoctorAlerts("OPEN");
   const count = open.data?.length ?? 0;
-
-  useEffect(() => {
-    void registerDoctorPush();
-  }, []);
 
   return (
     <Tabs

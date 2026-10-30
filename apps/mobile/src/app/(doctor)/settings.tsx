@@ -1,15 +1,11 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { api } from "@/api";
-import { useMe, useSession } from "@/auth/SessionProvider";
+import { useMe, useSession, useSessionUser } from "@/auth/SessionProvider";
 import { AppText, ListRow, Notice, RowGroup, Screen, ToggleRow } from "@/components/ui";
 import { t } from "@/i18n";
 import { clearDoctorSeen, setDoctorPrefs, useDoctorPrefs } from "@/notifications/doctorAlerts";
-import { pushAvailable } from "@/notifications/push";
 import { ensurePermission, getPermission, notifyNow, type PermissionState } from "@/notifications/setup";
-import { ENV } from "@/config/env";
 import { colors, space } from "@/theme";
 
 const PERMISSION_LABEL = {
@@ -20,9 +16,9 @@ const PERMISSION_LABEL = {
 
 export default function DoctorSettings() {
   const me = useMe();
+  const user = useSessionUser();
   const { signOut } = useSession();
   const prefs = useDoctorPrefs();
-  const queryClient = useQueryClient();
   const [permission, setPermission] = useState<PermissionState>("undetermined");
 
   useFocusEffect(
@@ -44,11 +40,6 @@ export default function DoctorSettings() {
       await notifyNow(t("settings.testTitle"), t("settings.testBody"), { url: "/alerts" }).catch(() => undefined);
     }
     setPermission(await getPermission());
-  };
-
-  const simulate = async () => {
-    await api.demo?.simulateAlert();
-    await queryClient.invalidateQueries({ queryKey: ["alerts"] });
   };
 
   return (
@@ -78,9 +69,8 @@ export default function DoctorSettings() {
             onPress={() => void enable(true)}
           />
           <ListRow icon="send" label={t("settings.test")} chevron={false} onPress={() => void sendTest()} />
-          {api.demo ? <ListRow icon="warning" label={t("settings.simulate")} chevron={false} onPress={() => void simulate()} /> : null}
         </RowGroup>
-        <Notice icon="information-circle">{pushAvailable && ENV.pushEnabled ? t("settings.pushReady") : t("settings.background")}</Notice>
+        <Notice icon="information-circle">{t("settings.background")}</Notice>
       </View>
 
       <View style={styles.section}>
@@ -88,7 +78,7 @@ export default function DoctorSettings() {
           {t("settings.account")}
         </AppText>
         <RowGroup>
-          <ListRow icon="person-circle" label={me.fullName} hint={me.email} chevron={false} onPress={() => undefined} />
+          <ListRow icon="person-circle" label={me.fullName} hint={user.email} chevron={false} onPress={() => undefined} />
           <ListRow
             icon="log-out"
             label={t("common.logout")}

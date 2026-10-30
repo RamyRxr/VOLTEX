@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useQuestionnaires, useSessions } from "@/api/queries";
-import type { BpSession, Questionnaire } from "@/api/types";
+import type { QuestionnaireDto as Questionnaire, SessionDto as BpSession } from "shared";
 import { BpChart, CHART_COLORS } from "@/components/BpChart";
 import { AppText, Card, EmptyState, ErrorState, Loading, Screen, Segmented, StatusBadge } from "@/components/ui";
 import { t } from "@/i18n";

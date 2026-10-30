@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import Svg, { Circle, G, Line, Polyline, Text as SvgText } from "react-native-svg";
 import { CONFIG } from "shared";
-import type { BpSession } from "@/api/types";
+import type { SessionDto as BpSession } from "shared";
 import { colors } from "@/theme";
 
 interface Props {

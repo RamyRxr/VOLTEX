@@ -2,14 +2,21 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
-import { ApiError } from "@/api";
+import { INVITE_ALPHABET, INVITE_CODE_PATTERN, INVITE_LENGTH } from "shared";
+import { ApiError, isApiError } from "@/api";
 import { useLink, useSubmitLinkCode } from "@/api/queries";
-import { DEMO_INVITE_CODE } from "@/api/mock/seed";
 import { AppText, Button, Card, Loading, Notice, Screen, ScreenHeader } from "@/components/ui";
-import { ENV } from "@/config/env";
 import { t } from "@/i18n";
-import { INVITE_CODE_LENGTH, isCompleteInviteCode, normalizeInviteCode } from "@/lib/inviteCode";
 import { colors, radius, space, type IconName } from "@/theme";
+
+/** Uppercases and keeps only characters that can appear in a code (spec §3), up to its length. */
+const normalizeCode = (raw: string) =>
+  raw
+    .toUpperCase()
+    .split("")
+    .filter((ch) => INVITE_ALPHABET.includes(ch))
+    .join("")
+    .slice(0, INVITE_LENGTH);
 
 /** Add my doctor with the one-time code (spec §3 linking). */
 export default function DoctorLink() {
@@ -20,7 +27,7 @@ export default function DoctorLink() {
   const goHome = () => router.replace("/home");
 
   const status = link.data?.status;
-  const showForm = !link.isLoading && (status === "NONE" || status === undefined || (status === "REFUSED" && retrying));
+  const showForm = !link.isLoading && (status === null || status === undefined || (status === "REFUSED" && retrying));
 
   return (
     <Screen
@@ -63,7 +70,7 @@ function CodeForm({ onDone }: { readonly onDone: () => void }) {
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const submit = useSubmitLinkCode();
-  const complete = isCompleteInviteCode(code);
+  const complete = INVITE_CODE_PATTERN.test(code);
 
   const send = async () => {
     setError(null);
@@ -72,7 +79,13 @@ function CodeForm({ onDone }: { readonly onDone: () => void }) {
       onDone();
     } catch (err) {
       // Same message for wrong, expired or used codes (never reveal which).
-      setError(err instanceof ApiError && err.status === 429 ? t("link.rateLimited") : err instanceof ApiError && err.status === 0 ? t("common.offline") : t("link.error"));
+      setError(
+        isApiError(err, "RATE_LIMITED")
+          ? t("link.rateLimited")
+          : err instanceof ApiError && err.status === 0
+            ? t("common.offline")
+            : t("link.error"),
+      );
     }
   };
 
@@ -91,11 +104,11 @@ function CodeForm({ onDone }: { readonly onDone: () => void }) {
         <TextInput
           accessibilityLabel={t("link.codeLabel")}
           value={code}
-          onChangeText={(s) => setCode(normalizeInviteCode(s))}
+          onChangeText={(s) => setCode(normalizeCode(s))}
           autoCapitalize="characters"
           autoCorrect={false}
           autoComplete="off"
-          maxLength={INVITE_CODE_LENGTH}
+          maxLength={INVITE_LENGTH}
           placeholder="• • • • • •"
           placeholderTextColor={colors.textSubtle}
           style={[styles.code, error ? styles.codeError : null]}
@@ -104,11 +117,6 @@ function CodeForm({ onDone }: { readonly onDone: () => void }) {
         />
       </View>
       {error ? <Notice tone="danger">{error}</Notice> : null}
-      {ENV.useMock ? (
-        <AppText variant="small" color={colors.textSubtle} align="center">
-          {t("link.demoHint", { code: DEMO_INVITE_CODE })}
-        </AppText>
-      ) : null}
       <Button size="lg" label={t("link.submit")} disabled={!complete} loading={submit.isPending} onPress={() => void send()} />
       <Notice icon="lock-closed">{t("link.privacy")}</Notice>
     </>
