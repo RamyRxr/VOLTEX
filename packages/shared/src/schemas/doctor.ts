@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  alertLevelSchema,
   alertSchema,
   isoDate,
   isoDateTime,
@@ -58,7 +59,9 @@ export const patientFileSchema = z.object({
   expectedSessionsPerDay: z.number().int(),
   level: levelSchema,
   silent: z.boolean(),
-  findings: z.array(z.object({ level: z.string(), evidence: z.string(), reason: z.string() })),
+  /** Severe reading never confirmed, still flagged (spec §6.5 group 3). */
+  unconfirmedSevere: z.object({ sys: z.number().int(), dia: z.number().int(), takenAt: isoDateTime }).nullable(),
+  findings: z.array(z.object({ level: alertLevelSchema, evidence: z.string(), reason: z.string() })),
   risk: riskSchema.nullable(),
   risks: z.array(riskSchema),
   sessions: z.array(sessionSchema),

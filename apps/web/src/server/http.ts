@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { allow } from "@/lib/rateLimit";
+import { allow } from "./rateLimit";
 
 /** Plain JSON per spec §8; errors are `{ error, message }` (shared `apiErrorSchema`). */
 

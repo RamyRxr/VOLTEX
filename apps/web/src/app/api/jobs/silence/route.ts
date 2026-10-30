@@ -1,4 +1,4 @@
-import { bearerOr, secretMatches, strongSecret } from "@/lib/http";
+import { bearerOr, secretMatches, strongSecret } from "@/server/secrets";
 import { ApiError, json, route } from "@/server/http";
 import { runSilenceJob } from "@/server/jobs";
 

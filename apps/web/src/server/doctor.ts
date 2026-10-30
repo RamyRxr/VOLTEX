@@ -141,6 +141,7 @@ export async function patientFile(patientId: string, linkId: string, now: Date):
     expectedSessionsPerDay: p.expectedSessionsPerDay,
     level: result.level,
     silent: result.silent,
+    unconfirmedSevere: result.unconfirmedSevere ? bpAt(result.unconfirmedSevere) : null,
     findings: result.findings.map((f) => ({ level: f.level, evidence: f.evidence, reason: f.reason })),
     risk: riskResultDto(risk, now),
     risks: p.risks.map(riskRowDto),

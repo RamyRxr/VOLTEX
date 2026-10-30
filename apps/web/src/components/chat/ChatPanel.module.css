@@ -1,0 +1,80 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.banner {
+  padding: var(--space-2) var(--space-5);
+  background: var(--watch-bg);
+  border-bottom: 1px solid var(--watch-edge);
+  color: var(--watch);
+  font-size: var(--text-xs);
+  font-weight: 650;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  height: 320px;
+  margin: 0;
+  padding: var(--space-4) var(--space-5);
+  overflow-y: auto;
+  list-style: none;
+}
+
+.message {
+  align-self: flex-start;
+  max-width: 85%;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-sunken);
+  border-radius: var(--radius) var(--radius) var(--radius) 3px;
+}
+
+.message p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.mine {
+  align-self: flex-end;
+  background: var(--accent-soft);
+  border-radius: var(--radius) var(--radius) 3px var(--radius);
+}
+
+.author {
+  display: block;
+  color: var(--text-3);
+  font-size: var(--text-xs);
+  font-weight: 650;
+}
+
+.message time {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-3);
+  font-size: var(--text-xs);
+  text-align: right;
+}
+
+.form {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+.form textarea {
+  min-height: 44px;
+}
+
+.form button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+}
+
+.error {
+  margin: 0 var(--space-4) var(--space-3);
+}

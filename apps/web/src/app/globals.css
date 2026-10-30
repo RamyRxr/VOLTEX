@@ -1,15 +1,3 @@
-/* ==========================================================================
-   TensioCare — "Le Registre"
-   A clinical registry aesthetic: ivory paper, ink, royal blue, gold hairlines.
-   Typography: Instrument Serif (display) + Archivo (UI, tabular figures).
-   Split by screen; the order below is the cascade order.
-   Logical properties (inline-start/end) only, so dir="rtl" works for Arabic.
-   ========================================================================== */
+@import "../styles/tokens.css";
 @import "../styles/base.css";
-@import "../styles/ledger.css";
-@import "../styles/cover.css";
-@import "../styles/record.css";
-@import "../styles/phone.css";
-@import "../styles/responsive.css";
 @import "../styles/components.css";
-@import "../styles/patient.css";

@@ -1,0 +1,407 @@
+/* Header */
+.header {
+  margin-bottom: var(--space-5);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: var(--space-3);
+  color: var(--text-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.headerMain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-5);
+  margin-top: var(--space-2);
+  color: var(--text-2);
+}
+
+.facts a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.headerStatus {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Layout: tabs on the left, summary / chat / notes on the right */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  align-items: start;
+  gap: var(--space-5);
+}
+
+.mainCol {
+  min-width: 0;
+}
+
+.tabPanel {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.tabDot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: var(--danger);
+  vertical-align: middle;
+}
+
+.rail {
+  position: sticky;
+  top: var(--space-4);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.twoCols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  align-items: start;
+  gap: var(--space-4);
+}
+
+@media (max-width: 1180px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .rail {
+    position: static;
+  }
+}
+
+/* Findings */
+.findings {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.findings li {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+}
+
+@media (max-width: 600px) {
+  .findings li {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Chart */
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+}
+
+.segmented button {
+  min-height: 30px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-2);
+  font-size: var(--text-xs);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.segmented button[aria-pressed="true"] {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+
+.chart {
+  margin: 0;
+}
+
+.chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-size: 11px;
+}
+
+.grid line {
+  stroke: var(--chart-grid);
+}
+
+.grid text {
+  fill: var(--text-3);
+}
+
+.threshold-warning line {
+  stroke: var(--warning);
+  stroke-opacity: 0.7;
+}
+
+.threshold-warning text {
+  fill: var(--warning);
+  font-weight: 700;
+}
+
+.threshold-danger line {
+  stroke: var(--danger);
+  stroke-opacity: 0.7;
+}
+
+.threshold-danger text {
+  fill: var(--danger);
+  font-weight: 700;
+}
+
+.lineSys,
+.lineDia {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.lineSys {
+  stroke: var(--chart-sys);
+}
+
+.lineDia {
+  stroke: var(--chart-dia);
+}
+
+.dotSys {
+  fill: var(--chart-sys);
+}
+
+.dotDia {
+  fill: var(--chart-dia);
+}
+
+.dotUnconfirmed circle {
+  fill: var(--surface);
+  stroke: var(--danger);
+  stroke-width: 2;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin-top: var(--space-3);
+  color: var(--text-2);
+  font-size: var(--text-xs);
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend i {
+  display: inline-block;
+  width: 16px;
+  height: 0;
+  border-top: 2px solid;
+}
+
+.keySys {
+  border-color: var(--chart-sys) !important;
+}
+
+.keyDia {
+  border-color: var(--chart-dia) !important;
+}
+
+.keyWarning {
+  border-top-style: dashed !important;
+  border-color: var(--warning) !important;
+}
+
+.keyDanger {
+  border-top-style: dashed !important;
+  border-color: var(--danger) !important;
+}
+
+.keyUnconfirmed {
+  width: 10px !important;
+  height: 10px !important;
+  border: 2px solid var(--danger) !important;
+  border-radius: 50%;
+}
+
+/* Tables */
+.strong {
+  font-weight: 700;
+}
+
+.answerList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Risk and profile */
+.factors {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.factors li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.timeline {
+  margin: 0;
+  padding: var(--space-2) var(--space-5) var(--space-4);
+  list-style: none;
+}
+
+.timeline li {
+  display: grid;
+  grid-template-columns: 90px 140px 110px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: var(--text-sm);
+}
+
+.timeline li:last-child {
+  border-bottom: 0;
+}
+
+@media (max-width: 700px) {
+  .timeline li {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
+
+.facts2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.facts2 dt {
+  color: var(--text-3);
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.facts2 dd {
+  margin: 2px 0 0;
+  font-weight: 600;
+}
+
+.history {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.history li {
+  padding: 3px 10px;
+  border: 1px solid var(--warning-edge);
+  border-radius: 999px;
+  background: var(--warning-bg);
+  color: var(--warning);
+  font-size: var(--text-xs);
+  font-weight: 650;
+}
+
+.treatments {
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+}
+
+/* Right rail */
+.summary {
+  background: linear-gradient(180deg, var(--accent-soft), var(--surface) 140px);
+}
+
+.summary h2,
+.rail h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.aiLabel {
+  margin-bottom: var(--space-2);
+  color: var(--accent);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.summaryText {
+  margin-bottom: var(--space-3);
+  line-height: 1.6;
+}
+
+.noteForm {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: end;
+  margin-bottom: var(--space-4);
+}
+
+.notes {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notes li {
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--accent-soft);
+}
+
+.notes p {
+  white-space: pre-wrap;
+}

@@ -1,7 +1,7 @@
 import { randomInt } from "node:crypto";
 import { Prisma } from "@prisma/client";
 import { generateInviteCode, inviteExpiresAt, type Invite, type LinkRequestDto, type LinkState } from "shared";
-import { allow } from "@/lib/rateLimit";
+import { allow } from "./rateLimit";
 import { db } from "./db";
 import { ApiError } from "./http";
 import { iso } from "./mappers";
