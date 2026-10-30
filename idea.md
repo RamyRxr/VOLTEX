@@ -14,7 +14,7 @@ TensioCare helps follow **hypertension during pregnancy** between two consultati
 
 ---
 
-## 2. The problem
+ ## 2. The problem
 
 - Hypertension in pregnancy (gestational hypertension, pre-eclampsia) can worsen quickly and is often silent.
 - Blood pressure is usually measured only at consultations, so changes between visits go unseen.
