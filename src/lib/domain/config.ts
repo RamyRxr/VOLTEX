@@ -17,6 +17,7 @@ export const CONFIG = {
   silence: { multiplier: 2, highRiskMaxDays: 3 },
   escalation: { ackTimeoutMinutes: 30 },
   dashboardPollMs: 1000,
+  patientPollMs: 3000,
 
   /** Window for the home average used by levels, white-coat and control rate. */
   averageWindowDays: 7,

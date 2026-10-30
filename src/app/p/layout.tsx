@@ -1,12 +1,12 @@
 import { Masthead } from "@/components/Masthead";
+import { patientPage } from "@/lib/auth/server";
 
-export default function PatientLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default async function PatientLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const { claims } = await patientPage("/p");
   return (
     <div className="shell">
-      <Masthead role="patient" who="Ahmed Saidi" initials="AS" />
-      <div style={{ flex: 1 }}>{children}</div>
+      <Masthead role="patient" who={claims.name} />
+      <div className="shell__body">{children}</div>
     </div>
   );
 }

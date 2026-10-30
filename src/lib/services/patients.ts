@@ -21,6 +21,7 @@ import {
   type DoctorPatientView,
   type InfoLineDto,
   type PatientSelfView,
+  type SessionDto,
   type UnconfirmedDto,
 } from "./views";
 
@@ -90,7 +91,6 @@ export async function getDoctorPatientView(ctx: Ctx, viewer: Viewer, patientId: 
     level: state.level,
     reason: describeReason(a),
     followUp: SEVERITY[state.level] <= SEVERITY.ORANGE || Boolean(a.trend?.rising),
-    findings: a.findings.map((f) => describeFinding(f)),
     info: infoLines(state),
     unconfirmed: unconfirmedSessions(state, ctx.now),
     avg7: a.avg7,
@@ -126,6 +126,24 @@ export async function getPatientSelfView(ctx: Ctx, viewer: Viewer): Promise<Pati
     messages: await listThread(ctx, patient),
     generatedAt: ctx.now.toISOString(),
   };
+}
+
+/** Names and phones of the doctor's patients, for the SMS simulator. */
+export async function listPatientContacts(ctx: Ctx, viewer: Viewer): Promise<{ name: string; phone: string }[]> {
+  if (viewer.role !== "DOCTOR") throw new ServiceError("FORBIDDEN", "Doctors only");
+  const patients = await ctx.repo.listPatients(viewer.doctorId);
+  const users = await Promise.all(patients.map((p) => ctx.repo.getUser(p.userId)));
+  return users
+    .filter((u): u is NonNullable<typeof u> => u != null)
+    .map((u) => ({ name: u.name, phone: u.phone }))
+    .sort((a, b) => a.name.localeCompare(b.name, "fr"));
+}
+
+/** History for the doctor (own patient) or the patient themself. */
+export async function listPatientSessions(ctx: Ctx, viewer: Viewer, patientId: string, days: number): Promise<SessionDto[]> {
+  const patient = await patientForViewer(ctx, viewer, patientId);
+  const sessions = await ctx.repo.listSessions(patient.id);
+  return sessions.filter((s) => ctx.now.getTime() - s.startedAt.getTime() <= days * DAY).map(sessionDto);
 }
 
 /** Doctor edits target, expected frequency, office reading, notes; levels follow. */

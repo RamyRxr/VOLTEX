@@ -1,73 +1,66 @@
-const MONTHS = [
-  "janvier",
-  "février",
-  "mars",
-  "avril",
-  "mai",
-  "juin",
-  "juillet",
-  "août",
-  "septembre",
-  "octobre",
-  "novembre",
-  "décembre",
-];
+import { t } from "@/lib/i18n";
 
-const DAYS = [
-  "dimanche",
-  "lundi",
-  "mardi",
-  "mercredi",
-  "jeudi",
-  "vendredi",
-  "samedi",
-];
+/**
+ * Dates are always shown in Algerian time, on the server and in the browser,
+ * so server-rendered HTML and the hydrated page agree to the minute.
+ */
+export const APP_TIME_ZONE = "Africa/Algiers";
 
-const pad = (n: number) => String(n).padStart(2, "0");
+const fmt = (options: Intl.DateTimeFormatOptions) =>
+  new Intl.DateTimeFormat("fr-FR", { timeZone: APP_TIME_ZONE, ...options });
+
+const LONG = fmt({ day: "numeric", month: "long", year: "numeric" });
+const WEEKDAY = fmt({ weekday: "long", day: "numeric", month: "long" });
+const SHORT = fmt({ day: "2-digit", month: "2-digit" });
+const CLOCK = fmt({ hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+const DAY_KEY = fmt({ year: "numeric", month: "2-digit", day: "2-digit" });
+
+const asDate = (d: Date | string) => (typeof d === "string" ? new Date(d) : d);
 
 /** "30 octobre 2026" */
-export const longDate = (d: Date) =>
-  `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
-
-/** "jeudi 30 octobre" */
-export const weekdayDate = (d: Date) =>
-  `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}`;
-
+export const longDate = (d: Date | string) => LONG.format(asDate(d));
+/** "vendredi 30 octobre" */
+export const weekdayDate = (d: Date | string) => WEEKDAY.format(asDate(d));
 /** "30/10" */
-export const shortDate = (d: Date) =>
-  `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
+export const shortDate = (d: Date | string) => SHORT.format(asDate(d));
+/** "09:05" */
+export const clock = (d: Date | string) => CLOCK.format(asDate(d));
+/** "30/10 · 09:05" */
+export const stamp = (d: Date | string) => `${shortDate(d)} · ${clock(d)}`;
+/** Same calendar day in Algeria. */
+export const sameDay = (a: Date | string, b: Date | string) => DAY_KEY.format(asDate(a)) === DAY_KEY.format(asDate(b));
 
-/** "14:05" */
-export const time = (d: Date) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const MINUTE = 60_000;
 
-/** "30/10 · 14:05" */
-export const stamp = (d: Date) => `${shortDate(d)} · ${time(d)}`;
-
-/** "il y a 3 j", "il y a 2 h", "à l'instant" */
-export function elapsed(d: Date, now: Date): string {
-  const mins = Math.max(0, Math.round((now.getTime() - d.getTime()) / 60_000));
-  if (mins < 2) return "à l'instant";
-  if (mins < 60) return `il y a ${mins} min`;
+/** "à l'instant", "il y a 12 min", "hier"… relative to the data's own clock. */
+export function elapsed(d: Date | string, now: Date | string): string {
+  const mins = Math.max(0, Math.round((asDate(now).getTime() - asDate(d).getTime()) / MINUTE));
+  if (mins < 2) return t("time.now");
+  if (mins < 60) return t("time.minutes", { n: mins });
   const hours = Math.round(mins / 60);
-  if (hours < 24) return `il y a ${hours} h`;
+  if (hours < 24) return t("time.hours", { n: hours });
   const days = Math.floor(mins / 1440);
-  if (days === 1) return "hier";
-  if (days < 31) return `il y a ${days} j`;
-  const months = Math.floor(days / 30);
-  return `il y a ${months} mois`;
+  if (days === 1) return t("time.yesterday");
+  if (days < 31) return t("time.days", { n: days });
+  return t("time.months", { n: Math.floor(days / 30) });
 }
 
-/** Days before `now`, as a Date at a given hour. */
-export function daysAgo(now: Date, offset: number, hour = 8, minute = 0): Date {
-  const d = new Date(now);
-  d.setDate(d.getDate() - offset);
-  d.setHours(hour, minute, 0, 0);
-  return d;
+/** "+213555000006" → "0555 00 00 06" (national format, easier to read and dial). */
+export function displayPhone(phone: string): string {
+  if (!phone.startsWith("+213")) return phone;
+  const national = `0${phone.slice(4)}`;
+  return national.length === 10 ? national.replace(/^(\d{4})(\d{2})(\d{2})(\d{2})$/, "$1 $2 $3 $4") : national;
 }
 
-/** Minutes before `now`. */
-export function minutesAgo(now: Date, minutes: number): Date {
-  return new Date(now.getTime() - minutes * 60_000);
-}
-
+/** 0.6 → "60 %" */
 export const pct = (x: number) => `${Math.round(x * 100)} %`;
+
+/** "Ahmed Saidi" → "AS" */
+export const initials = (name: string) =>
+  name
+    .replace(/^Dr\.?\s+/i, "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? "")
+    .join("");

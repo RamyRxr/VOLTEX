@@ -69,7 +69,6 @@ export interface TriageRowDto {
   readonly adherence: number | null;
   readonly spark: readonly number[];
   readonly alert: { readonly id: string; readonly level: AlertLevel; readonly status: AlertStatus; readonly createdAt: string } | null;
-  readonly followUp: boolean;
 }
 
 export interface TriageDto {
@@ -77,6 +76,8 @@ export interface TriageDto {
   readonly counts: Readonly<Record<TriageGroup, number>>;
   readonly receivedToday: number;
   readonly openRedAlerts: readonly AlertDto[];
+  /** Daily digest time of the doctor ("08:00"). */
+  readonly digestTime: string;
   readonly generatedAt: string;
 }
 
@@ -117,7 +118,6 @@ export interface DoctorPatientView {
   readonly level: Level;
   readonly reason: string;
   readonly followUp: boolean;
-  readonly findings: readonly string[];
   readonly info: readonly InfoLineDto[];
   readonly unconfirmed: readonly UnconfirmedDto[];
   readonly avg7: BP | null;

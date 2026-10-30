@@ -37,7 +37,6 @@ export const fr = {
   "time.days": "il y a {n} j",
   "time.months": "il y a {n} mois",
   "time.never": "jamais",
-  "time.at": "{date} à {time}",
 
   /* ------------------------------------------------------- levels ---- */
   "level.RED_EMERGENCY": "Urgence",
@@ -53,7 +52,6 @@ export const fr = {
   "tag.silent": "Silencieux",
   "tag.unconfirmed": "Non confirmé",
   "tag.acknowledged": "Pris en charge",
-  "tag.followUp": "Suivi renforcé",
 
   "evidence.DANGER_SYMPTOM": "Signe de danger",
   "evidence.CONFIRMED_SESSION": "Mesure confirmée",
@@ -162,9 +160,7 @@ export const fr = {
   "login.error.phone": "Numéro de téléphone invalide.",
   "login.error.generic": "Connexion impossible. Réessayez.",
   "login.demo": "Accès rapide pour la démonstration",
-  "login.demoDoctor": "Dr Amine Benali",
   "login.demoDoctorRole": "médecin",
-  "login.demoPatient": "Ahmed Saidi",
   "login.demoPatientRole": "patient",
   "register.title": "Première connexion",
   "register.lede": "Ce numéro n'est pas encore inscrit. Quelques informations suffisent, une seule fois.",
@@ -201,10 +197,6 @@ export const fr = {
   "phome.weekUnit": "mesures",
   "phome.safety": "Douleur dans la poitrine, trouble de la vue ou de la parole : appelez le 14.",
   "phome.smsTip": "Sans internet, envoyez « TA 145 92 78 » par SMS au {number}.",
-  "phome.msg.GOOD": "Votre tension est dans votre objectif. Continuez ainsi.",
-  "phome.msg.ATTENTION": "Votre médecin suit vos dernières mesures. Continuez à mesurer.",
-  "phome.msg.URGENT": "Votre médecin a été prévenu. Restez joignable.",
-  "phome.msg.FOLLOW_UP": "Vous n'avez pas mesuré depuis quelques jours. Une mesure aujourd'hui aide votre médecin.",
   "phome.stage.eyebrow": "Canal patient · mobile",
   "phome.stage.title": "Trente secondes, une fois par jour.",
   "phome.stage.body":
@@ -271,7 +263,6 @@ export const fr = {
   "result.notified": "Votre médecin est prévenu.",
   "result.home": "Retour à l'accueil",
   "result.again": "Nouvelle mesure",
-  "result.advice": "Conseil",
 
   /* --------------------------------------------------------- history ---- */
   "history.title": "Historique",
@@ -286,10 +277,7 @@ export const fr = {
   "contact.placeholder": "Votre message…",
   "contact.sent": "Message envoyé.",
   "contact.thread": "Conversation",
-  "contact.empty": "Aucun message pour le moment.",
   "contact.urgent": "Pour une urgence, appelez le 14.",
-  "contact.you": "Vous",
-  "contact.doctor": "Votre médecin",
 
   /* ------------------------------------------------------ doctor nav ---- */
   "nav.main": "Navigation principale",
@@ -346,7 +334,6 @@ export const fr = {
   "alerts.message": "Écrire au patient",
   "alerts.created": "Créée {elapsed}",
   "alerts.ackAt": "prise en charge {elapsed}",
-  "alerts.openFile": "Dossier",
   "alerts.error": "Action impossible. Réessayez.",
 
   /* --------------------------------------------------------- dossier ---- */
@@ -456,7 +443,6 @@ export const fr = {
   "sim.logEmpty": "Aucun SMS simulé pour le moment.",
   "sim.reset": "Réinitialiser la démo",
   "sim.resetDone": "Démo réinitialisée : données de départ rechargées.",
-  "sim.patients": "Patients de démonstration",
   "sim.error": "Envoi impossible.",
 } as const satisfies Record<string, string>;
 
