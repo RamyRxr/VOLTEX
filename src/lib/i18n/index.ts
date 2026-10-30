@@ -24,10 +24,15 @@ export function decimal(n: number, digits = 1): string {
   return String(rounded).replace(".", ",");
 }
 
-/** Explicit sign: +2,1 / −1,5 / 0. */
-export function signed(n: number, digits = 1): string {
-  const text = decimal(Math.abs(n), digits);
-  if (text === "0") return "0";
+/** Fixed decimals with a French comma: 2 → "2,0". */
+export function fixed(n: number, digits = 1): string {
+  return n.toFixed(digits).replace(".", ",");
+}
+
+/** Explicit sign: +2,1 / −1,5 / 0. `exact` keeps trailing zeros (+2,0). */
+export function signed(n: number, digits = 1, exact = false): string {
+  const text = exact ? fixed(Math.abs(n), digits) : decimal(Math.abs(n), digits);
+  if (Number(text.replace(",", ".")) === 0) return exact ? fixed(0, digits) : "0";
   return `${n > 0 ? "+" : "−"}${text}`;
 }
 
