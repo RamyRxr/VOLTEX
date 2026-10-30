@@ -9,7 +9,6 @@ export const fr = {
   "app.disclaimer":
     "TensioCare ne pose pas de diagnostic et ne remplace pas votre médecin. En cas d'urgence, appelez le 14.",
   "demo.banner": "Mode démo : délais raccourcis",
-  "demo.data": "Données de démonstration",
 
   /* ------------------------------------------------------------- common */
   "common.continue": "Continuer",
@@ -68,6 +67,8 @@ export const fr = {
   "login.demoPatient": "Patiente démo",
   "login.demoDoctor": "Médecin démo",
   "login.wrongRolePatient": "Ce compte est un compte patiente. Utilisez l'écran de connexion patiente.",
+  "login.notConfirmed": "Confirmez d'abord votre adresse e-mail : ouvrez le lien reçu par e-mail, puis reconnectez-vous.",
+  "auth.rateLimited": "Trop de tentatives. Réessayez dans quelques minutes.",
 
   "register.title": "Créer mon compte",
   "register.subtitle": "Quelques informations pour commencer.",
@@ -78,6 +79,10 @@ export const fr = {
   "register.submit": "Créer mon compte",
   "register.exists": "Un compte existe déjà avec cet e-mail.",
   "register.hasAccount": "J'ai déjà un compte",
+  "register.confirmTitle": "Vérifiez votre boîte e-mail",
+  "register.confirmBody":
+    "Votre compte est créé. Nous avons envoyé un lien de confirmation à {email}. Ouvrez-le, puis revenez vous connecter.",
+  "register.goLogin": "Aller à la connexion",
 
   "validation.required": "Ce champ est obligatoire.",
   "validation.email": "Adresse e-mail invalide.",
@@ -301,7 +306,6 @@ export const fr = {
   "link.submit": "Envoyer la demande",
   "link.error": "Code invalide ou expiré. Demandez un nouveau code à votre médecin.",
   "link.rateLimited": "Trop d'essais. Réessayez dans quelques minutes.",
-  "link.demoHint": "Code de démonstration : {code}",
   "link.pendingTitle": "En attente d'acceptation",
   "link.pendingBody": "Votre médecin doit accepter votre demande. Vous serez liée dès qu'il l'aura fait.",
   "link.acceptedTitle": "Vous êtes suivie",
@@ -314,7 +318,6 @@ export const fr = {
 
   /* ---------------------------------------------------------------- more */
   "more.title": "Mon espace",
-  "more.profile": "Mon profil médical",
   "more.risk": "Mon estimation de risque",
   "more.doctor": "Mon médecin",
   "more.reminders": "Mes rappels",
@@ -322,8 +325,6 @@ export const fr = {
   "more.assistantHint": "Assistant d'information",
   "more.emergency": "Appeler le 14",
   "more.about": "À propos",
-  "more.resetDemo": "Réinitialiser les données de démo",
-  "more.resetDone": "Données de démo réinitialisées.",
 
   /* ----------------------------------------------------------- reminders */
   "reminders.title": "Mes rappels",
@@ -342,15 +343,11 @@ export const fr = {
 
   /* ----------------------------------------------------------- assistant */
   "assistant.title": "Questions fréquentes",
-  "assistant.banner": "Informations générales seulement, pas un avis médical. En cas de symptôme, appelez le 14.",
-  "assistant.intro": "Posez une question sur la tension pendant la grossesse ou sur l'application.",
-  "assistant.placeholder": "Votre question…",
-  "assistant.thinking": "Réponse en cours…",
-  "assistant.error": "Pas de réponse pour le moment. Réessayez.",
-  "assistant.suggest1": "Qu'est-ce que la pré-éclampsie ?",
-  "assistant.suggest2": "Comment bien mesurer ma tension ?",
-  "assistant.suggest3": "Quels signes doivent m'alerter ?",
-  "assistant.suggest4": "Comment fonctionne l'application ?",
+  "assistant.soonTitle": "Bientôt disponible",
+  "assistant.soonBody":
+    "Vous pourrez bientôt poser ici vos questions générales sur la tension pendant la grossesse et sur l'application.",
+  "assistant.soonEmergency":
+    "Si vous avez un symptôme inquiétant, allez aux urgences de la maternité ou appelez le 14, et remplissez le questionnaire.",
   "assistant.openQuestionnaire": "Ouvrir le questionnaire",
 
   /* ---------------------------------------------------------------- tabs */
@@ -398,10 +395,8 @@ export const fr = {
   "settings.test": "Envoyer une notification de test",
   "settings.testTitle": "Notification de test",
   "settings.testBody": "Les alertes TensioCare s'afficheront comme ceci.",
-  "settings.simulate": "Simuler une alerte urgente (démo)",
   "settings.background":
     "Tant que le serveur n'envoie pas de notifications push, les alertes arrivent quand l'application est ouverte ou en arrière-plan récent.",
-  "settings.pushReady": "Notifications push activées sur cet appareil.",
 } as const;
 
 export type TKey = keyof typeof fr;

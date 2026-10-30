@@ -1,4 +1,4 @@
-import type { Evaluation } from "@/api/types";
+import type { EvaluationDto as Evaluation } from "shared";
 import { cancelRemeasure, scheduleRemeasure } from "@/notifications/remeasure";
 import { getLastResult, setLastResult, type LastResult } from "./lastResult";
 

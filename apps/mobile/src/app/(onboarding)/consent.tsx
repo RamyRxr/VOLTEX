@@ -32,7 +32,7 @@ export default function Consent() {
             label={t("consent.submit")}
             disabled={!accepted}
             onPress={() => {
-              recordConsent(new Date());
+              recordConsent();
               router.push("/profile");
             }}
           />

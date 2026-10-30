@@ -8,7 +8,6 @@ import { AppText, Button, Card, EmergencyPill, Notice, Screen, StatusBadge } fro
 import { useLastResult } from "@/features/result/lastResult";
 import { t } from "@/i18n";
 import { firstName, formatAgo, formatCountdown, isToday } from "@/lib/format";
-import { pregnancyWeek } from "@/lib/pregnancy";
 import { levelStatus, riskStatus, sessionStatus } from "@/lib/status";
 import { useNow, useSecondsLeft } from "@/lib/useNow";
 import { colors, radius, space, TOUCH, type IconName } from "@/theme";
@@ -32,8 +31,8 @@ export default function Home() {
     router.push({ pathname: "/risk", params: { welcome: "1" } });
   }, [welcomePending, setWelcomePending, router]);
 
-  const patient = me.patient;
-  const week = patient ? pregnancyWeek(patient, now) : null;
+  // Computed daily by the API from the due date or last period (spec §4.1.2).
+  const week = me.patient?.pregnancyWeek?.weeks ?? null;
   const lastSession = sessions.data?.[sessions.data.length - 1] ?? null;
   const questionnaireDone = (questionnaires.data ?? []).some((q) => isToday(q.answeredAt, now));
   const recentResult = last && isToday(last.receivedAt, now) ? last : null;

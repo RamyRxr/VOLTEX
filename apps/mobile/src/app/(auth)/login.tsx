@@ -4,10 +4,10 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 import { z } from "zod";
-import { ApiError } from "@/api";
-import { DEMO_DOCTOR_EMAIL, DEMO_PASSWORD, DEMO_PATIENT_EMAIL } from "@/api/mock/seed";
+import { errorText } from "@/api";
 import { useSession } from "@/auth/SessionProvider";
 import { AppText, Button, Card, Notice, Screen, ScreenHeader, TextField } from "@/components/ui";
+import { DEMO_ACCOUNTS } from "@/config/demo";
 import { ENV } from "@/config/env";
 import { t } from "@/i18n";
 import { colors, space } from "@/theme";
@@ -36,13 +36,13 @@ export default function Login() {
       // The root guards switch to the patient or doctor space by themselves.
       router.replace("/");
     } catch (err) {
-      setError(err instanceof ApiError && err.status === 401 ? t("login.error") : t("common.offline"));
+      setError(errorText(err));
     }
   });
 
   const fillDemo = (email: string) => {
     setValue("email", email);
-    setValue("password", DEMO_PASSWORD);
+    setValue("password", DEMO_ACCOUNTS.password);
   };
 
   return (
@@ -99,7 +99,7 @@ export default function Login() {
         <Button variant="ghost" label={t("login.noAccount")} onPress={() => router.replace("/register")} />
       ) : null}
 
-      {ENV.useMock ? (
+      {ENV.demoMode ? (
         <Card tint={colors.surfaceMuted}>
           <AppText variant="caption" color={colors.textMuted}>
             {t("login.demoTitle")}
@@ -109,14 +109,14 @@ export default function Login() {
               variant="secondary"
               icon="person-circle"
               label={t("login.demoPatient")}
-              onPress={() => fillDemo(DEMO_PATIENT_EMAIL)}
+              onPress={() => fillDemo(DEMO_ACCOUNTS.patient)}
               style={styles.demoBtn}
             />
             <Button
               variant="secondary"
               icon="medkit"
               label={t("login.demoDoctor")}
-              onPress={() => fillDemo(DEMO_DOCTOR_EMAIL)}
+              onPress={() => fillDemo(DEMO_ACCOUNTS.doctor)}
               style={styles.demoBtn}
             />
           </View>

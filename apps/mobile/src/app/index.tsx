@@ -26,8 +26,8 @@ export default function Index() {
       </Screen>
     );
   }
+  if (status === "needsProfile") return <Redirect href="/consent" />;
   if (status === "signedOut" || !me) return <Redirect href="/welcome" />;
   if (me.role === "DOCTOR") return <Redirect href="/alerts" />;
-  if (!me.patient) return <Redirect href="/consent" />;
   return <Redirect href="/home" />;
 }

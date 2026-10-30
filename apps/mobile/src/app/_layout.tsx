@@ -27,8 +27,8 @@ const theme = {
 /** Each space is reachable only by the right user (Stack.Protected, SDK 58). */
 function RootNavigator() {
   const { status, me } = useSession();
-  const isPatient = status === "signedIn" && me?.role === "PATIENT";
-  const hasProfile = isPatient && me?.patient != null;
+  const needsProfile = status === "needsProfile";
+  const hasProfile = status === "signedIn" && me?.role === "PATIENT";
   const isDoctor = status === "signedIn" && me?.role === "DOCTOR";
 
   useEffect(() => {
@@ -46,7 +46,7 @@ function RootNavigator() {
       <Stack.Protected guard={status === "signedOut"}>
         <Stack.Screen name="(auth)" />
       </Stack.Protected>
-      <Stack.Protected guard={isPatient && !hasProfile}>
+      <Stack.Protected guard={needsProfile}>
         <Stack.Screen name="(onboarding)" />
       </Stack.Protected>
       <Stack.Protected guard={hasProfile}>

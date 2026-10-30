@@ -2,19 +2,19 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
-import { api, type ChatMessage } from "@/api";
 import { useLink } from "@/api/queries";
 import { useMe } from "@/auth/SessionProvider";
 import { Bubble } from "@/components/Bubble";
 import { Composer } from "@/components/Composer";
 import { AppText, Button, EmptyState, ErrorState, Loading, Notice, Screen } from "@/components/ui";
+import { listMessages, sendMessage, subscribeMessages, type ChatMessage } from "@/features/chat/chatApi";
 import { t } from "@/i18n";
 import { formatDayTime } from "@/lib/format";
 import { space } from "@/theme";
 
 const chatKey = (linkId: string) => ["chat", linkId] as const;
 
-/** Chat with the accepted doctor (Supabase Realtime in production, spec §4.1.9). */
+/** Chat with the accepted doctor, straight on Supabase Realtime (spec §4.1.9). */
 export default function Chat() {
   const router = useRouter();
   const link = useLink();
@@ -53,10 +53,10 @@ function Thread({ linkId, header }: { readonly linkId: string; readonly header: 
   const me = useMe();
   const queryClient = useQueryClient();
   const [failed, setFailed] = useState(false);
-  const messages = useQuery({ queryKey: chatKey(linkId), queryFn: () => api.chat.list(linkId) });
+  const messages = useQuery({ queryKey: chatKey(linkId), queryFn: () => listMessages(linkId) });
 
   useEffect(() => {
-    return api.chat.subscribe(linkId, (message) => {
+    return subscribeMessages(linkId, (message) => {
       queryClient.setQueryData<ChatMessage[]>(chatKey(linkId), (prev = []) =>
         prev.some((m) => m.id === message.id) ? prev : [...prev, message],
       );
@@ -64,7 +64,7 @@ function Thread({ linkId, header }: { readonly linkId: string; readonly header: 
   }, [linkId, queryClient]);
 
   const send = useMutation({
-    mutationFn: (body: string) => api.chat.send(linkId, body),
+    mutationFn: (body: string) => sendMessage(linkId, me.id, body),
     onSuccess: (message) =>
       queryClient.setQueryData<ChatMessage[]>(chatKey(linkId), (prev = []) =>
         prev.some((m) => m.id === message.id) ? prev : [...prev, message],

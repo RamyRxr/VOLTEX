@@ -2,13 +2,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo, useRef, useState } from "react";
 import { Controller, useForm, useWatch, type Control, type FieldPath } from "react-hook-form";
 import { ScrollView, StyleSheet, View, type ScrollViewInstance } from "react-native";
-import type { PatientProfile, Risk } from "@/api/types";
+import type { RiskDto } from "shared";
+import { errorText } from "@/api";
 import { useSaveProfile } from "@/api/queries";
 import { AppText, Button, DateField, Notice, Screen, ScreenHeader, Segmented, TextField, YesNo } from "@/components/ui";
 import { t, type TKey } from "@/i18n";
 import { pregnancyWeek } from "@/lib/pregnancy";
 import { colors, radius, space } from "@/theme";
-import { buildProfileSchema, datesOf, emptyForm, formFromProfile, toProfileInput, type BooleanField, type ProfileForm as Form } from "./schema";
+import { buildProfileSchema, datesOf, emptyForm, toProfileInput, type BooleanField, type ProfileForm as Form } from "./schema";
 
 interface Step {
   readonly title: TKey;
@@ -17,7 +18,7 @@ interface Step {
 }
 
 const STEPS: readonly Step[] = [
-  { title: "profile.you.title", subtitle: "profile.you.subtitle", fields: ["birthDate", "phone"] },
+  { title: "profile.you.title", subtitle: "profile.you.subtitle", fields: ["fullName", "birthDate", "phone"] },
   {
     title: "profile.pregnancy.title",
     subtitle: "profile.pregnancy.subtitle",
@@ -33,24 +34,23 @@ const STEPS: readonly Step[] = [
 ];
 
 interface Props {
-  readonly mode: "onboarding" | "edit";
-  readonly initial: PatientProfile | null;
-  readonly consentAt: string;
-  readonly onSaved: (risk: Risk) => void;
+  /** Name typed at sign-up, editable here. */
+  readonly initialFullName: string;
+  readonly onSaved: (risk: RiskDto) => void;
   readonly onExit: () => void;
 }
 
 /** The medical profile, one short step at a time (spec §4.1.2). */
-export function ProfileForm({ mode, initial, consentAt, onSaved, onExit }: Props) {
+export function ProfileForm({ initialFullName, onSaved, onExit }: Props) {
   const now = useMemo(() => new Date(), []);
   const schema = useMemo(() => buildProfileSchema(now), [now]);
   const [step, setStep] = useState(0);
-  const [saveError, setSaveError] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const scroll = useRef<ScrollViewInstance>(null);
   const save = useSaveProfile();
   const { control, trigger, handleSubmit } = useForm<Form>({
     resolver: zodResolver(schema),
-    defaultValues: initial ? formFromProfile(initial) : emptyForm(),
+    defaultValues: emptyForm(initialFullName),
     mode: "onTouched",
   });
 
@@ -60,12 +60,12 @@ export function ProfileForm({ mode, initial, consentAt, onSaved, onExit }: Props
   const week = pregnancyDate ? pregnancyWeek(datesOf({ dateKind, pregnancyDate }), now) : null;
 
   const submit = handleSubmit(async (values) => {
-    setSaveError(false);
+    setSaveError(null);
     try {
-      const { risk } = await save.mutateAsync(toProfileInput(values, consentAt));
+      const { risk } = await save.mutateAsync(toProfileInput(values));
       onSaved(risk);
-    } catch {
-      setSaveError(true);
+    } catch (err) {
+      setSaveError(errorText(err));
     }
   });
 
@@ -85,10 +85,10 @@ export function ProfileForm({ mode, initial, consentAt, onSaved, onExit }: Props
       header={<ScreenHeader title={t("profile.title")} onBack={back} />}
       footer={
         <>
-          {saveError ? <Notice tone="danger">{t("common.offline")}</Notice> : null}
+          {saveError ? <Notice tone="danger">{saveError}</Notice> : null}
           <Button
             size="lg"
-            label={isLast ? (mode === "onboarding" ? t("profile.finish") : t("profile.saveEdit")) : t("profile.next")}
+            label={isLast ? t("profile.finish") : t("profile.next")}
             loading={save.isPending}
             onPress={() => void next()}
           />
@@ -113,6 +113,22 @@ export function ProfileForm({ mode, initial, consentAt, onSaved, onExit }: Props
 
         {step === 0 ? (
           <>
+            <Controller
+              control={control}
+              name="fullName"
+              render={({ field, fieldState }) => (
+                <TextField
+                  label={t("register.fullName")}
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
+                  autoComplete="name"
+                  textContentType="name"
+                  autoCapitalize="words"
+                />
+              )}
+            />
             <Controller
               control={control}
               name="birthDate"
