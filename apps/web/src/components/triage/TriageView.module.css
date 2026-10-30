@@ -21,18 +21,17 @@
   gap: var(--space-3);
   margin-bottom: var(--space-4);
   padding: var(--space-3) var(--space-4);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-  color: var(--navy);
+  background: var(--accent-soft);
+  border: 1px solid #c6dade;
+  border-radius: var(--radius);
+  color: var(--accent);
   font-weight: 600;
   font-size: var(--text-sm);
 }
 
 .requests:hover {
   text-decoration: none;
-  border-color: var(--border-strong);
-  background: var(--surface-hover);
+  border-color: var(--focus);
 }
 
 .requestsAction {
@@ -53,13 +52,14 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  min-height: 36px;
+  min-height: 38px;
   padding: 0 var(--space-3);
   background: var(--surface);
   border: 1px solid var(--border);
+  border-radius: 999px;
   color: var(--text-2);
   font-size: var(--text-sm);
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition:
     border-color var(--duration) var(--ease),
@@ -68,14 +68,12 @@
 
 .chip:hover {
   border-color: var(--border-strong);
-  background: var(--surface-hover);
 }
 
 .chip[aria-pressed="true"] {
-  border-color: var(--navy);
-  color: var(--navy);
-  font-weight: 700;
-  box-shadow: inset 0 0 0 1px var(--navy);
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--surface);
 }
 
 .chipCount {
@@ -103,6 +101,9 @@
   color: var(--ok);
 }
 
+.chip[aria-pressed="true"] svg {
+  color: inherit;
+}
 
 .table td {
   padding-top: 14px;
@@ -118,16 +119,20 @@
   background: var(--surface-hover);
 }
 
-/* Urgent rows: no stripe, no tint — the badge carries the status; the name weighs more */
-.rowUrgent .name {
-  color: var(--danger);
+.rowUrgent {
+  background: #fff7f5;
+  box-shadow: inset 4px 0 0 var(--danger);
+}
+
+.rowUrgent:hover {
+  background: var(--danger-bg);
 }
 
 .name {
-  color: var(--navy);
+  color: var(--text);
   font-family: var(--font-serif);
-  font-size: 1.1875rem;
-  font-weight: 400;
+  font-size: var(--text-lg);
+  font-weight: 600;
   white-space: nowrap;
 }
 

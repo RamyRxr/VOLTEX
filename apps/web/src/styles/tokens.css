@@ -1,66 +1,58 @@
-/*
- * Royal medical: navy ink on ivory and white, slate greys, one muted gold rule.
- * Square corners, hairline borders, small soft shadows. Colour is kept for
- * status only, and stays deep and quiet.
- */
+/* Calm clinical: warm quiet surfaces, one deep accent; colour is reserved for status. */
 :root {
   /* Surfaces */
-  --bg: #f6f5f1;
+  --bg: #f6f4ef;
   --surface: #ffffff;
-  --surface-sunken: #f1f2f5;
-  --surface-hover: #f7f8fa;
-  --border: #dfe2e8;
-  --border-strong: #c3c8d2;
-  --rule-gold: #b39b6b;
+  --surface-sunken: #efece5;
+  --surface-hover: #faf8f4;
+  --border: #e2ddd2;
+  --border-strong: #cfc8ba;
 
-  /* Ink */
-  --text: #141c33;
-  --text-2: #4a5268;
-  --text-3: #7b8296;
-  --navy: #14213d;
-  --navy-2: #24365e;
-  --navy-wash: #eef1f6;
-
-  /* Action and focus: navy, never a fill colour */
-  --accent: var(--navy);
-  --accent-hover: var(--navy-2);
-  --accent-soft: var(--navy-wash);
-  --focus: #3a5a9a;
+  /* Text */
+  --text: #1c2321;
+  --text-2: #4f5753;
+  --text-3: #7d837f;
   --text-on-accent: #ffffff;
 
-  /* Status: deep, quiet tones; soft backgrounds only where a status needs a field */
-  --danger: #9b1c1c;
-  --danger-bg: #fbf1f1;
-  --danger-edge: #e3bcbc;
-  --warning: #94480b;
-  --warning-bg: #fbf4ec;
-  --warning-edge: #e5c7a6;
-  --watch: #765c00;
-  --watch-bg: #faf6e8;
-  --watch-edge: #ddcf9c;
-  --neutral: #4b5563;
-  --neutral-bg: #f3f4f6;
-  --neutral-edge: #ced3db;
-  --ok: #1d6a46;
-  --ok-bg: #f0f7f3;
-  --ok-edge: #b4d6c3;
+  /* Accent: deep petrol, for actions and focus only */
+  --accent: #1d4f5c;
+  --accent-hover: #163f4a;
+  --accent-soft: #e4eef0;
+  --focus: #2f7d8f;
+
+  /* Status tones: text (strong), background (soft), edge */
+  --danger: #b42318;
+  --danger-bg: #fdecea;
+  --danger-edge: #f3b8b2;
+  --warning: #b54708;
+  --warning-bg: #fef1e2;
+  --warning-edge: #f5c99a;
+  --watch: #8a6a00;
+  --watch-bg: #fbf4d9;
+  --watch-edge: #e8d48a;
+  --neutral: #475467;
+  --neutral-bg: #eef0f3;
+  --neutral-edge: #cdd2da;
+  --ok: #18794e;
+  --ok-bg: #e6f4ec;
+  --ok-edge: #a9d9bf;
 
   /* Chart */
-  --chart-sys: var(--navy);
-  --chart-dia: #8a97b3;
-  --chart-grid: #eceef2;
+  --chart-sys: #1d4f5c;
+  --chart-dia: #7aa7b2;
+  --chart-grid: #ebe7de;
 
-  /* Type: the prototype's pairing */
-  --font-sans: var(--font-grotesque), "Segoe UI", system-ui, sans-serif;
-  --font-serif: var(--font-serif-display), Georgia, serif;
+  /* Type */
+  --font-sans: var(--font-public-sans), "Segoe UI", system-ui, sans-serif;
+  --font-serif: var(--font-source-serif), Georgia, serif;
   --text-xs: 0.75rem;
   --text-sm: 0.8125rem;
   --text-base: 0.9375rem;
   --text-lg: 1.0625rem;
   --text-xl: 1.375rem;
-  --text-2xl: 2.125rem;
+  --text-2xl: 1.875rem;
 
-  /* Space and shape: square corners, small shadows */
+  /* Space and shape */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -68,15 +60,15 @@
   --space-5: 24px;
   --space-6: 32px;
   --space-7: 48px;
-  --radius-sm: 0;
-  --radius: 0;
-  --radius-lg: 0;
-  --shadow-sm: 0 1px 2px rgb(20 33 61 / 6%);
-  --shadow: 0 1px 3px rgb(20 33 61 / 8%), 0 2px 8px rgb(20 33 61 / 4%);
-  --sidebar-width: 240px;
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 2px rgb(28 35 33 / 6%);
+  --shadow: 0 1px 2px rgb(28 35 33 / 5%), 0 4px 16px rgb(28 35 33 / 6%);
+  --sidebar-width: 248px;
 
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
-  --duration: 140ms;
+  --duration: 160ms;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,20 +1,17 @@
-/* Shared building blocks: square corners, hairlines, no filled buttons. */
+/* Shared building blocks of the dashboard. */
 
-/* Buttons: outlined, never filled; hover is a quiet grey wash */
+/* Buttons: 40px tall (44px touch targets on small screens) */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  min-height: 38px;
+  min-height: 40px;
   padding: 0 var(--space-4);
-  border: 1px solid var(--border-strong);
-  border-radius: 0;
-  background: transparent;
-  color: var(--text);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   font-weight: 600;
-  letter-spacing: 0.01em;
   white-space: nowrap;
   cursor: pointer;
   transition:
@@ -23,44 +20,49 @@
     color var(--duration) var(--ease);
 }
 
-.btn:hover:not(:disabled) {
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.btn-secondary:hover:not(:disabled) {
   background: var(--surface-hover);
   border-color: var(--text-3);
 }
 
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* The main action of a view: navy ink and border, still no fill */
-.btn-primary {
-  border-color: var(--navy);
-  color: var(--navy);
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: var(--navy-wash);
-  border-color: var(--navy);
-}
-
-.btn-secondary {
-  color: var(--text-2);
-}
-
 .btn-ghost {
-  border-color: transparent;
+  background: transparent;
   color: var(--text-2);
 }
 
 .btn-ghost:hover:not(:disabled) {
-  border-color: transparent;
-  color: var(--navy);
+  background: var(--surface-sunken);
+  color: var(--text);
 }
 
 .btn-danger {
+  background: var(--surface);
   border-color: var(--danger-edge);
   color: var(--danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--danger-bg);
 }
 
 @media (pointer: coarse) {
@@ -69,61 +71,63 @@
   }
 }
 
-/* Status badge: icon + colour + word, square, on white */
+/* Status badge: icon + colour + word, always together */
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 9px 3px 7px;
+  padding: 3px 10px 3px 8px;
   border: 1px solid;
-  border-radius: 0;
-  background: var(--surface);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  line-height: 1.4;
+  border-radius: 999px;
+  font-size: var(--text-sm);
+  font-weight: 650;
+  line-height: 1.35;
   white-space: nowrap;
 }
 
 .badge-lg {
-  padding: 6px 12px 6px 9px;
-  font-size: var(--text-sm);
+  padding: 6px 14px 6px 10px;
+  font-size: var(--text-base);
 }
 
 .tone-danger {
   color: var(--danger);
+  background: var(--danger-bg);
   border-color: var(--danger-edge);
 }
 
 .tone-warning {
   color: var(--warning);
+  background: var(--warning-bg);
   border-color: var(--warning-edge);
 }
 
 .tone-watch {
   color: var(--watch);
+  background: var(--watch-bg);
   border-color: var(--watch-edge);
 }
 
 .tone-neutral {
   color: var(--neutral);
+  background: var(--neutral-bg);
   border-color: var(--neutral-edge);
 }
 
 .tone-ok {
   color: var(--ok);
+  background: var(--ok-bg);
   border-color: var(--ok-edge);
 }
 
-/* Quiet tag (risk, symptoms): square, hairline, no fill */
+/* Quiet pill (risk, tags) */
 .pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 1px 8px;
-  border: 1px solid var(--border);
-  border-radius: 0;
-  background: var(--surface);
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
   color: var(--text-2);
   font-size: var(--text-xs);
   font-weight: 600;
@@ -131,41 +135,43 @@
 }
 
 .pill-dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
   background: currentColor;
 }
 
+/* Tone pills: the tone wins over the quiet pill colours */
 .pill.tone-danger {
   color: var(--danger);
-  border-color: var(--danger-edge);
+  background: var(--danger-bg);
 }
 
 .pill.tone-warning {
   color: var(--warning);
-  border-color: var(--warning-edge);
+  background: var(--warning-bg);
 }
 
 .pill.tone-watch {
   color: var(--watch);
-  border-color: var(--watch-edge);
+  background: var(--watch-bg);
 }
 
 .pill.tone-neutral {
   color: var(--neutral);
-  border-color: var(--neutral-edge);
+  background: var(--neutral-bg);
 }
 
 .pill.tone-ok {
   color: var(--ok);
-  border-color: var(--ok-edge);
+  background: var(--ok-bg);
 }
 
-/* Panels: white sheet, hairline, small shadow */
+/* Panels */
 .panel {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 0;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
 }
 
@@ -174,16 +180,8 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  min-height: 52px;
-  padding: var(--space-3) var(--space-5);
+  padding: var(--space-4) var(--space-5);
   border-bottom: 1px solid var(--border);
-}
-
-.panel-head h2 {
-  font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
 }
 
 .panel-body {
@@ -199,11 +197,11 @@
 
 .table th {
   padding: 10px var(--space-4);
-  border-bottom: 1px solid var(--navy);
+  border-bottom: 1px solid var(--border);
   color: var(--text-3);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.04em;
   text-align: left;
   text-transform: uppercase;
   white-space: nowrap;
@@ -232,11 +230,9 @@
 }
 
 .field label {
-  color: var(--text-3);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-2);
 }
 
 .input {
@@ -245,7 +241,7 @@
   padding: 0 var(--space-3);
   background: var(--surface);
   border: 1px solid var(--border-strong);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   transition: border-color var(--duration) var(--ease);
 }
 
@@ -256,9 +252,9 @@ textarea.input {
 }
 
 .input:focus {
-  border-color: var(--navy);
+  border-color: var(--focus);
   outline: none;
-  box-shadow: 0 0 0 1px var(--navy);
+  box-shadow: 0 0 0 3px rgb(47 125 143 / 18%);
 }
 
 /* Messages */
@@ -268,9 +264,7 @@ textarea.input {
   gap: var(--space-2);
   padding: var(--space-3) var(--space-4);
   border: 1px solid;
-  border-left-width: 1px;
-  border-radius: 0;
-  background: var(--surface);
+  border-radius: var(--radius);
   font-size: var(--text-sm);
 }
 
@@ -280,21 +274,20 @@ textarea.input {
   text-align: center;
 }
 
-/* Tabs: navy underline, no fill */
+/* Tabs */
 .tabs {
   display: flex;
-  gap: var(--space-5);
+  gap: var(--space-1);
   border-bottom: 1px solid var(--border);
   overflow-x: auto;
 }
 
 .tab {
-  padding: 10px 0;
+  padding: 10px var(--space-3);
   border: 0;
   border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
   background: none;
-  color: var(--text-3);
+  color: var(--text-2);
   font-size: var(--text-sm);
   font-weight: 600;
   white-space: nowrap;
@@ -306,12 +299,13 @@ textarea.input {
 }
 
 .tab[aria-selected="true"] {
-  border-bottom-color: var(--navy);
-  color: var(--navy);
+  border-bottom-color: var(--accent);
+  color: var(--accent);
 }
 
 /* Loading */
 .skeleton {
+  border-radius: var(--radius-sm);
   background: linear-gradient(90deg, var(--surface-sunken), var(--surface-hover), var(--surface-sunken));
   background-size: 200% 100%;
   animation: shimmer 1.4s linear infinite;
@@ -329,27 +323,14 @@ textarea.input {
   }
 }
 
-/* Page header: serif title over a hairline with a short gold rule */
+/* Page header */
 .page-head {
-  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
   gap: var(--space-4);
   margin-bottom: var(--space-5);
-  padding-bottom: var(--space-4);
-  border-bottom: 1px solid var(--border);
-}
-
-.page-head::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -1px;
-  width: 56px;
-  height: 2px;
-  background: var(--rule-gold);
 }
 
 .page-head p {

@@ -3,7 +3,9 @@
   place-items: center;
   min-height: 100vh;
   padding: var(--space-5) var(--space-4);
-  background: var(--bg);
+  background:
+    radial-gradient(1200px 500px at 50% -10%, var(--accent-soft), transparent 70%),
+    var(--bg);
 }
 
 .card {
@@ -12,18 +14,25 @@
   padding: var(--space-6);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-top: 2px solid var(--navy);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
 }
 
 .brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   margin-bottom: var(--space-5);
-  padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--border);
-  color: var(--navy);
-  font-family: var(--font-serif);
-  font-size: 1.625rem;
-  line-height: 1;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, var(--accent), var(--focus));
 }
 
 .subtitle {
