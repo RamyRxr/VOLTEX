@@ -391,6 +391,10 @@
   max-width: 640px;
 }
 
+.not-found__links {
+  margin-top: 18px;
+}
+
 /* ----------------------------------------------------------- responsive -- */
 @media (max-width: 1180px) {
   .figures--4 {

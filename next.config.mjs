@@ -14,5 +14,15 @@ export default function nextConfig(phase) {
   return {
     reactStrictMode: true,
     distDir: phase === PHASE_DEVELOPMENT_SERVER ? ".next-dev" : ".next",
+    /** The first prototype used /doctor and /patient; CLAUDE.md §3 uses /d and /p. */
+    async redirects() {
+      return [
+        { source: "/doctor/indicateurs", destination: "/d/indicators", permanent: false },
+        { source: "/doctor", destination: "/d", permanent: false },
+        { source: "/doctor/:path*", destination: "/d/:path*", permanent: false },
+        { source: "/patient", destination: "/p", permanent: false },
+        { source: "/patient/:path*", destination: "/p/:path*", permanent: false },
+      ];
+    },
   };
 }

@@ -28,6 +28,8 @@ export const fr = {
   "common.home": "Accueil",
   "common.print": "Imprimer",
   "common.skip": "Aller au contenu",
+  "notFound.title": "Page introuvable",
+  "notFound.body": "Cette adresse n'existe pas. Choisissez un espace :",
 
   /* --------------------------------------------------------- time ---- */
   "time.now": "à l'instant",
