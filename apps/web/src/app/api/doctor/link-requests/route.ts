@@ -8,6 +8,6 @@ export const dynamic = "force-dynamic";
 export async function GET(req: Request) {
   return route(async () => {
     const { doctorId } = await requireDoctor(req);
-    return json(await pendingRequests(doctorId, new Date()));
+    return json(await pendingRequests(doctorId));
   });
 }

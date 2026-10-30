@@ -1,6 +1,6 @@
 import { rangeQuerySchema, sessionInputSchema } from "shared";
 import { requirePatient } from "@/server/auth";
-import { isDemoMode, json, readBody, readQuery, route } from "@/server/http";
+import { isDemoMode, json, limitWrites, readBody, readQuery, route } from "@/server/http";
 import { recordSession } from "@/server/patient";
 import { listSessions } from "@/server/reads";
 
@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   return route(async () => {
     const { patientId } = await requirePatient(req);
+    limitWrites("session", patientId);
     const input = await readBody(req, sessionInputSchema);
     return json(await recordSession(patientId, input, new Date(), isDemoMode()), 201);
   });

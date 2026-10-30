@@ -1,5 +1,5 @@
 import { requireDoctor } from "@/server/auth";
-import { json, route } from "@/server/http";
+import { json, limitWrites, route } from "@/server/http";
 import { activeInvites, createInvite } from "@/server/linking";
 
 export const dynamic = "force-dynamic";
@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   return route(async () => {
     const { doctorId } = await requireDoctor(req);
+    limitWrites("invite", doctorId);
     return json(await createInvite(doctorId, new Date()), 201);
   });
 }

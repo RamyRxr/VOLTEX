@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { allow } from "@/lib/rateLimit";
 
 /** Plain JSON per spec §8; errors are `{ error, message }` (shared `apiErrorSchema`). */
 
@@ -66,6 +67,7 @@ const MAX_BODY_BYTES = 64 * 1024;
 export async function readBody<S extends z.ZodType>(req: Request, schema: S): Promise<z.infer<S>> {
   const essence = (req.headers.get("content-type") ?? "").split(";")[0]?.trim().toLowerCase();
   if (essence !== "application/json") throw new ApiError("INVALID", "Content-Type application/json attendu");
+  if (Number(req.headers.get("content-length") ?? 0) > MAX_BODY_BYTES) throw new ApiError("INVALID", "Corps de requête trop grand");
   const text = await req.text();
   if (text.length > MAX_BODY_BYTES) throw new ApiError("INVALID", "Corps de requête trop grand");
   return schema.parse(JSON.parse(text));
@@ -84,3 +86,17 @@ export function readId(id: string): string {
 }
 
 export const isDemoMode = (): boolean => process.env.DEMO_MODE === "true";
+
+/** Write limits per user and route (in-process: per server instance). */
+export const WRITE_LIMITS = {
+  session: { max: 30, windowMs: 60_000 },
+  questionnaire: { max: 10, windowMs: 60_000 },
+  profile: { max: 10, windowMs: 60_000 },
+  invite: { max: 10, windowMs: 60_000 },
+  note: { max: 30, windowMs: 60_000 },
+} as const;
+
+export function limitWrites(kind: keyof typeof WRITE_LIMITS, userKey: string): void {
+  const { max, windowMs } = WRITE_LIMITS[kind];
+  if (!allow(`${kind}:${userKey}`, max, windowMs)) throw new ApiError("RATE_LIMITED", "Trop de requêtes, réessayez dans un instant");
+}

@@ -1,16 +1,24 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
+const NO_SESSION = { auth: { persistSession: false, autoRefreshToken: false } };
+
+let authClient: SupabaseClient | null = null;
 let admin: SupabaseClient | null = null;
 
-/**
- * Service-role client: server code only (spec §5). Used to verify access
- * tokens and, in the seed, to create demo accounts.
- */
+function env(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`${name} missing`);
+  return value;
+}
+
+/** Anon-key client: enough to verify a user's access token (least privilege). */
+export function supabaseAuth(): SupabaseClient {
+  authClient ??= createClient(env("NEXT_PUBLIC_SUPABASE_URL"), env("NEXT_PUBLIC_SUPABASE_ANON_KEY"), NO_SESSION);
+  return authClient;
+}
+
+/** Service-role client: server code only (spec §5), used by the seed to create demo accounts. */
 export function supabaseAdmin(): SupabaseClient {
-  if (admin) return admin;
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error("NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing");
-  admin = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+  admin ??= createClient(env("NEXT_PUBLIC_SUPABASE_URL"), env("SUPABASE_SERVICE_ROLE_KEY"), NO_SESSION);
   return admin;
 }

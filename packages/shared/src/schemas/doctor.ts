@@ -16,12 +16,10 @@ const pregnancyWeekSchema = z.object({ weeks: z.number().int(), days: z.number()
 export const inviteSchema = z.object({ code: z.string(), expiresAt: isoDateTime });
 export const invitesSchema = z.array(inviteSchema);
 
-/** GET /api/doctor/link-requests */
+/** GET /api/doctor/link-requests — name and date only, no health data before acceptance (spec §3). */
 export const linkRequestSchema = z.object({
   id: z.uuid(),
-  patientId: z.uuid(),
   patientName: z.string(),
-  pregnancyWeek: pregnancyWeekSchema,
   createdAt: isoDateTime,
 });
 export const linkRequestsSchema = z.array(linkRequestSchema);

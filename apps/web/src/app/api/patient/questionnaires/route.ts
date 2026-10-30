@@ -1,6 +1,6 @@
 import { questionnaireInputSchema, rangeQuerySchema } from "shared";
 import { requirePatient } from "@/server/auth";
-import { isDemoMode, json, readBody, readQuery, route } from "@/server/http";
+import { isDemoMode, json, limitWrites, readBody, readQuery, route } from "@/server/http";
 import { recordQuestionnaire } from "@/server/patient";
 import { listQuestionnaires } from "@/server/reads";
 
@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   return route(async () => {
     const { patientId } = await requirePatient(req);
+    limitWrites("questionnaire", patientId);
     const input = await readBody(req, questionnaireInputSchema);
     return json(await recordQuestionnaire(patientId, input, new Date(), isDemoMode()), 201);
   });

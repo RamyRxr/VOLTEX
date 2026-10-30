@@ -28,7 +28,7 @@ export async function me(viewer: Viewer, now: Date): Promise<Me> {
 export async function currentRisk(patientId: string, now: Date): Promise<RiskDto> {
   const latest = await db.riskAssessment.findFirst({ where: { patientId }, orderBy: { createdAt: "desc" } });
   if (!latest) throw new ApiError("NOT_FOUND", "Aucune estimation pour l'instant");
-  const { risk } = currentState(await loadPatientData(patientId, now), now);
+  const { risk } = currentState(await loadPatientData(db, patientId, now), now);
   return riskResultDto(risk, latest.createdAt);
 }
 

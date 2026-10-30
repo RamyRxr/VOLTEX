@@ -1,7 +1,7 @@
 import type { Role } from "@prisma/client";
 import { db } from "./db";
 import { ApiError } from "./http";
-import { supabaseAdmin } from "./supabase";
+import { supabaseAuth } from "./supabase";
 
 export interface AuthUser {
   readonly userId: string;
@@ -21,7 +21,7 @@ export async function authenticate(req: Request): Promise<AuthUser> {
   const header = req.headers.get("authorization") ?? "";
   const token = header.startsWith("Bearer ") ? header.slice("Bearer ".length).trim() : "";
   if (!token) throw new ApiError("UNAUTHORIZED", "Connexion requise");
-  const { data, error } = await supabaseAdmin().auth.getUser(token);
+  const { data, error } = await supabaseAuth().auth.getUser(token);
   if (error || !data.user) throw new ApiError("UNAUTHORIZED", "Session expirée, reconnectez-vous");
   return { userId: data.user.id, email: data.user.email ?? null };
 }

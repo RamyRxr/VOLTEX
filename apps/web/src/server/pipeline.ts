@@ -1,4 +1,4 @@
-import type { Patient, Prisma } from "@prisma/client";
+import type { Patient, Prisma, PrismaClient } from "@prisma/client";
 import {
   applyUpdates,
   estimateRisk,
@@ -19,9 +19,25 @@ import { toQuestionnaireRecord, toRiskProfile, toSessionRecord } from "./mappers
  * Used by the routes, the silence job and the seed.
  */
 
+/** The global client or a transaction client. */
+export type Db = PrismaClient | Prisma.TransactionClient;
+
 /** Enough history for the 14-day trend, the 2-of-3 rule and silence. */
 const SESSION_HISTORY = 200;
 const QUESTIONNAIRE_HISTORY_DAYS = 8;
+const LOCKED_TX = { maxWait: 10_000, timeout: 20_000 };
+
+/**
+ * Runs `work` in a transaction holding a per-patient advisory lock, so two
+ * writes for the same patient (double tap, cron + reading) never interleave:
+ * a second severe reading always sees the first one, alerts are not duplicated.
+ */
+export function withPatientLock<T>(patientId: string, work: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
+  return db.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${patientId}))::text AS locked`;
+    return work(tx);
+  }, LOCKED_TX);
+}
 
 export interface PatientData {
   readonly patient: Patient;
@@ -29,31 +45,30 @@ export interface PatientData {
   readonly questionnaires: readonly QuestionnaireRecord[];
 }
 
-export async function loadPatientData(patientId: string, now: Date): Promise<PatientData> {
+export async function loadPatientData(client: Db, patientId: string, now: Date): Promise<PatientData> {
   const since = new Date(now.getTime() - QUESTIONNAIRE_HISTORY_DAYS * 86_400_000);
-  const [patient, sessions, questionnaires] = await Promise.all([
-    db.patient.findUniqueOrThrow({ where: { id: patientId } }),
-    db.bpSession.findMany({ where: { patientId }, orderBy: { takenAt: "desc" }, take: SESSION_HISTORY }),
-    db.questionnaire.findMany({ where: { patientId, answeredAt: { gte: since } }, orderBy: { answeredAt: "desc" } }),
-  ]);
+  const patient = await client.patient.findUniqueOrThrow({ where: { id: patientId } });
+  const sessions = await client.bpSession.findMany({ where: { patientId }, orderBy: { takenAt: "desc" }, take: SESSION_HISTORY });
+  const questionnaires = await client.questionnaire.findMany({
+    where: { patientId, answeredAt: { gte: since } },
+    orderBy: { answeredAt: "desc" },
+  });
   return { patient, sessions: sessions.map(toSessionRecord), questionnaires: questionnaires.map(toQuestionnaireRecord) };
 }
 
-export async function saveSessionUpdates(updates: readonly SessionUpdate[]): Promise<void> {
-  await Promise.all(
-    updates.map((u) =>
-      db.bpSession.update({
-        where: { id: u.id },
-        data: { status: u.status, ...(u.confirmedBySessionId ? { confirmedBySessionId: u.confirmedBySessionId } : {}) },
-      }),
-    ),
-  );
+export async function saveSessionUpdates(client: Db, updates: readonly SessionUpdate[]): Promise<void> {
+  for (const u of updates) {
+    await client.bpSession.update({
+      where: { id: u.id },
+      data: { status: u.status, ...(u.confirmedBySessionId ? { confirmedBySessionId: u.confirmedBySessionId } : {}) },
+    });
+  }
 }
 
 /** Pending severe readings past their window become SEVERE_EXPIRED, in the database too. */
-export async function expireAndSave(sessions: readonly SessionRecord[], now: Date): Promise<SessionRecord[]> {
+export async function expireAndSave(client: Db, sessions: readonly SessionRecord[], now: Date): Promise<SessionRecord[]> {
   const updates = expirePending(sessions, now);
-  await saveSessionUpdates(updates);
+  await saveSessionUpdates(client, updates);
   return applyUpdates(sessions, updates);
 }
 
@@ -62,22 +77,23 @@ export async function expireAndSave(sessions: readonly SessionRecord[], now: Dat
  * Same source already alerted (open or acknowledged) → nothing; an OPEN one with
  * another source → updated; otherwise a new alert.
  */
-export async function upsertAlerts(patientId: string, findings: readonly Finding[]): Promise<number> {
+export async function upsertAlerts(client: Db, patientId: string, findings: readonly Finding[]): Promise<number> {
   if (findings.length === 0) return 0;
-  const active = await db.alert.findMany({
+  const active = await client.alert.findMany({
     where: { patientId, status: { in: ["OPEN", "ACKNOWLEDGED"] } },
     select: { id: true, level: true, evidence: true, sourceId: true, status: true },
   });
-  const writes = findings.flatMap((f): Prisma.PrismaPromise<unknown>[] => {
+  let written = 0;
+  for (const f of findings) {
     const sourceId = f.sourceId ?? null;
     const same = active.filter((a) => a.level === f.level && a.evidence === f.evidence);
-    if (same.some((a) => a.sourceId === sourceId)) return [];
+    if (same.some((a) => a.sourceId === sourceId)) continue;
     const open = same.find((a) => a.status === "OPEN");
-    if (open) return [db.alert.update({ where: { id: open.id }, data: { reason: f.reason, sourceId } })];
-    return [db.alert.create({ data: { patientId, level: f.level, evidence: f.evidence, reason: f.reason, sourceId } })];
-  });
-  await db.$transaction(writes);
-  return writes.length;
+    if (open) await client.alert.update({ where: { id: open.id }, data: { reason: f.reason, sourceId } });
+    else await client.alert.create({ data: { patientId, level: f.level, evidence: f.evidence, reason: f.reason, sourceId } });
+    written += 1;
+  }
+  return written;
 }
 
 export type AssessmentTrigger = "PROFILE" | "SESSION" | "QUESTIONNAIRE" | "JOB";
@@ -92,15 +108,11 @@ export interface Assessment {
  * Risk estimate (stored as a RiskAssessment row unless it is the background
  * job), detection, and alerts.
  */
-export async function assess(
-  data: PatientData,
-  trigger: AssessmentTrigger,
-  now: Date,
-): Promise<Assessment> {
+export async function assess(client: Db, data: PatientData, trigger: AssessmentTrigger, now: Date): Promise<Assessment> {
   const recent = { sessions: data.sessions, questionnaires: data.questionnaires };
   const risk = estimateRisk(toRiskProfile(data.patient), recent, now);
   if (trigger !== "JOB") {
-    await db.riskAssessment.create({
+    await client.riskAssessment.create({
       data: {
         patientId: data.patient.id,
         category: risk.category,
@@ -119,8 +131,17 @@ export async function assess(
     },
     now,
   );
-  const alertsWritten = trigger === "PROFILE" ? 0 : await upsertAlerts(data.patient.id, result.findings);
+  const alertsWritten = trigger === "PROFILE" ? 0 : await upsertAlerts(client, data.patient.id, result.findings);
   return { risk, result, alertsWritten };
+}
+
+/** Load, expire pending readings and assess, under the patient lock (job, seed). */
+export function reassess(patientId: string, trigger: AssessmentTrigger, now: Date): Promise<Assessment> {
+  return withPatientLock(patientId, async (tx) => {
+    const data = await loadPatientData(tx, patientId, now);
+    const sessions = await expireAndSave(tx, data.sessions, now);
+    return assess(tx, { ...data, sessions }, trigger, now);
+  });
 }
 
 /** Current state for display (triage, file) without writing: pending readings expired in memory. */

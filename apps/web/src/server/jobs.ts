@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { assess, expireAndSave, loadPatientData } from "./pipeline";
+import { reassess } from "./pipeline";
 
 export interface SilenceJobResult {
   readonly patients: number;
@@ -17,9 +17,7 @@ export async function runSilenceJob(now: Date): Promise<SilenceJobResult> {
   });
   let alertsWritten = 0;
   for (const { id } of patients) {
-    const data = await loadPatientData(id, now);
-    const sessions = await expireAndSave(data.sessions, now);
-    const { alertsWritten: written } = await assess({ ...data, sessions }, "JOB", now);
+    const { alertsWritten: written } = await reassess(id, "JOB", now);
     alertsWritten += written;
   }
   return { patients: patients.length, alertsWritten };
