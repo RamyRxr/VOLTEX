@@ -1,4 +1,4 @@
-import { confirmationWindowMs } from "@/lib/domain/session";
+import { confirmationMinGapMs, confirmationWindowMs } from "@/lib/domain/session";
 import type { DomainSession, PatientProfile } from "@/lib/domain/types";
 import type { PatientRow, Repo, SessionWithDetails } from "@/lib/store/types";
 
@@ -27,6 +27,7 @@ export class ServiceError extends Error {
 }
 
 export const windowMs = (ctx: Ctx) => confirmationWindowMs(ctx.demoMode);
+export const minGapMs = (ctx: Ctx) => confirmationMinGapMs(ctx.demoMode);
 
 export function toDomainSession(s: SessionWithDetails): DomainSession {
   return {

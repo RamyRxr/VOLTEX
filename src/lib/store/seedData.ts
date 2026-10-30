@@ -54,7 +54,10 @@ export const ADVICE_FR: Readonly<Record<AdviceSituation, string>> = {
     "Votre tension est très élevée. Votre médecin a été prévenu : restez joignable et contactez-le aujourd'hui. Si une douleur dans la poitrine, un trouble de la vue ou de la parole apparaît, appelez le 14.",
   HIGH_CONFIRMED:
     "Votre tension est élevée. Votre médecin a été informé. Continuez votre traitement comme il a été prescrit et mesurez à nouveau demain.",
+  HIGH_SINGLE:
+    "Votre tension est élevée. Reposez-vous, prenez votre traitement comme il a été prescrit et mesurez à nouveau demain. Votre médecin suit vos mesures.",
   LOW_CONFIRMED: "Votre tension est basse. Levez-vous lentement. Votre médecin a été informé.",
+  LOW_SINGLE: "Votre tension est basse. Levez-vous lentement. Si des vertiges apparaissent, asseyez-vous et parlez-en à votre médecin.",
   ABOVE_TARGET:
     "Votre tension est un peu au-dessus de votre objectif. Continuez votre traitement, limitez le sel et mesurez régulièrement.",
   MISSED_PILL:

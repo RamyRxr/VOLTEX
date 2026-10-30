@@ -74,7 +74,7 @@ function Aside({ triage }: { triage: TriageDto }) {
       </div>
       <div className="note-card">
         <p className="eyebrow">{t("triage.rule.title")}</p>
-        <p>{t("triage.rule.body", { time: triage.digestTime })}</p>
+        <p>{t("triage.rule.body")}</p>
       </div>
       <div className="note-card note-card--plain">
         <p className="eyebrow">{t("triage.limits.title")}</p>

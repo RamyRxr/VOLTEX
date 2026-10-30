@@ -1,10 +1,11 @@
 import { CONFIG } from "../config";
+import { isDangerSymptom } from "../thresholds";
 import type { PillStatus, SymptomType } from "../types";
 
 /**
- * Grammar (spec §4.3), case-insensitive, extra spaces tolerated:
+ * Grammar (spec §4.3), case-insensitive, any separator tolerated:
  *   TA <sys> <dia> [<pulse>] [codes...]
- * "145/92" is accepted as well as "145 92".
+ * "TA: 145/92 78", "TA145 92" and "CP." are read like "TA 145 92 78" and "CP".
  */
 const SYMPTOM_CODES: Record<string, SymptomType> = {
   CP: "CHEST_PAIN",
@@ -29,7 +30,12 @@ export interface ParsedSms {
 
 export type SmsParseResult =
   | { readonly ok: true; readonly value: ParsedSms }
-  | { readonly ok: false; readonly reason: "NOT_A_READING" | "MISSING_VALUES" | "OUT_OF_RANGE" };
+  | {
+      readonly ok: false;
+      readonly reason: "NOT_A_READING" | "MISSING_VALUES" | "OUT_OF_RANGE";
+      /** A danger code was present: the reply must still say "Appelez le 14". */
+      readonly hasDanger: boolean;
+    };
 
 const isInt = (t: string) => /^\d{1,3}$/.test(t);
 const inRange = (n: number, r: { min: number; max: number }) => n >= r.min && n <= r.max;
@@ -41,12 +47,20 @@ function pillFrom(codes: readonly string[]): PillStatus {
   return missed ? "MISSED" : "TAKEN";
 }
 
+function tokenize(body: string): string[] {
+  const tokens = body.toUpperCase().split(/[^A-Z0-9]+/).filter(Boolean);
+  const glued = /^TA(\d{1,3})$/.exec(tokens[0] ?? "");
+  return glued ? ["TA", glued[1], ...tokens.slice(1)] : tokens;
+}
+
 export function parseSms(body: string): SmsParseResult {
-  const tokens = body.trim().toUpperCase().split(/[\s/,;]+/).filter(Boolean);
-  if (tokens[0] !== "TA") return { ok: false, reason: "NOT_A_READING" };
+  const tokens = tokenize(body);
+  const hasDanger = tokens.some((t) => t in SYMPTOM_CODES && isDangerSymptom(SYMPTOM_CODES[t]));
+  const fail = (reason: "NOT_A_READING" | "MISSING_VALUES" | "OUT_OF_RANGE"): SmsParseResult => ({ ok: false, reason, hasDanger });
+  if (tokens[0] !== "TA") return fail("NOT_A_READING");
 
   const [sysT, diaT, ...rest] = tokens.slice(1);
-  if (!sysT || !diaT || !isInt(sysT) || !isInt(diaT)) return { ok: false, reason: "MISSING_VALUES" };
+  if (!sysT || !diaT || !isInt(sysT) || !isInt(diaT)) return fail("MISSING_VALUES");
 
   const pulseT = rest[0] && isInt(rest[0]) ? rest[0] : null;
   const codes = pulseT ? rest.slice(1) : rest;
@@ -60,7 +74,7 @@ export function parseSms(body: string): SmsParseResult {
     inRange(dia, plausible.dia) &&
     dia < sys &&
     (pulse == null || inRange(pulse, plausible.pulse));
-  if (!valid) return { ok: false, reason: "OUT_OF_RANGE" };
+  if (!valid) return fail("OUT_OF_RANGE");
 
   const symptoms = [...new Set(codes.filter((c) => c in SYMPTOM_CODES).map((c) => SYMPTOM_CODES[c]))];
   const ignored = codes.filter((c) => !(c in SYMPTOM_CODES) && c !== "MP" && c !== "PP");

@@ -46,18 +46,31 @@ describe("parseSms — grammar of spec §4.3", () => {
     expect(r.ok && r.value).toMatchObject({ symptoms: ["CHEST_PAIN"], ignored: ["XX"] });
   });
 
+  it("punctuation and glued prefixes never drop a danger code (review finding)", () => {
+    for (const body of ["TA 182 118 CP.", "ta 182 118 78 cp!", "TA: 182 118 CP", "TA182 118 CP", "TA 182-118, CP"]) {
+      const r = parseSms(body);
+      expect(r.ok && r.value.symptoms, body).toEqual(["CHEST_PAIN"]);
+    }
+  });
+
+  it("an unreadable message with a danger code still flags the danger", () => {
+    expect(parseSms("TA 1820 118 CP")).toMatchObject({ ok: false, hasDanger: true });
+    expect(parseSms("douleur poitrine CP")).toMatchObject({ ok: false, reason: "NOT_A_READING", hasDanger: true });
+    expect(parseSms("bonjour")).toMatchObject({ ok: false, hasDanger: false });
+  });
+
   it("contradictory pill codes are not reported", () => {
     const r = parseSms("TA 140 90 MP PP");
     expect(r.ok && r.value.pillStatus).toBe("NOT_REPORTED");
   });
 
   it("rejects what is not a reading, never throws", () => {
-    expect(parseSms("Bonjour docteur")).toEqual({ ok: false, reason: "NOT_A_READING" });
-    expect(parseSms("")).toEqual({ ok: false, reason: "NOT_A_READING" });
-    expect(parseSms("TA 145")).toEqual({ ok: false, reason: "MISSING_VALUES" });
-    expect(parseSms("TA abc def")).toEqual({ ok: false, reason: "MISSING_VALUES" });
-    expect(parseSms("TA 400 92")).toEqual({ ok: false, reason: "OUT_OF_RANGE" });
-    expect(parseSms("TA 90 140")).toEqual({ ok: false, reason: "OUT_OF_RANGE" });
+    expect(parseSms("Bonjour docteur")).toMatchObject({ ok: false, reason: "NOT_A_READING" });
+    expect(parseSms("")).toMatchObject({ ok: false, reason: "NOT_A_READING" });
+    expect(parseSms("TA 145")).toMatchObject({ ok: false, reason: "MISSING_VALUES" });
+    expect(parseSms("TA abc def")).toMatchObject({ ok: false, reason: "MISSING_VALUES" });
+    expect(parseSms("TA 400 92")).toMatchObject({ ok: false, reason: "OUT_OF_RANGE" });
+    expect(parseSms("TA 90 140")).toMatchObject({ ok: false, reason: "OUT_OF_RANGE" });
   });
 
   it("formats the pre-filled body of the 'Envoyer par SMS' button", () => {
@@ -78,7 +91,7 @@ describe("SMS replies", () => {
   });
 
   it("never leave a placeholder, never carry a name", () => {
-    const kinds: SmsReplyKind[] = ["HELP", "UNKNOWN", "DANGER", "REMEASURE_HIGH", "REMEASURE_LOW", "NORMAL", "CRISIS", "HIGH", "ABOVE_TARGET", "LOW"];
+    const kinds: SmsReplyKind[] = ["HELP", "UNKNOWN", "DUPLICATE", "DANGER", "DANGER_UNPARSED", "REMEASURE_HIGH", "REMEASURE_LOW", "NORMAL", "CRISIS", "HIGH", "ABOVE_TARGET", "LOW"];
     for (const kind of kinds) {
       const text = smsReplyText(kind, { sys: 150, dia: 95 });
       expect(text).not.toMatch(/[{}]/);

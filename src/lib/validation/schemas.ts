@@ -61,8 +61,8 @@ const nullableInt = (min: number, max: number) => z.number().int().min(min).max(
 
 export const patientPatchSchema = z
   .object({
-    targetSys: nullableInt(100, 180),
-    targetDia: nullableInt(60, 110),
+    targetSys: nullableInt(CONFIG.targetBounds.sys.min, CONFIG.targetBounds.sys.max),
+    targetDia: nullableInt(CONFIG.targetBounds.dia.min, CONFIG.targetBounds.dia.max),
     expectedReadingsPerWeek: z.number().int().min(1).max(14),
     lastOfficeSys: nullableInt(CONFIG.plausible.sys.min, CONFIG.plausible.sys.max),
     lastOfficeDia: nullableInt(CONFIG.plausible.dia.min, CONFIG.plausible.dia.max),

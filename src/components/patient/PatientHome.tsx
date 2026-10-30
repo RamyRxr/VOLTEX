@@ -5,6 +5,7 @@ import { MiniChart } from "@/components/charts/MiniChart";
 import { PatientStatusBadge } from "@/components/PatientStatusBadge";
 import { Icon } from "@/components/ui/Icon";
 import { useSelf } from "@/lib/client/queries";
+import { CONFIG } from "@/lib/domain/config";
 import { isValidForStats } from "@/lib/domain/session";
 import { elapsed, stamp, weekdayDate } from "@/lib/format";
 import { t } from "@/lib/i18n";
@@ -12,7 +13,7 @@ import type { PatientSelfView } from "@/lib/services/views";
 import { TONE_COLOR, toneVar } from "@/lib/tone";
 import { PhoneBrand, PhoneFrame } from "./PhoneFrame";
 
-const WEEK_MS = 7 * 86_400_000;
+const WEEK_MS = CONFIG.averageWindowDays * 86_400_000;
 
 export function PatientHome({ initial, smsNumber }: { initial: PatientSelfView; smsNumber: string | null }) {
   const { data } = useSelf(initial.patientId, initial);

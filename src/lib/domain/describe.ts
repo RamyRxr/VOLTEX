@@ -30,7 +30,7 @@ export function describeFinding(f: Finding, lang: Lang = "FR"): string {
     case "LOW_REPEATED":
       return t("finding.LOW_REPEATED", { n: f.hits.length, threshold: bpText(CONFIG.low), list: list(f.hits) }, lang);
     case "AVERAGE":
-      return t("finding.AVERAGE", { avg: bpText(f.avg), target: bpText(f.target) }, lang);
+      return t("finding.AVERAGE", { days: CONFIG.averageWindowDays, avg: bpText(f.avg), target: bpText(f.target) }, lang);
     case "TREND":
       return f.daysToTarget == null
         ? t("finding.TREND_ABOVE", { slope: signed(f.perWeek, 1, true) }, lang)
@@ -47,13 +47,15 @@ export function describeFinding(f: Finding, lang: Lang = "FR"): string {
 }
 
 export function describePendingCrisis(item: PendingCrisisItem, lang: Lang = "FR"): string {
-  return t(item.awaiting ? "pending.awaiting" : "pending.unconfirmed", { bp: bpText(item.bp) }, lang);
+  const key = item.awaiting ? "pending.awaiting" : item.lowerRemeasure ? "pending.lower" : "pending.unconfirmed";
+  return t(key, { bp: bpText(item.bp) }, lang);
 }
 
 export function describeGreen(a: Pick<Assessment, "avg7" | "target">, lang: Lang = "FR"): string {
+  const days = CONFIG.averageWindowDays;
   return a.avg7
-    ? t("finding.GREEN", { avg: bpText(a.avg7), target: bpText(a.target) }, lang)
-    : t("finding.GREEN_NO_DATA", undefined, lang);
+    ? t("finding.GREEN", { days, avg: bpText(a.avg7), target: bpText(a.target) }, lang)
+    : t("finding.GREEN_NO_DATA", { days }, lang);
 }
 
 /** The one-line reason shown in the triage list. */
@@ -85,9 +87,9 @@ export function describeMissedPill(m: MissedPillResult, lang: Lang = "FR"): stri
 export function describeTrend(tr: TrendResult, lang: Lang = "FR"): string {
   const key = tr.direction === "up" ? "info.trendUp" : tr.direction === "down" ? "info.trendDown" : "info.trendFlat";
   const slope = tr.direction === "flat" ? signed(tr.perWeek, 1, true) : fixed(Math.abs(tr.perWeek));
-  return t(key, { slope }, lang);
+  return t(key, { slope, days: CONFIG.trend.windowDays }, lang);
 }
 
 export function describeAdherence(adherence: number, lang: Lang = "FR"): string {
-  return t("info.adherence", { pct: Math.round(adherence * 100) }, lang);
+  return t("info.adherence", { pct: Math.round(adherence * 100), days: CONFIG.adherenceWindowDays }, lang);
 }

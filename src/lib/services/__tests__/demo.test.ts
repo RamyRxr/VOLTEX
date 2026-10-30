@@ -177,6 +177,23 @@ describe("the stage loop (spec §14), demo mode", () => {
     expect(triage.rows[0]).toMatchObject({ name: "Karim Haddad", level: "RED_EMERGENCY" });
   });
 
+  it("an SMS retry is not stored twice and never confirms itself (review finding)", async () => {
+    const first = await handleInboundSms(ctxAt(600), { from: "0555000007", body: "TA 185 122 80" });
+    expect(first.kind).toBe("REMEASURE_HIGH");
+    const retry = await handleInboundSms(ctxAt(602), { from: "0555000007", body: "TA 185 122 80" });
+    expect(retry).toMatchObject({ kind: "DUPLICATE", sessionId: null });
+    const early = await handleInboundSms(ctxAt(603), { from: "0555000007", body: "TA 184 121 80" });
+    expect(early.kind).toBe("REMEASURE_HIGH");
+    const row = rowOf(await getTriage(ctxAt(604), (doctor as { doctorId: string }).doctorId), "Nadia Bensalem");
+    expect(row.level).not.toBe("RED_CRISIS");
+  });
+
+  it("a danger code in an unreadable SMS still answers 'Appelez le 14'", async () => {
+    const out = await handleInboundSms(ctxAt(700), { from: "0555000003", body: "TA 1820 118 CP." });
+    expect(out.kind).toBe("DANGER_UNPARSED");
+    expect(out.reply.startsWith("Appelez le 14 maintenant.")).toBe(true);
+  });
+
   it("unknown numbers and gibberish store nothing clinical and never throw", async () => {
     const unknown = await handleInboundSms(ctxAt(400), { from: "0699999999", body: "TA 140 90" });
     expect(unknown).toMatchObject({ kind: "UNKNOWN", sessionId: null });

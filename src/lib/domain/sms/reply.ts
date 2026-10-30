@@ -12,7 +12,9 @@ import { bpText, t, type Lang, type MessageKey } from "../../i18n";
 export type SmsReplyKind =
   | "HELP"
   | "UNKNOWN"
+  | "DUPLICATE"
   | "DANGER"
+  | "DANGER_UNPARSED"
   | "REMEASURE_HIGH"
   | "REMEASURE_LOW"
   | "NORMAL"
@@ -24,7 +26,9 @@ export type SmsReplyKind =
 const KEY: Record<SmsReplyKind, MessageKey> = {
   HELP: "sms.help",
   UNKNOWN: "sms.unknown",
+  DUPLICATE: "sms.duplicate",
   DANGER: "sms.danger",
+  DANGER_UNPARSED: "sms.dangerUnparsed",
   REMEASURE_HIGH: "sms.remeasureHigh",
   REMEASURE_LOW: "sms.remeasureLow",
   NORMAL: "sms.normal",

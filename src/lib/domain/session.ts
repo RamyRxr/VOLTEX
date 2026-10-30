@@ -30,17 +30,26 @@ export function confirmationWindowMs(demoMode: boolean): number {
     : CONFIG.confirmationWindowMinutes * MINUTE;
 }
 
-/** Latest PENDING session started within the window before `now`. */
+/** Minimum age before a PENDING session can be confirmed (shortened in demo mode). */
+export function confirmationMinGapMs(demoMode: boolean): number {
+  return (demoMode ? CONFIG.demoModeSeconds.confirmationMinGap : CONFIG.confirmationMinGapSeconds) * 1000;
+}
+
+/**
+ * Latest PENDING session started within the window before `now`, and at
+ * least `minGapMs` ago: an SMS retry or a double tap never confirms itself.
+ */
 export function findPendingInWindow(
   sessions: readonly DomainSession[],
   now: Date,
   windowMs: number,
+  minGapMs = 0,
 ): DomainSession | null {
   const candidates = sessions
     .filter((s) => s.status === "PENDING")
     .filter((s) => {
       const age = now.getTime() - s.startedAt.getTime();
-      return age >= 0 && age <= windowMs;
+      return age >= minGapMs && age <= windowMs;
     })
     .sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime());
   return candidates[0] ?? null;

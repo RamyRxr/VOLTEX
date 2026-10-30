@@ -1,4 +1,5 @@
 import { homeAdvice } from "@/lib/domain/advice";
+import { CONFIG } from "@/lib/domain/config";
 import {
   describeAdherence,
   describeFinding,
@@ -119,7 +120,7 @@ export async function getPatientSelfView(ctx: Ctx, viewer: Viewer): Promise<Pati
     advice: await adviceText(ctx, homeAdvice(state.assessment), lang),
     target: state.assessment.target,
     expectedReadingsPerWeek: patient.expectedReadingsPerWeek,
-    weekCount: sessionsWithinDays(valid, ctx.now, 7).length,
+    weekCount: sessionsWithinDays(valid, ctx.now, CONFIG.averageWindowDays).length,
     last: state.sessions.length ? sessionDto(state.sessions[state.sessions.length - 1]) : null,
     sessions: recentSessions(state, ctx.now),
     doctor: { name: doctorUser?.name ?? "", phone: doctorUser?.phone ?? "" },

@@ -13,7 +13,9 @@ export type AdviceSituation =
   | "LOW_UNCONFIRMED"
   | "CRISIS_CONFIRMED"
   | "HIGH_CONFIRMED"
+  | "HIGH_SINGLE"
   | "LOW_CONFIRMED"
+  | "LOW_SINGLE"
   | "ABOVE_TARGET"
   | "MISSED_PILL"
   | "SILENT"
@@ -52,12 +54,13 @@ export function resultAdvice(args: {
   const tier = tierOf(bp, assessment.target);
   if (evaluation.outcome === "REMEASURE") return tier === "LOW" ? "LOW_UNCONFIRMED" : "HIGH_UNCONFIRMED";
 
+  // A level that raised an alert speaks first ("votre médecin a été informé" is then true).
   const fromLevel = assessment.level === "GREY_SILENT" ? null : byLevel(assessment);
   if (fromLevel && fromLevel !== "ABOVE_TARGET") return fromLevel;
+  // Then this reading itself: a single high or low value is never "un peu au-dessus".
+  if (tier === "CRISIS" || tier === "HIGH") return "HIGH_SINGLE";
+  if (tier === "LOW") return "LOW_SINGLE";
   if (pillStatus === "MISSED") return "MISSED_PILL";
-  if (fromLevel) return fromLevel;
-  if (tier === "CRISIS" || tier === "HIGH") return "HIGH_CONFIRMED";
-  if (tier === "ABOVE_TARGET") return "ABOVE_TARGET";
-  if (tier === "LOW") return "LOW_CONFIRMED";
+  if (fromLevel || tier === "ABOVE_TARGET") return "ABOVE_TARGET";
   return "GREEN";
 }

@@ -1,3 +1,4 @@
+import { isRed } from "@/lib/domain/levels";
 import type { AlertStatus } from "@/lib/domain/types";
 import { ServiceError, type Ctx, type Viewer } from "./context";
 import { refreshPatient } from "./patientState";
@@ -36,7 +37,10 @@ export async function updateAlertStatus(
   if (alert.status === "CLOSED") throw new ServiceError("INVALID", "Alert already closed");
   if (status === "ACKNOWLEDGED" && alert.status === "ACKNOWLEDGED") return alertDto(alert, nameOf.get(alert.patientId) ?? "");
 
-  const updated = await ctx.repo.updateAlert(alert.id, { status, ackAt: alert.ackAt ?? ctx.now });
+  // Red: ackAt keeps the first response time (indicator). Non-red close: ackAt marks the close,
+  // so the same alert only comes back with a newer reading (planAlert).
+  const closesNonRed = status === "CLOSED" && !isRed(alert.level);
+  const updated = await ctx.repo.updateAlert(alert.id, { status, ackAt: closesNonRed ? ctx.now : (alert.ackAt ?? ctx.now) });
   if (status === "CLOSED") {
     const patient = await ctx.repo.getPatient(alert.patientId);
     if (patient) await refreshPatient(ctx, patient);

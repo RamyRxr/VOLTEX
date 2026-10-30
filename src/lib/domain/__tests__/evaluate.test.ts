@@ -143,6 +143,12 @@ describe("evaluateSession — order of spec §6.3", () => {
     });
   });
 
+  it("an earlier re-send never confirms itself (minimum gap, review finding)", () => {
+    const pending = session({ status: "PENDING", avgSys: 185, avgDia: 122, minutesAgo: 0.03 });
+    const out = evaluateSession({ input: web(185, 122), history: [pending], patient: profile(), now: NOW, windowMs: WINDOW, minGapMs: 60_000 });
+    expect(out).toMatchObject({ status: "PENDING", resolved: null });
+  });
+
   it("uses the window it is given (demo mode shortens it)", () => {
     const pending = session({ status: "PENDING", avgSys: 165, avgDia: 100, minutesAgo: 6 });
     const out = evaluateSession({ input: web(166, 101), history: [pending], patient: profile(), now: NOW, windowMs: 5 * MINUTE });

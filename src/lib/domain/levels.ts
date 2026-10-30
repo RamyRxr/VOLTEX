@@ -26,6 +26,8 @@ export interface PendingCrisisItem {
   readonly startedAt: Date;
   /** Still inside the confirmation window. */
   readonly awaiting: boolean;
+  /** The re-measure came back below the crisis threshold (NOT_CONFIRMED). */
+  readonly lowerRemeasure: boolean;
 }
 
 export interface Assessment {
@@ -107,19 +109,33 @@ function repeatedFinding(eps: readonly DomainSession[]): Finding | null {
   return null;
 }
 
+const UNCONFIRMED: ReadonlySet<DomainSession["status"]> = new Set(["PENDING", "EXPIRED", "NOT_CONFIRMED"]);
+
+/**
+ * A crisis value is never hidden: pending, abandoned, or followed by a lower
+ * re-measure, it stays visible until a later valid session (other than its
+ * own re-measure) exists.
+ */
 function pendingCrisisItem(
   sorted: readonly DomainSession[],
   now: Date,
   windowMs: number,
 ): PendingCrisisItem | null {
-  const lastValidAt = validSessions(sorted).at(-1)?.startedAt.getTime() ?? -Infinity;
-  const candidate = [...sorted]
-    .reverse()
-    .find((s) => (s.status === "PENDING" || s.status === "EXPIRED") && isAbove(bpOf(s), CONFIG.crisis));
-  if (!candidate || candidate.startedAt.getTime() < lastValidAt) return null;
+  const candidate = [...sorted].reverse().find((s) => UNCONFIRMED.has(s.status) && isAbove(bpOf(s), CONFIG.crisis));
+  if (!candidate) return null;
+  const superseded = validSessions(sorted).some(
+    (v) => v.startedAt > candidate.startedAt && v.id !== candidate.confirmedBySessionId,
+  );
+  if (superseded) return null;
   const awaiting =
     candidate.status === "PENDING" && now.getTime() - candidate.startedAt.getTime() <= windowMs;
-  return { sessionId: candidate.id, bp: bpOf(candidate), startedAt: candidate.startedAt, awaiting };
+  return {
+    sessionId: candidate.id,
+    bp: bpOf(candidate),
+    startedAt: candidate.startedAt,
+    awaiting,
+    lowerRemeasure: candidate.status === "NOT_CONFIRMED",
+  };
 }
 
 /** spec §6.4–6.5: the patient's level from their sessions. Pure. */

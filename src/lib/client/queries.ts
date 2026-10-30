@@ -1,4 +1,4 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import { CONFIG } from "@/lib/domain/config";
 import type { AlertStatus } from "@/lib/domain/types";
 import type { IndicatorsDto } from "@/lib/services/indicators";
@@ -13,8 +13,22 @@ export const keys = {
   indicators: (weeks: number) => ["indicators", weeks] as const,
 };
 
+/**
+ * The server snapshot a page was rendered with can be newer than a cached poll
+ * (e.g. back on the home screen right after sending a reading): show the newer.
+ */
+function withFreshest<T extends { readonly generatedAt: string }>(query: UseQueryResult<T>, initial: T | undefined): UseQueryResult<T> {
+  const cached = query.data;
+  if (!initial || (cached && Date.parse(cached.generatedAt) >= Date.parse(initial.generatedAt))) return query;
+  return { ...query, data: initial } as UseQueryResult<T>;
+}
+
 /** Triage list, polled every second (spec §4.2). Shared by the page and the red banner. */
 export function useTriage(initial?: TriageDto) {
+  return withFreshest(useTriageQuery(initial), initial);
+}
+
+function useTriageQuery(initial?: TriageDto) {
   return useQuery({
     queryKey: keys.triage,
     queryFn: ({ signal }) => apiGet<TriageDto>("/api/doctor/patients?sort=risk", signal),
@@ -25,21 +39,23 @@ export function useTriage(initial?: TriageDto) {
 }
 
 export function useDoctorPatient(id: string, initial: DoctorPatientView) {
-  return useQuery({
+  const query = useQuery({
     queryKey: keys.doctorPatient(id),
     queryFn: ({ signal }) => apiGet<DoctorPatientView>(`/api/patients/${encodeURIComponent(id)}`, signal),
     refetchInterval: CONFIG.dashboardPollMs,
     initialData: initial,
   });
+  return withFreshest(query, initial);
 }
 
 export function useSelf(id: string, initial: PatientSelfView) {
-  return useQuery({
+  const query = useQuery({
     queryKey: keys.self(id),
     queryFn: ({ signal }) => apiGet<PatientSelfView>(`/api/patients/${encodeURIComponent(id)}`, signal),
     refetchInterval: CONFIG.patientPollMs,
     initialData: initial,
   });
+  return withFreshest(query, initial);
 }
 
 export function useAlerts(status: AlertStatus, initial?: AlertDto[]) {

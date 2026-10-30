@@ -34,7 +34,7 @@ export function TriageRow({ row, index, now }: { row: TriageRowDto; index: numbe
         <span className="row__meta">
           <StatusMark level={row.level} />
           <span className="num">
-            {t("common.age", { n: row.age })} · {row.sex}
+            {t("common.age", { n: row.age })} · {t(`common.sexShort.${row.sex}` as const)}
           </span>
           {row.unconfirmed && <span className="tag tag--key tag--royal">{t("tag.unconfirmed")}</span>}
           {row.silent && row.level !== "GREY_SILENT" && <span className="tag tag--key">{t("tag.silent")}</span>}

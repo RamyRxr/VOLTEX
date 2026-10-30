@@ -83,12 +83,17 @@ les écrans ne changent pas.
   seuil (cible, 160/100 ou 180/120) ; 182/118 puis 150/95 n'est pas une crise.
   Une remesure qui saute au palier crise demande une mesure de plus.
 - **Fenêtre de confirmation en démo** : 5 min (`CONFIG.demoModeSeconds`).
-- **Mesure non confirmée ≥ 180/120** : visible tant qu'aucune mesure valide
-  plus récente n'existe.
+- **Mesure ≥ 180/120 non confirmée** (en attente, abandonnée, ou remesure plus
+  basse) : visible du médecin tant qu'aucune mesure valide plus récente
+  n'existe. *À valider avec un médecin : une remesure à 178/118 doit-elle
+  confirmer la crise ?* (aujourd'hui non, il faut le même palier).
+- **Délai minimal de confirmation** : 60 s (5 s en démo) ; un SMS renvoyé à
+  l'identique dans la minute n'est pas enregistré deux fois.
 - **Alertes** : une alerte par évaluation, celle de la règle qui fixe le
   niveau (les autres règles restent lisibles dans le dossier). Une alerte
-  rouge garde le patient en rouge jusqu'à ce que le médecin la clôture ;
-  une alerte « silencieux » se ferme d'elle-même à la mesure suivante.
+  rouge garde le patient en rouge jusqu'à ce que le médecin la clôture ; une
+  alerte non rouge se ferme d'elle-même quand sa règle ne s'applique plus, et
+  une alerte clôturée ne revient qu'avec une nouvelle mesure.
 - **Pile** : CSS maison conservé (pas Tailwind), graphiques SVG maison (pas
   Recharts), formulaires sans React Hook Form ; Zod partout.
 
