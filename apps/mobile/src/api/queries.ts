@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CONFIG } from "shared";
-import { api } from "./index";
-import type { Answers, PatientProfileInput, SessionInput } from "./types";
+import { CONFIG, type Answers, type ProfileInput, type SessionInput } from "shared";
 import { ME_KEY } from "@/auth/SessionProvider";
+import { ApiError, isApiError } from "./errors";
+import { api } from "./http";
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -16,8 +16,21 @@ export const keys = {
 
 const sinceDays = (days: number) => new Date(Date.now() - days * DAY).toISOString();
 
+/** The API lists newest first; the screens read oldest → newest. */
+const oldestFirst = <T>(at: (row: T) => string) => (rows: T[]) =>
+  [...rows].sort((a, b) => new Date(at(a)).getTime() - new Date(at(b)).getTime());
+
+/** Client errors (4xx) will not change on retry. */
+const retryServerErrors = (count: number, err: unknown) =>
+  !(err instanceof ApiError && err.status >= 400 && err.status < 500) && count < 1;
+
 export function useRisk() {
-  return useQuery({ queryKey: keys.risk, queryFn: () => api.getRisk() });
+  return useQuery({
+    queryKey: keys.risk,
+    // No estimate yet is a normal state, not an error.
+    queryFn: () => api.getRisk().catch((err: unknown) => (isApiError(err, "NOT_FOUND") ? null : Promise.reject(err))),
+    retry: retryServerErrors,
+  });
 }
 
 export function useLink() {
@@ -26,23 +39,35 @@ export function useLink() {
     queryFn: () => api.getLink(),
     // Poll while the doctor has not answered, so the screen updates by itself.
     refetchInterval: (query) => (query.state.data?.status === "PENDING" ? 4_000 : false),
+    retry: retryServerErrors,
   });
 }
 
 export function useSessions(days: number) {
-  return useQuery({ queryKey: keys.sessions(days), queryFn: () => api.listSessions({ from: sinceDays(days) }) });
+  return useQuery({
+    queryKey: keys.sessions(days),
+    queryFn: () => api.listSessions({ from: sinceDays(days) }),
+    select: oldestFirst((s) => s.takenAt),
+    retry: retryServerErrors,
+  });
 }
 
 export function useQuestionnaires(days: number) {
-  return useQuery({ queryKey: keys.questionnaires(days), queryFn: () => api.listQuestionnaires({ from: sinceDays(days) }) });
+  return useQuery({
+    queryKey: keys.questionnaires(days),
+    queryFn: () => api.listQuestionnaires({ from: sinceDays(days) }),
+    select: oldestFirst((q) => q.answeredAt),
+    retry: retryServerErrors,
+  });
 }
 
 export function useDoctorAlerts(status: "OPEN" | "ACKNOWLEDGED") {
   return useQuery({
     queryKey: keys.alerts(status),
-    queryFn: () => api.listDoctorAlerts(status),
+    queryFn: () => api.doctor.listAlerts(status),
     refetchInterval: CONFIG.dashboardPollMs,
     refetchIntervalInBackground: false,
+    retry: retryServerErrors,
   });
 }
 
@@ -69,7 +94,7 @@ export function useAddQuestionnaire() {
 export function useSaveProfile() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: PatientProfileInput) => api.saveProfile(input),
+    mutationFn: (input: ProfileInput) => api.saveProfile(input),
     onSuccess: async ({ risk }) => {
       queryClient.setQueryData(keys.risk, risk);
       await queryClient.invalidateQueries({ queryKey: ME_KEY });
@@ -88,7 +113,7 @@ export function useSubmitLinkCode() {
 export function useUpdateAlert() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, action }: { id: string; action: "ACK" | "CLOSE" }) => api.updateDoctorAlert(id, action),
+    mutationFn: ({ id, action }: { id: string; action: "ACK" | "CLOSE" }) => api.doctor.updateAlert(id, action),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["alerts"] }),
   });
 }

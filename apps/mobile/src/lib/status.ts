@@ -1,5 +1,5 @@
 /** Maps API states to icon + colour + word (spec rule 12). Display only, no rules here. */
-import type { AlertLevel, Level, RiskCategory, SessionStatus } from "@/api/types";
+import type { AlertLevel, Level, RiskCategory, SessionStatus } from "shared";
 import { t } from "@/i18n";
 import { tones, type IconName, type Tone } from "@/theme";
 

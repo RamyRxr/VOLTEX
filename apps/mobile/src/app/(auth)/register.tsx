@@ -1,12 +1,13 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 import { z } from "zod";
-import { ApiError } from "@/api";
+import { errorText } from "@/api";
 import { useSession } from "@/auth/SessionProvider";
-import { AppText, Button, Notice, Screen, ScreenHeader, TextField } from "@/components/ui";
+import { AppText, Button, Card, Notice, Screen, ScreenHeader, TextField } from "@/components/ui";
 import { t } from "@/i18n";
 import { colors, space } from "@/theme";
 
@@ -21,6 +22,8 @@ export default function Register() {
   const router = useRouter();
   const { signUp } = useSession();
   const [error, setError] = useState<string | null>(null);
+  /** Address waiting for its confirmation link (Supabase e-mail confirmation is on). */
+  const [confirmEmail, setConfirmEmail] = useState<string | null>(null);
   const { control, handleSubmit, formState } = useForm<Form>({
     resolver: zodResolver(schema),
     defaultValues: { fullName: "", email: "", password: "" },
@@ -29,12 +32,32 @@ export default function Register() {
   const submit = handleSubmit(async (values) => {
     setError(null);
     try {
-      await signUp(values);
-      router.replace("/");
+      const { confirmEmail: mustConfirm } = await signUp(values);
+      if (mustConfirm) setConfirmEmail(values.email);
+      else router.replace("/");
     } catch (err) {
-      setError(err instanceof ApiError && err.status === 409 ? t("register.exists") : t("common.offline"));
+      setError(errorText(err));
     }
   });
+
+  if (confirmEmail) {
+    return (
+      <Screen
+        header={<ScreenHeader />}
+        footer={<Button size="lg" label={t("register.goLogin")} onPress={() => router.replace("/login")} />}
+      >
+        <Card style={styles.confirm}>
+          <Ionicons name="mail-unread" size={40} color={colors.accent} />
+          <AppText variant="title" align="center" accessibilityRole="header">
+            {t("register.confirmTitle")}
+          </AppText>
+          <AppText align="center" color={colors.textMuted}>
+            {t("register.confirmBody", { email: confirmEmail })}
+          </AppText>
+        </Card>
+      </Screen>
+    );
+  }
 
   return (
     <Screen
@@ -105,4 +128,5 @@ export default function Register() {
 
 const styles = StyleSheet.create({
   head: { gap: space.xs },
+  confirm: { alignItems: "center", gap: space.md, paddingVertical: space.xl },
 });

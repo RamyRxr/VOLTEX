@@ -1,5 +1,5 @@
+import type { ProfileInput } from "shared";
 import { z } from "zod";
-import type { PatientProfile, PatientProfileInput } from "@/api/types";
 import { t } from "@/i18n";
 import { ageInYears, parseIsoDate, pregnancyWeek } from "@/lib/pregnancy";
 
@@ -39,6 +39,7 @@ export type BooleanField = (typeof BOOLEAN_FIELDS)[number];
 export function buildProfileSchema(now: Date) {
   return z
     .object({
+      fullName: z.string().trim().min(2, { error: t("validation.required") }).max(120),
       birthDate: z.string().refine(
         (s) => {
           const age = parseIsoDate(s) ? ageInYears(s, now) : null;
@@ -85,8 +86,9 @@ export function datesOf(v: Pick<ProfileForm, "dateKind" | "pregnancyDate">) {
     : { dueDate: null, lmpDate: v.pregnancyDate };
 }
 
-export function emptyForm(): ProfileForm {
+export function emptyForm(fullName: string): ProfileForm {
   return {
+    fullName,
     birthDate: "",
     phone: "",
     dateKind: "due",
@@ -108,38 +110,20 @@ export function emptyForm(): ProfileForm {
   };
 }
 
-export function formFromProfile(p: PatientProfile): ProfileForm {
-  return {
-    birthDate: p.birthDate,
-    phone: p.phone ?? "",
-    dateKind: p.dueDate ? "due" : "lmp",
-    pregnancyDate: p.dueDate ?? p.lmpDate ?? "",
-    firstPregnancy: p.firstPregnancy,
-    multiplePregnancy: p.multiplePregnancy,
-    ivfPregnancy: p.ivfPregnancy,
-    chronicHypertension: p.chronicHypertension,
-    previousPreeclampsia: p.firstPregnancy ? null : p.previousPreeclampsia,
-    preexistingDiabetes: p.preexistingDiabetes,
-    gestationalDiabetes: p.gestationalDiabetes,
-    kidneyDisease: p.kidneyDisease,
-    autoimmuneDisease: p.autoimmuneDisease,
-    familyPreeclampsia: p.familyPreeclampsia,
-    familyHypertension: p.familyHypertension,
-    heightCm: p.heightCm ? String(p.heightCm) : "",
-    weightKg: p.weightKg ? String(p.weightKg) : "",
-    treatments: p.treatments ?? "",
-  };
-}
-
 const num = (s: string) => (s.trim() === "" ? null : Number(s.trim().replace(",", ".")));
 
-/** Form values → POST /api/patient/profile body. Call only after validation. */
-export function toProfileInput(v: ProfileForm, consentAt: string): PatientProfileInput {
+/** Form values → POST /api/patient/profile body (`profileInputSchema`). Call only after validation. */
+export function toProfileInput(v: ProfileForm): ProfileInput {
   const yes = (field: BooleanField) => v[field] === true;
   const height = num(v.heightCm);
+  const weight = num(v.weightKg);
+  const { dueDate, lmpDate } = datesOf(v);
   return {
+    fullName: v.fullName.trim(),
+    ...(v.phone.trim() !== "" ? { phone: v.phone.trim() } : {}),
     birthDate: v.birthDate,
-    ...datesOf(v),
+    ...(dueDate ? { dueDate } : {}),
+    ...(lmpDate ? { lmpDate } : {}),
     firstPregnancy: yes("firstPregnancy"),
     multiplePregnancy: yes("multiplePregnancy"),
     ivfPregnancy: yes("ivfPregnancy"),
@@ -151,10 +135,9 @@ export function toProfileInput(v: ProfileForm, consentAt: string): PatientProfil
     autoimmuneDisease: yes("autoimmuneDisease"),
     familyPreeclampsia: yes("familyPreeclampsia"),
     familyHypertension: yes("familyHypertension"),
-    heightCm: height === null ? null : Math.round(height),
-    weightKg: num(v.weightKg),
-    treatments: v.treatments.trim() === "" ? null : v.treatments.trim(),
-    phone: v.phone.trim() === "" ? null : v.phone.trim(),
-    consentAt,
+    ...(height !== null ? { heightCm: Math.round(height) } : {}),
+    ...(weight !== null ? { weightKg: weight } : {}),
+    ...(v.treatments.trim() !== "" ? { treatments: v.treatments.trim() } : {}),
+    consent: true,
   };
 }

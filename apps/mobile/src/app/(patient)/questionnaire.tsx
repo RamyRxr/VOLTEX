@@ -1,23 +1,20 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
+import { patientEvaluation, type Answers } from "shared";
 import { useAddQuestionnaire } from "@/api/queries";
-import type { Evaluation } from "@/api/types";
 import { AppText, Button, Notice, Screen, ScreenHeader, YesNo } from "@/components/ui";
+import { ENV } from "@/config/env";
 import { recordResult } from "@/features/result/record";
 import { t } from "@/i18n";
 import { ALL_ITEMS, hasDangerAnswer, isDangerItem, type QuestionnaireItem } from "@/lib/questionnaireItems";
 import { colors, radius, space } from "@/theme";
 
-/** Shown by the phone itself if a danger sign was ticked but the API is unreachable. */
-const OFFLINE_EMERGENCY: Evaluation = {
-  level: "EMERGENCY",
-  patientWord: t("level.EMERGENCY"),
-  icon: "EMERGENCY",
-  color: "EMERGENCY",
-  message: t("consent.emergency.body"),
-  action: "CALL_EMERGENCY",
-};
+/**
+ * Shown by the phone itself if a danger sign was ticked but the API is unreachable:
+ * the API's own emergency screen (same words), never a lower level.
+ */
+const OFFLINE_EMERGENCY = patientEvaluation({ level: "EMERGENCY" }, { demoMode: ENV.demoMode });
 
 export default function QuestionnaireScreen() {
   const router = useRouter();
@@ -30,7 +27,7 @@ export default function QuestionnaireScreen() {
 
   const submit = async () => {
     setFailed(false);
-    const payload = Object.fromEntries(ALL_ITEMS.map((item) => [item, answers[item] === true]));
+    const payload = Object.fromEntries(ALL_ITEMS.map((item) => [item, answers[item] === true])) as Answers;
     try {
       const { evaluation } = await add.mutateAsync(payload);
       await recordResult(evaluation, "QUESTIONNAIRE", null);

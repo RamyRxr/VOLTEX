@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSyncExternalStore } from "react";
-import type { Evaluation } from "@/api/types";
+import type { EvaluationDto as Evaluation } from "shared";
 
 /**
  * The last evaluation the API returned, kept on the phone so the home screen and the

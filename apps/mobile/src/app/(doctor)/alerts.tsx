@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDoctorAlerts, useUpdateAlert } from "@/api/queries";
-import type { DoctorAlert } from "@/api/types";
+import type { AlertListItem as DoctorAlert } from "shared";
 import { useMe } from "@/auth/SessionProvider";
 import { AppText, Button, Card, EmptyState, ErrorState, Loading, Notice, Segmented, StatusBadge } from "@/components/ui";
 import { ENV } from "@/config/env";
@@ -121,14 +121,7 @@ function AlertCard({ alert, now }: { readonly alert: DoctorAlert; readonly now: 
             {formatAgo(alert.createdAt, now)}
           </AppText>
         </View>
-        <AppText variant="heading">
-          {alert.patientName}
-          {alert.pregnancyWeek !== null ? (
-            <AppText variant="body" color={colors.textMuted}>
-              {` · ${t("common.weekShort", { n: alert.pregnancyWeek })}`}
-            </AppText>
-          ) : null}
-        </AppText>
+        <AppText variant="heading">{alert.patientName}</AppText>
         <AppText color={colors.textMuted}>{alert.reason}</AppText>
         {alert.status === "OPEN" ? (
           <Button

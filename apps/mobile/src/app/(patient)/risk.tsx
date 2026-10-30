@@ -2,7 +2,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StyleSheet, View } from "react-native";
 import { useRisk } from "@/api/queries";
-import type { RiskFactor } from "@/api/types";
+import type { RiskDto } from "shared";
 import { AppText, Button, Card, ErrorState, Loading, Notice, Screen, ScreenHeader, StatusBadge } from "@/components/ui";
 import { t } from "@/i18n";
 import { formatAgo } from "@/lib/format";
@@ -44,9 +44,11 @@ export default function RiskScreen() {
             <AppText variant="bodyStrong" align="center">
               {t("risk.disclaimer")}
             </AppText>
-            <AppText variant="caption" color={colors.textSubtle} align="center">
-              {t("risk.updated", { when: formatAgo(risk.data.createdAt, new Date()) })}
-            </AppText>
+            {risk.data.createdAt ? (
+              <AppText variant="caption" color={colors.textSubtle} align="center">
+                {t("risk.updated", { when: formatAgo(risk.data.createdAt, new Date()) })}
+              </AppText>
+            ) : null}
           </Card>
 
           {risk.data.category === "LOW" ? <Notice tone="ok">{t("risk.lowNote")}</Notice> : null}
@@ -75,7 +77,7 @@ export default function RiskScreen() {
   );
 }
 
-function FactorGroup({ title, factors, strong }: { readonly title: string; readonly factors: readonly RiskFactor[]; readonly strong?: boolean }) {
+function FactorGroup({ title, factors, strong }: { readonly title: string; readonly factors: readonly RiskDto["factors"][number][]; readonly strong?: boolean }) {
   if (factors.length === 0) return null;
   const color = strong ? colors.high : colors.watch;
   return (

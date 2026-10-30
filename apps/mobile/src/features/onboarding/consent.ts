@@ -1,13 +1,13 @@
 /**
- * Consent is given before the profile exists, and sent with the first profile save
- * (Patient.consentAt, spec §4.1.1). Kept in memory between the two screens.
+ * Consent is given on its own screen before the profile exists, then sent as `consent: true`
+ * with the first profile save; the API stores consentAt (spec §4.1.1). Kept in memory between the two screens.
  */
-let consentAt: string | null = null;
+let given = false;
 
-export function recordConsent(now: Date): void {
-  consentAt = now.toISOString();
+export function recordConsent(): void {
+  given = true;
 }
 
-export function getConsentAt(): string | null {
-  return consentAt;
+export function hasConsent(): boolean {
+  return given;
 }

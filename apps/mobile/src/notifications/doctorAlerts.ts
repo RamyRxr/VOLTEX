@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useRef, useSyncExternalStore } from "react";
-import type { DoctorAlert } from "@/api/types";
+import type { AlertListItem as DoctorAlert } from "shared";
 import { useDoctorAlerts } from "@/api/queries";
 import { t } from "@/i18n";
 import { doctorLevelStatus, isUrgentAlert } from "@/lib/status";
