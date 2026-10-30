@@ -120,27 +120,34 @@
 /* Chart */
 .segmented {
   display: inline-flex;
-  padding: 3px;
-  background: var(--surface-sunken);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
 }
 
 .segmented button {
   min-height: 30px;
   padding: 0 var(--space-3);
   border: 0;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--text-2);
+  border-left: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-3);
   font-size: var(--text-xs);
-  font-weight: 650;
+  font-weight: 600;
   cursor: pointer;
 }
 
-.segmented button[aria-pressed="true"] {
-  background: var(--surface);
+.segmented button:first-child {
+  border-left: 0;
+}
+
+.segmented button:hover {
+  background: var(--surface-hover);
   color: var(--text);
-  box-shadow: var(--shadow-sm);
+}
+
+.segmented button[aria-pressed="true"] {
+  color: var(--navy);
+  font-weight: 700;
+  box-shadow: inset 0 -2px 0 var(--navy);
 }
 
 .chart {
@@ -342,13 +349,11 @@
 }
 
 .history li {
-  padding: 3px 10px;
+  padding: 2px 8px;
   border: 1px solid var(--warning-edge);
-  border-radius: 999px;
-  background: var(--warning-bg);
   color: var(--warning);
   font-size: var(--text-xs);
-  font-weight: 650;
+  font-weight: 600;
 }
 
 .treatments {
@@ -358,7 +363,12 @@
 
 /* Right rail */
 .summary {
-  background: linear-gradient(180deg, var(--accent-soft), var(--surface) 140px);
+  border-top: 2px solid var(--rule-gold);
+}
+
+.summaryText {
+  color: var(--text);
+  font-size: var(--text-base);
 }
 
 .summary h2,
@@ -370,7 +380,7 @@
 
 .aiLabel {
   margin-bottom: var(--space-2);
-  color: var(--accent);
+  color: var(--text-3);
   font-size: var(--text-xs);
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -398,8 +408,12 @@
 }
 
 .notes li {
-  padding-left: var(--space-3);
-  border-left: 3px solid var(--accent-soft);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.notes li:last-child {
+  border-bottom: 0;
 }
 
 .notes p {

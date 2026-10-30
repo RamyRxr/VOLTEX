@@ -49,10 +49,7 @@ export function LoginForm() {
   return (
     <main id="contenu" className={styles.page}>
       <section className={styles.card} aria-labelledby="login-title">
-        <div className={styles.brand}>
-          <span className={styles.mark} aria-hidden />
-          {fr.app.name}
-        </div>
+        <div className={styles.brand}>{fr.app.name}</div>
         <h1 id="login-title">{fr.login.title}</h1>
         <p className={styles.subtitle}>{fr.login.subtitle}</p>
         <form onSubmit={submit} className={styles.form} noValidate>

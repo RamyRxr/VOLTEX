@@ -78,7 +78,6 @@ function Sidebar() {
   return (
     <aside className={styles.sidebar}>
       <Link href="/d" className={styles.brand}>
-        <span className={styles.mark} aria-hidden />
         <span className={styles.brandText}>{fr.app.name}</span>
       </Link>
       <nav aria-label={fr.nav.menu} className={styles.nav}>

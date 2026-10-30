@@ -16,25 +16,19 @@
 }
 
 .brand {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: 0 var(--space-2);
-  margin-bottom: var(--space-6);
-  color: var(--accent);
-  font-weight: 700;
-  font-size: var(--text-lg);
+  display: block;
+  padding: 0 var(--space-3) var(--space-4);
+  margin-bottom: var(--space-5);
+  border-bottom: 1px solid var(--border);
+  color: var(--navy);
+  font-family: var(--font-serif);
+  font-size: 1.625rem;
+  font-weight: 400;
+  line-height: 1;
 }
 
 .brand:hover {
   text-decoration: none;
-}
-
-.mark {
-  width: 24px;
-  height: 24px;
-  border-radius: 7px;
-  background: linear-gradient(135deg, var(--accent), var(--focus));
 }
 
 .nav {
@@ -46,24 +40,26 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  min-height: 42px;
+  min-height: 40px;
   padding: 0 var(--space-3);
-  border-radius: var(--radius-sm);
   color: var(--text-2);
-  font-weight: 600;
+  font-weight: 500;
   font-size: var(--text-sm);
-  transition: background var(--duration) var(--ease);
+  transition:
+    background var(--duration) var(--ease),
+    color var(--duration) var(--ease);
 }
 
 .navLink:hover {
-  background: var(--surface-sunken);
-  color: var(--text);
+  background: var(--surface-hover);
+  color: var(--navy);
   text-decoration: none;
 }
 
 .navLink[aria-current="page"] {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--surface-sunken);
+  color: var(--navy);
+  font-weight: 700;
 }
 
 .navLink span:nth-child(2) {
@@ -72,18 +68,18 @@
 
 .count {
   min-width: 22px;
-  padding: 1px 7px;
-  border-radius: 999px;
-  background: var(--surface-sunken);
+  padding: 0 6px;
+  border: 1px solid var(--border-strong);
   color: var(--text-2);
   font-size: var(--text-xs);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
   text-align: center;
 }
 
 .countUrgent {
-  background: var(--danger);
-  color: #fff;
+  border-color: var(--danger-edge);
+  color: var(--danger);
 }
 
 .footer {
@@ -111,9 +107,8 @@
   flex: none;
   width: 34px;
   height: 34px;
-  border-radius: 50%;
-  background: var(--accent-soft);
-  color: var(--accent);
+  border: 1px solid var(--border-strong);
+  color: var(--navy);
   font-size: var(--text-xs);
   font-weight: 700;
 }

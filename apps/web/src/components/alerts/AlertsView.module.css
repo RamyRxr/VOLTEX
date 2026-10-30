@@ -21,9 +21,8 @@
   border-bottom: 0;
 }
 
-.urgent {
-  background: #fff7f5;
-  box-shadow: inset 4px 0 0 var(--danger);
+.urgent .patient {
+  color: var(--danger);
 }
 
 .body {
@@ -32,10 +31,10 @@
 }
 
 .patient {
-  color: var(--text);
+  color: var(--navy);
   font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  font-weight: 600;
+  font-size: 1.1875rem;
+  font-weight: 400;
 }
 
 .actions {
