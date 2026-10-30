@@ -1,13 +1,14 @@
 import { describeFinding, describeReason } from "@/lib/domain/describe";
 import { isRed, SEVERITY } from "@/lib/domain/levels";
 import { validSessions } from "@/lib/domain/session";
+import { sameDay } from "@/lib/format";
 import type { AlertRow } from "@/lib/store/types";
 import { toDomainSession, type Ctx } from "./context";
 import { loadPatientState, type PatientState } from "./patientState";
+import { GROUP_ORDER } from "./triageOrder";
 import { alertDto, type TriageDto, type TriageGroup, type TriageRowDto } from "./views";
 
-/** spec §6.6 sort order. */
-export const GROUP_ORDER: readonly TriageGroup[] = ["EMERGENCY", "CRISIS", "ORANGE", "YELLOW", "UNCONFIRMED", "SILENT", "GREEN"];
+export { GROUP_ORDER };
 
 function groupOf(state: PatientState): TriageGroup {
   switch (state.level) {
@@ -58,7 +59,6 @@ function rowOf(state: PatientState, name: string): TriageRowDto {
     adherence: a.adherence,
     spark: validSessions(state.sessions.map(toDomainSession)).slice(-10).map((s) => s.avgSys),
     alert: alert ? { id: alert.id, level: alert.level, status: alert.status, createdAt: alert.createdAt.toISOString() } : null,
-    followUp: SEVERITY[state.level] <= SEVERITY.ORANGE || Boolean(a.trend?.rising),
   };
 }
 
@@ -87,14 +87,13 @@ export async function getTriage(ctx: Ctx, doctorId: string): Promise<TriageDto> 
   const rows = states.map((s) => rowOf(s, nameOf.get(s.patient.id) ?? "")).sort(compareRows);
   const counts = Object.fromEntries(GROUP_ORDER.map((g) => [g, rows.filter((r) => r.group === g).length])) as Record<TriageGroup, number>;
 
-  const dayStart = new Date(ctx.now);
-  dayStart.setHours(0, 0, 0, 0);
-  const receivedToday = states.reduce((n, s) => n + s.sessions.filter((x) => x.startedAt >= dayStart).length, 0);
+  const receivedToday = states.reduce((n, s) => n + s.sessions.filter((x) => sameDay(x.startedAt, ctx.now)).length, 0);
+  const doctor = await ctx.repo.getDoctor(doctorId);
 
   const openRedAlerts = states
     .flatMap((s) => s.alerts.filter((a) => a.status === "OPEN" && isRed(a.level)))
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
     .map((a) => alertDto(a, nameOf.get(a.patientId) ?? ""));
 
-  return { rows, counts, receivedToday, openRedAlerts, generatedAt: ctx.now.toISOString() };
+  return { rows, counts, receivedToday, openRedAlerts, digestTime: doctor?.digestTime ?? "", generatedAt: ctx.now.toISOString() };
 }

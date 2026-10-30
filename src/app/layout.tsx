@@ -1,5 +1,9 @@
-import type { Metadata } from "next";
-import { Instrument_Serif, Archivo } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Archivo, Instrument_Serif } from "next/font/google";
+import { QueryProvider } from "@/components/ui/QueryProvider";
+import { currentSession } from "@/lib/auth/server";
+import { isDemoMode } from "@/lib/demo";
+import { dirOf, htmlLang, t } from "@/lib/i18n";
 import "./globals.css";
 
 const serif = Instrument_Serif({
@@ -18,17 +22,32 @@ const grotesque = Archivo({
 });
 
 export const metadata: Metadata = {
-  title: "TensioCare — Registre de suivi tensionnel",
-  description:
-    "Suivi continu de la tension artérielle entre deux consultations. La technologie aide, le médecin décide.",
+  title: `${t("app.name")} — ${t("app.tagline")}`,
+  description: t("cover.lede"),
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#0c1233",
+};
+
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const lang = (await currentSession())?.lang ?? "FR";
   return (
-    <html lang="fr" className={`${serif.variable} ${grotesque.variable}`}>
-      <body>{children}</body>
+    <html lang={htmlLang(lang)} dir={dirOf(lang)} className={`${serif.variable} ${grotesque.variable}`}>
+      <body>
+        <a href="#contenu" className="skip-link">
+          {t("common.skip")}
+        </a>
+        {isDemoMode() && (
+          <div className="demo-strip" role="note">
+            <i aria-hidden />
+            {t("demo.banner")}
+          </div>
+        )}
+        <QueryProvider>{children}</QueryProvider>
+      </body>
     </html>
   );
 }

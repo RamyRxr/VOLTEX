@@ -1,13 +1,15 @@
-import { Masthead } from "@/components/Masthead";
+import { RedAlertBanner } from "@/components/doctor/RedAlertBanner";
 import { Footer } from "@/components/Footer";
+import { Masthead } from "@/components/Masthead";
+import { doctorPage } from "@/lib/auth/server";
 
-export default function DoctorLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default async function DoctorLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const { claims } = await doctorPage("/d");
   return (
     <div className="shell">
-      <Masthead role="doctor" who="Dr. Amine Benali" initials="AB" />
-      <main className="page">
+      <Masthead role="doctor" who={claims.name} />
+      <RedAlertBanner />
+      <main className="page" id="contenu">
         {children}
         <Footer />
       </main>

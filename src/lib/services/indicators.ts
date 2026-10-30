@@ -1,8 +1,9 @@
 import { computeIndicators, type Indicators } from "@/lib/domain/indicators";
 import { ServiceError, toDomainSession, toProfile, windowMs, type Ctx, type Viewer } from "./context";
 
-export const INDICATOR_PERIODS = [4, 8, 12] as const;
-export type IndicatorPeriod = (typeof INDICATOR_PERIODS)[number];
+import type { IndicatorPeriod } from "./indicatorPeriods";
+
+export { INDICATOR_PERIODS, type IndicatorPeriod } from "./indicatorPeriods";
 
 export interface IndicatorsDto {
   readonly weeks: readonly { readonly start: string; readonly end: string }[];

@@ -1,0 +1,482 @@
+/* ==========================================================================
+   Patient screens, sign-in and the SMS simulator, then the responsive and
+   print rules for every screen added on top of "Le Registre". Loaded last.
+   ========================================================================== */
+
+/* --------------------------------------------------------------- cover -- */
+.cover__between {
+  font-size: 17px;
+  color: var(--ink-3);
+}
+
+.cover__rule {
+  width: 42px;
+  height: 1px;
+  background: var(--gold-2);
+}
+
+/* ------------------------------------------------------------- patient -- */
+.stage__title {
+  font-size: clamp(34px, 4vw, 54px);
+  margin: 12px 0 18px;
+}
+
+.pstatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--c);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.pstatus--large {
+  gap: 12px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 40px;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+.status-hero__word .pstatus,
+.result__word .pstatus {
+  color: var(--c);
+}
+
+.doctor-note {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--royal);
+  background: color-mix(in srgb, var(--royal) 5%, var(--paper));
+}
+
+.doctor-note__body {
+  margin: 6px 0 4px;
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.mini__v small {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.phone-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.phone-links .toggle {
+  display: grid;
+  place-items: center;
+}
+
+.phone__tip {
+  margin-top: 16px;
+  line-height: 1.6;
+}
+
+.safety {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 18px 0 0;
+  font-size: 11.5px;
+  color: var(--crimson);
+}
+
+.toggle,
+.sym {
+  min-height: 44px;
+}
+
+.toggle-row--3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.choice {
+  border: 0;
+  margin: 22px 0 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.choice legend {
+  width: 100%;
+  padding: 0;
+}
+
+.choice .phone__section-head {
+  flex-wrap: wrap;
+}
+
+/* touch screens have no hover: the last tapped stepper button must not stay blue */
+@media (hover: none) {
+  .stepper__btn:hover {
+    background: transparent;
+    border-color: var(--line-strong);
+    color: var(--ink-2);
+  }
+  .stepper__btn:active {
+    background: var(--royal);
+    border-color: var(--royal);
+    color: var(--paper);
+  }
+}
+
+.guidance__title {
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+
+.guidance__list {
+  margin: 0;
+  padding-inline-start: 18px;
+}
+
+.reading-title {
+  margin: 20px 0 6px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+}
+
+.first-reading {
+  margin: 16px 0 0;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  background: var(--paper-2);
+  font-size: 12.5px;
+}
+
+.stepper[data-disabled="true"] {
+  opacity: 0.45;
+}
+
+.stepper__btn:disabled {
+  cursor: not-allowed;
+}
+
+.stepper__value {
+  display: block;
+}
+
+.stepper-hint {
+  margin: 8px 0 0;
+  letter-spacing: 0.08em;
+}
+
+.countdown {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 14px 0;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.countdown__n {
+  font-family: var(--font-display);
+  font-size: 46px;
+  line-height: 1;
+  color: var(--royal);
+  min-width: 2ch;
+}
+
+.ready {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border: 1px solid var(--emerald);
+  color: var(--emerald);
+  font-size: 12.5px;
+}
+
+.danger-panel {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--crimson);
+  color: #fdf8ec;
+}
+
+.danger-panel__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 26px;
+}
+
+.danger-panel__body {
+  margin: 6px 0 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.call14--big {
+  padding: 20px;
+  font-size: 17px;
+}
+
+.result__word--sm {
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.result__word:focus {
+  outline: none;
+}
+
+.result__next {
+  margin-top: 14px;
+}
+
+.result__next .toggle {
+  display: grid;
+  place-items: center;
+}
+
+.cta--ghost {
+  background: transparent;
+  color: var(--royal);
+  box-shadow: none;
+}
+
+.cta--ghost:hover {
+  background: var(--paper-2);
+}
+
+.cta__sub {
+  display: block;
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.sms-fallback {
+  margin-top: 14px;
+}
+
+.sms-fallback .micro {
+  margin-top: 6px;
+  display: block;
+  line-height: 1.5;
+}
+
+.chart-frame--phone {
+  margin-top: 14px;
+  padding: 8px 4px 4px;
+}
+
+/* ---------------------------------------------------------------- auth -- */
+.auth {
+  min-height: 100vh;
+  padding: 28px;
+  display: grid;
+  place-items: center;
+}
+
+.auth__frame {
+  width: 100%;
+  max-width: 980px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 56px;
+  align-items: center;
+  border: 1px solid var(--line-strong);
+  padding: 40px;
+  background: var(--paper);
+  box-shadow: 6px 6px 0 rgba(22, 24, 31, 0.05);
+}
+
+.auth__word {
+  font-size: clamp(54px, 8vw, 96px);
+  margin: 10px 0 20px;
+}
+
+.auth__title {
+  margin: 0 0 4px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 28px;
+}
+
+.auth__form .sub {
+  margin-bottom: 16px;
+}
+
+.auth__form .field input,
+.auth__form .field select {
+  min-height: 44px;
+  font-size: 15px;
+}
+
+.auth__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 6px 0 12px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.checkbox input {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  accent-color: var(--royal);
+}
+
+.auth__demo {
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 8px;
+}
+
+.demo-account {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  text-align: start;
+}
+
+.demo-account:hover {
+  border-color: var(--royal);
+}
+
+.demo-account__name {
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+
+/* ----------------------------------------------------------- simulator -- */
+.sim {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: 420px minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+
+.sim__exchange {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  gap: 6px;
+}
+
+.sim__reply {
+  max-width: 100%;
+}
+
+.error-page {
+  max-width: 640px;
+}
+
+/* ----------------------------------------------------------- responsive -- */
+@media (max-width: 1180px) {
+  .figures--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sim {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 860px) {
+  .auth__frame {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding: 24px;
+  }
+}
+
+@media (max-width: 760px) {
+  /* a real phone: the patient page fills the screen, no laptop framing */
+  .stage {
+    padding: 0;
+    gap: 0;
+  }
+  .stage__note {
+    display: none;
+  }
+  .phone {
+    width: 100%;
+    border: 0;
+    box-shadow: none;
+  }
+  .phone__body {
+    padding: 18px 16px 32px;
+  }
+  /* the doctor keeps navigation on a phone */
+  .masthead__inner {
+    height: auto;
+    flex-wrap: wrap;
+    row-gap: 4px;
+    padding-block: 8px;
+  }
+  .nav {
+    display: flex;
+    order: 3;
+    width: 100%;
+    margin: 0;
+    overflow-x: auto;
+  }
+  .masthead__logout span {
+    display: none;
+  }
+  .chip,
+  .btn {
+    min-height: 44px;
+  }
+  .figures--4,
+  .figures--2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .auth {
+    padding: 0;
+  }
+  .auth__frame {
+    border: 0;
+    box-shadow: none;
+    padding: 20px 16px;
+  }
+  .alert-block__decision {
+    margin-inline-start: 0;
+    width: 100%;
+  }
+}
+
+@media print {
+  .demo-strip,
+  .skip-link,
+  .redbanner,
+  .crumbs,
+  .alert-block__actions {
+    display: none !important;
+  }
+  .readings tr {
+    break-inside: avoid;
+  }
+  .row[data-fresh="true"] {
+    animation: none;
+  }
+}

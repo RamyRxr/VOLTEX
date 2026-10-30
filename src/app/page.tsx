@@ -1,83 +1,59 @@
 import Link from "next/link";
+import { Icon } from "@/components/ui/Icon";
+import { t } from "@/lib/i18n";
 
-function Arrow() {
+function Door({ href, no, title, desc }: { href: string; no: string; title: string; desc: string }) {
   return (
-    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden>
-      <path d="M4 13h18M15 6l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <Link href={href} className="door">
+      <span className="door__no">{no}</span>
+      <span className="door__title">
+        {title}
+        <Icon name="arrow-right" size={26} />
+      </span>
+      <span className="door__desc">{desc}</span>
+    </Link>
   );
 }
 
 export default function CoverPage() {
   return (
-    <main className="cover">
+    <main className="cover" id="contenu">
       <div className="cover__frame">
         <div className="cover__top">
           <div className="seal-stamp" aria-hidden>
             <span>TC</span>
           </div>
           <div className="cover__head">
-            <span className="eyebrow">Dossier</span>
-            <span>N° 02 — Hypertension artérielle</span>
-            <span className="eyebrow">Terrain</span>
-            <span>Algérie · médecine de ville</span>
-            <span className="eyebrow">Nature</span>
-            <span>Démonstration · données synthétiques</span>
+            <span className="eyebrow">{t("cover.file")}</span>
+            <span>{t("cover.fileValue")}</span>
+            <span className="eyebrow">{t("cover.field")}</span>
+            <span>{t("cover.fieldValue")}</span>
+            <span className="eyebrow">{t("cover.nature")}</span>
+            <span>{t("cover.natureValue")}</span>
           </div>
         </div>
 
         <div className="cover__mid">
-          <p className="eyebrow eyebrow--gold">Registre de suivi tensionnel</p>
+          <p className="eyebrow eyebrow--gold">{t("app.tagline")}</p>
           <h1 className="cover__word">
             Tensio<em>Care</em>
           </h1>
-
           <div className="cover__sub">
-            <span className="display" style={{ fontSize: 17, color: "var(--ink-3)" }}>
-              Entre deux consultations
-            </span>
-            <span style={{ width: 42, height: 1, background: "var(--gold-2)" }} aria-hidden />
-            <span className="eyebrow">Web · SMS · 30 secondes</span>
+            <span className="display cover__between">{t("cover.between")}</span>
+            <span className="cover__rule" aria-hidden />
+            <span className="eyebrow">{t("cover.channels")}</span>
           </div>
-
-          <p className="cover__lede">
-            Le mois de silence entre deux consultations, mis en registre.
-            La machine surveille. Le médecin décide.
-          </p>
+          <p className="cover__lede">{t("cover.lede")}</p>
         </div>
 
         <div className="cover__doors">
-          <Link href="/doctor" className="door">
-            <span className="door__no">01</span>
-            <span className="door__title">
-              Espace médecin
-              <Arrow />
-            </span>
-            <span className="door__desc">
-              Triage du jour, tendances sur quatorze jours, observance et
-              messages. Trente patients, un seul registre.
-            </span>
-          </Link>
-
-          <Link href="/patient" className="door">
-            <span className="door__no">02</span>
-            <span className="door__title">
-              Espace patient
-              <Arrow />
-            </span>
-            <span className="door__desc">
-              Une mesure en trente secondes, sans compte et sans application à
-              installer. Le médecin est prévenu si nécessaire.
-            </span>
-          </Link>
+          <Door href="/d" no="01" title={t("cover.doctor")} desc={t("cover.doctorDesc")} />
+          <Door href="/p" no="02" title={t("cover.patient")} desc={t("cover.patientDesc")} />
         </div>
 
         <div className="cover__foot">
-          <span>
-            Hackathon · Problème 2 — détection précoce et suivi continu de
-            l&apos;hypertension
-          </span>
-          <span className="num">TensioCare · v0.1</span>
+          <span>{t("cover.foot")}</span>
+          <span className="num">{t("app.version")}</span>
         </div>
       </div>
     </main>
