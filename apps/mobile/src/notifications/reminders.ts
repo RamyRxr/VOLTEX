@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import { t } from "@/i18n";
-import { CHANNELS, ensurePermission, supported } from "./setup";
+import { channelId, CHANNELS, ensurePermission, supported } from "./setup";
 
 /** Local reminders (CLAUDE.md §4.1.10): BP morning and evening, questionnaire daily. */
 export type ReminderKind = "bpMorning" | "bpEvening" | "questionnaire";
@@ -58,6 +58,7 @@ export async function applyReminders(settings: ReminderSettings): Promise<boolea
     return true;
   }
   if (!(await ensurePermission())) return false;
+  const channel = await channelId(CHANNELS.reminders);
   const ids = await Promise.all(
     wanted.map((kind) =>
       Notifications.scheduleNotificationAsync({
@@ -66,7 +67,7 @@ export async function applyReminders(settings: ReminderSettings): Promise<boolea
           type: Notifications.SchedulableTriggerInputTypes.DAILY,
           hour: settings[kind].hour,
           minute: settings[kind].minute,
-          channelId: CHANNELS.reminders,
+          channelId: channel,
         },
       }),
     ),
