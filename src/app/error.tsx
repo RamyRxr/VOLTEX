@@ -11,7 +11,7 @@ export default function ErrorPage({ reset }: { error: Error; reset: () => void }
       <h1 className="title">{t("common.error")}</h1>
       <div className="alert-block__actions">
         <button type="button" className="btn btn--royal" onClick={reset}>
-          {t("result.again")}
+          {t("common.retry")}
         </button>
         <Link href="/" className="btn btn--ghost">
           {t("common.home")}

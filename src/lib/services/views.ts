@@ -76,8 +76,6 @@ export interface TriageDto {
   readonly counts: Readonly<Record<TriageGroup, number>>;
   readonly receivedToday: number;
   readonly openRedAlerts: readonly AlertDto[];
-  /** Daily digest time of the doctor ("08:00"). */
-  readonly digestTime: string;
   readonly generatedAt: string;
 }
 

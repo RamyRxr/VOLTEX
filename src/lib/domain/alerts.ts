@@ -1,4 +1,4 @@
-import type { Assessment, Finding } from "./levels";
+import { isRed, type Assessment, type Finding } from "./levels";
 import type { AlertEvidence, AlertLevel, AlertStatus } from "./types";
 
 export const EVIDENCE_OF: Record<Finding["kind"], AlertEvidence> = {
@@ -35,6 +35,9 @@ export interface ExistingAlert {
   readonly evidence: AlertEvidence;
   readonly sessionId: string | null;
   readonly status: AlertStatus;
+  readonly createdAt: Date;
+  /** For a non-red alert the doctor closed, the closing time. */
+  readonly ackAt: Date | null;
 }
 
 export type AlertPlan =
@@ -46,22 +49,38 @@ export type AlertPlan =
  * De-duplicate (CLAUDE.md §6.7): at most one unresolved alert per patient per
  * level and evidence; update it instead of stacking. A new triggering session
  * after the doctor acknowledged the previous one is a new event: create.
+ * An alert the doctor closed comes back only with a reading newer than the close.
  */
-export function planAlert(candidate: AlertCandidate, existing: readonly ExistingAlert[]): AlertPlan {
-  const same = existing.filter(
-    (a) => a.status !== "CLOSED" && a.level === candidate.level && a.evidence === candidate.evidence,
-  );
+export function planAlert(
+  candidate: AlertCandidate,
+  existing: readonly ExistingAlert[],
+  latestSessionAt: Date | null,
+): AlertPlan {
+  const same = existing.filter((a) => a.level === candidate.level && a.evidence === candidate.evidence);
   const open = same.find((a) => a.status === "OPEN");
   if (open) return { action: "update", alertId: open.id };
 
   const acknowledged = same.find((a) => a.status === "ACKNOWLEDGED");
-  if (!acknowledged) return { action: "create" };
-  if (candidate.sessionId && acknowledged.sessionId !== candidate.sessionId) return { action: "create" };
-  return { action: "update", alertId: acknowledged.id };
+  if (acknowledged) {
+    if (candidate.sessionId && acknowledged.sessionId !== candidate.sessionId) return { action: "create" };
+    return { action: "update", alertId: acknowledged.id };
+  }
+
+  const closedByDoctorSinceLastReading = same.some(
+    (a) => a.status === "CLOSED" && a.ackAt != null && (latestSessionAt == null || latestSessionAt <= a.ackAt),
+  );
+  return closedByDoctorSinceLastReading ? { action: "none" } : { action: "create" };
 }
 
-/** A silence alert is over once the patient measures again. */
-export function silenceAlertsToClose(existing: readonly ExistingAlert[], assessment: Assessment): string[] {
-  if (assessment.silence.silent) return [];
-  return existing.filter((a) => a.evidence === "SILENCE" && a.status !== "CLOSED").map((a) => a.id);
+const keyOf = (level: AlertLevel, evidence: AlertEvidence) => `${level}|${evidence}`;
+
+/**
+ * Non-red alerts whose rule no longer matches are resolved automatically
+ * (silence ended, average back in target…). Red alerts wait for the doctor.
+ */
+export function resolvedAlerts(existing: readonly ExistingAlert[], assessment: Assessment): string[] {
+  const current = new Set(assessment.findings.map((f) => keyOf(f.level, EVIDENCE_OF[f.kind])));
+  return existing
+    .filter((a) => a.status !== "CLOSED" && !isRed(a.level) && !current.has(keyOf(a.level, a.evidence)))
+    .map((a) => a.id);
 }

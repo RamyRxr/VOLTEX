@@ -3,7 +3,7 @@ import { evaluateSession, type SessionEvaluation } from "@/lib/domain/evaluate";
 import { toPatientStatus, type Assessment, type PatientStatus } from "@/lib/domain/levels";
 import type { Channel, PillStatus, SymptomType } from "@/lib/domain/types";
 import type { PatientRow, SessionWithDetails } from "@/lib/store/types";
-import { ServiceError, toDomainSession, windowMs, type Ctx } from "./context";
+import { ServiceError, minGapMs, toDomainSession, windowMs, type Ctx } from "./context";
 import { expirePending, refreshPatient } from "./patientState";
 import { adviceText } from "./advice";
 
@@ -60,6 +60,7 @@ export async function ingestSession(ctx: Ctx, input: IngestInput): Promise<Inges
     patient,
     now: ctx.now,
     windowMs: windowMs(ctx),
+    minGapMs: minGapMs(ctx),
   });
 
   const session = await ctx.repo.createSession({

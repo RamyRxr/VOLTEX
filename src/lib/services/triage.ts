@@ -88,12 +88,11 @@ export async function getTriage(ctx: Ctx, doctorId: string): Promise<TriageDto> 
   const counts = Object.fromEntries(GROUP_ORDER.map((g) => [g, rows.filter((r) => r.group === g).length])) as Record<TriageGroup, number>;
 
   const receivedToday = states.reduce((n, s) => n + s.sessions.filter((x) => sameDay(x.startedAt, ctx.now)).length, 0);
-  const doctor = await ctx.repo.getDoctor(doctorId);
 
   const openRedAlerts = states
     .flatMap((s) => s.alerts.filter((a) => a.status === "OPEN" && isRed(a.level)))
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
     .map((a) => alertDto(a, nameOf.get(a.patientId) ?? ""));
 
-  return { rows, counts, receivedToday, openRedAlerts, digestTime: doctor?.digestTime ?? "", generatedAt: ctx.now.toISOString() };
+  return { rows, counts, receivedToday, openRedAlerts, generatedAt: ctx.now.toISOString() };
 }

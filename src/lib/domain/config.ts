@@ -10,7 +10,8 @@ export const CONFIG = {
   readingGapSeconds: 60, // between the 2 readings of a session
   restBeforeConfirmSeconds: 300, // before the confirmation session
   confirmationWindowMinutes: 120, // a second session within this window confirms
-  demoModeSeconds: { readingGap: 5, rest: 5, confirmationWindow: 300 }, // DEMO_MODE=true
+  confirmationMinGapSeconds: 60, // an earlier re-send (retry, double tap) never confirms
+  demoModeSeconds: { readingGap: 5, rest: 5, confirmationWindow: 300, confirmationMinGap: 5 }, // DEMO_MODE=true
   trend: { windowDays: 14, minSessions: 5, minSlopePerWeek: 1.5 },
   missedPill: { minSessionsEachGroup: 3, minDeltaSys: 10 },
   whiteCoat: { minDeltaSys: 10, minDeltaDia: 5, officeHypertension: { sys: 140, dia: 90 } },
@@ -29,6 +30,8 @@ export const CONFIG = {
     dia: { min: 30, max: 160 },
     pulse: { min: 30, max: 220 },
   },
+  /** Range a doctor may set as a personal home target. */
+  targetBounds: { sys: { min: 100, max: 180 }, dia: { min: 60, max: 110 } },
   /** Stepper start values on the add-reading screen. */
   stepperDefaults: { sys: 130, dia: 80, pulse: 75 },
 } as const;

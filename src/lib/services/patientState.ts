@@ -1,4 +1,4 @@
-import { alertCandidate, planAlert, silenceAlertsToClose } from "@/lib/domain/alerts";
+import { alertCandidate, planAlert, resolvedAlerts } from "@/lib/domain/alerts";
 import { describeFinding } from "@/lib/domain/describe";
 import { assessPatient, isRed, mergeAlertLevel, type Assessment } from "@/lib/domain/levels";
 import { staleSessionIds } from "@/lib/domain/session";
@@ -47,17 +47,19 @@ export async function loadPatientState(ctx: Ctx, patient: PatientRow): Promise<P
 
 /**
  * Keep alerts in step with the assessment (CLAUDE.md §6.7): one alert for the
- * rule that set the level, de-duplicated; silence alerts close on a new reading.
+ * rule that set the level, de-duplicated; non-red alerts whose rule no longer
+ * applies are resolved; red alerts stay until the doctor closes them.
  */
 export async function syncAlerts(ctx: Ctx, state: PatientState): Promise<void> {
   const { assessment, alerts, patient } = state;
-  const toClose = silenceAlertsToClose(alerts, assessment);
-  await Promise.all(toClose.map((id) => ctx.repo.updateAlert(id, { status: "CLOSED" })));
+  const toClose = new Set(resolvedAlerts(alerts, assessment));
+  await Promise.all([...toClose].map((id) => ctx.repo.updateAlert(id, { status: "CLOSED" })));
 
   const candidate = alertCandidate(assessment.primary);
   if (!candidate || !assessment.primary) return;
   const reason = describeFinding(assessment.primary);
-  const plan = planAlert(candidate, alerts);
+  const current = alerts.map((a) => (toClose.has(a.id) ? { ...a, status: "CLOSED" as const } : a));
+  const plan = planAlert(candidate, current, state.sessions.at(-1)?.startedAt ?? null);
   if (plan.action === "create") {
     await ctx.repo.createAlert({
       patientId: patient.id,

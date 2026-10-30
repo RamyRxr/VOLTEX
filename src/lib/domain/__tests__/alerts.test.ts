@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { alertCandidate, planAlert, silenceAlertsToClose, type ExistingAlert } from "../alerts";
+import { alertCandidate, planAlert, resolvedAlerts, type ExistingAlert } from "../alerts";
 import { computeIndicators, median } from "../indicators";
 import { assessPatient } from "../levels";
 import { DAY, NOW, WINDOW, profile, session } from "./helpers";
@@ -10,6 +10,8 @@ const alert = (overrides: Partial<ExistingAlert>): ExistingAlert => ({
   evidence: "CONFIRMED_SESSION",
   sessionId: "s1",
   status: "OPEN",
+  createdAt: new Date(NOW.getTime() - DAY),
+  ackAt: null,
   ...overrides,
 });
 
@@ -17,20 +19,20 @@ describe("alert de-duplication (CLAUDE.md §6.7)", () => {
   const crisis = { level: "RED_CRISIS", evidence: "CONFIRMED_SESSION", sessionId: "s1" } as const;
 
   it("creates the first alert", () => {
-    expect(planAlert(crisis, [])).toEqual({ action: "create" });
+    expect(planAlert(crisis, [], NOW)).toEqual({ action: "create" });
   });
 
   it("updates the open alert instead of stacking a new one", () => {
-    expect(planAlert({ ...crisis, sessionId: "s2" }, [alert({})])).toEqual({ action: "update", alertId: "a1" });
+    expect(planAlert({ ...crisis, sessionId: "s2" }, [alert({})], NOW)).toEqual({ action: "update", alertId: "a1" });
   });
 
   it("a new triggering session after acknowledgement is a new event", () => {
-    expect(planAlert({ ...crisis, sessionId: "s2" }, [alert({ status: "ACKNOWLEDGED" })])).toEqual({ action: "create" });
-    expect(planAlert(crisis, [alert({ status: "ACKNOWLEDGED" })])).toEqual({ action: "update", alertId: "a1" });
+    expect(planAlert({ ...crisis, sessionId: "s2" }, [alert({ status: "ACKNOWLEDGED" })], NOW)).toEqual({ action: "create" });
+    expect(planAlert(crisis, [alert({ status: "ACKNOWLEDGED" })], NOW)).toEqual({ action: "update", alertId: "a1" });
   });
 
   it("closed alerts never block a new one", () => {
-    expect(planAlert(crisis, [alert({ status: "CLOSED" })])).toEqual({ action: "create" });
+    expect(planAlert(crisis, [alert({ status: "CLOSED" })], NOW)).toEqual({ action: "create" });
   });
 
   it("computed evidence carries no session", () => {
@@ -41,10 +43,21 @@ describe("alert de-duplication (CLAUDE.md §6.7)", () => {
     });
   });
 
-  it("closes silence alerts once the patient measures again", () => {
+  it("resolves non-red alerts whose rule no longer applies, never red ones", () => {
     const a = assessPatient({ patient: profile(), sessions: [session()], now: NOW, windowMs: WINDOW });
     const silence = alert({ id: "z", level: "GREY_SILENT", evidence: "SILENCE", sessionId: null });
-    expect(silenceAlertsToClose([silence], a)).toEqual(["z"]);
+    const orange = alert({ id: "o", level: "ORANGE", evidence: "TWO_OF_THREE", sessionId: null });
+    const red = alert({ id: "r" });
+    expect(resolvedAlerts([silence, orange, red], a)).toEqual(["z", "o"]);
+  });
+
+  it("an alert the doctor closed comes back only with a newer reading (review finding)", () => {
+    const yellow = { level: "YELLOW", evidence: "TREND", sessionId: null } as const;
+    const closed = alert({ level: "YELLOW", evidence: "TREND", sessionId: null, status: "CLOSED", ackAt: NOW });
+    expect(planAlert(yellow, [closed], new Date(NOW.getTime() - DAY))).toEqual({ action: "none" });
+    expect(planAlert(yellow, [closed], new Date(NOW.getTime() + 60_000))).toEqual({ action: "create" });
+    const autoClosed = alert({ level: "YELLOW", evidence: "TREND", sessionId: null, status: "CLOSED" });
+    expect(planAlert(yellow, [autoClosed], new Date(NOW.getTime() - DAY))).toEqual({ action: "create" });
   });
 });
 

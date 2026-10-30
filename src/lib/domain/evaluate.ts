@@ -38,8 +38,10 @@ export function evaluateSession(args: {
   readonly patient: Pick<PatientProfile, "targetSys" | "targetDia">;
   readonly now: Date;
   readonly windowMs: number;
+  /** A PENDING session younger than this is not confirmed by the new one. */
+  readonly minGapMs?: number;
 }): SessionEvaluation {
-  const { input, history, patient, now, windowMs } = args;
+  const { input, history, patient, now, windowMs, minGapMs = 0 } = args;
   const average = averageReadings(input.readings);
   const bp = { sys: average.avgSys, dia: average.avgDia };
   const target = patientTarget(patient);
@@ -50,7 +52,7 @@ export function evaluateSession(args: {
   }
 
   // 2. A PENDING session in the window is resolved by this one.
-  const pending = findPendingInWindow(history, now, windowMs);
+  const pending = findPendingInWindow(history, now, windowMs, minGapMs);
   if (pending) {
     const outcome = resolveConfirmation(bp, pending, target);
     return {

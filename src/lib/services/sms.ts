@@ -17,6 +17,16 @@ export interface SmsOutcome {
   readonly sessionId: string | null;
 }
 
+/** A gateway retry or an impatient re-send of the same text within a minute. */
+const DUPLICATE_WINDOW_MS = 60_000;
+
+async function recentDuplicate(ctx: Ctx, patientId: string, body: string) {
+  const last = (await ctx.repo.listSessions(patientId)).at(-1);
+  if (!last || last.channel !== "SMS" || last.rawSms?.trim() !== body.trim()) return null;
+  if (ctx.now.getTime() - last.startedAt.getTime() >= DUPLICATE_WINDOW_MS) return null;
+  return { bp: { sys: last.avgSys, dia: last.avgDia }, danger: last.status === "DANGER" };
+}
+
 /**
  * The one SMS handler, shared by the gateway webhook and /dev/sms-simulator.
  * Patients are matched by phone number. Unknown numbers and unparseable
@@ -30,9 +40,16 @@ export async function handleInboundSms(ctx: Ctx, sms: InboundSms): Promise<SmsOu
     return { reply: smsReplyText("UNKNOWN", null), kind: "UNKNOWN", patientId: null, sessionId: null };
   }
 
+  const repeat = await recentDuplicate(ctx, patient.id, sms.body);
+  if (repeat) {
+    const kind = repeat.danger ? "DANGER" : "DUPLICATE";
+    return { reply: smsReplyText(kind, repeat.bp, user.language), kind, patientId: patient.id, sessionId: null };
+  }
+
   const parsed = parseSms(sms.body);
   if (!parsed.ok) {
-    return { reply: smsReplyText("HELP", null, user.language), kind: "HELP", patientId: patient.id, sessionId: null };
+    const kind = parsed.hasDanger ? "DANGER_UNPARSED" : "HELP";
+    return { reply: smsReplyText(kind, null, user.language), kind, patientId: patient.id, sessionId: null };
   }
 
   const { sys, dia, pulse, pillStatus, symptoms } = parsed.value;

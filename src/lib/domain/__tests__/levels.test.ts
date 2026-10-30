@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { describeReason } from "../describe";
+import { describePendingCrisis, describeReason } from "../describe";
 import { assessPatient, mergeAlertLevel, toPatientStatus } from "../levels";
 import type { DomainSession, PatientProfile } from "../types";
 import { DAY, NOW, WINDOW, confirmedPair, profile, session } from "./helpers";
@@ -155,6 +155,14 @@ describe("pending crisis item", () => {
   it("a crisis value inside the window reads 'awaiting confirmation'", () => {
     const a = assess([...daily([2, 1]), session({ minutesAgo: 2, avgSys: 182, avgDia: 118, status: "PENDING" })]);
     expect(describeReason(a)).toBe("En attente de confirmation : 182/118");
+  });
+
+  it("a crisis value with a lower re-measure stays visible (review finding)", () => {
+    const second = session({ avgSys: 178, avgDia: 118, status: "CONFIRMED" });
+    const first = session({ minutesAgo: 10, avgSys: 195, avgDia: 125, status: "NOT_CONFIRMED", confirmedBySessionId: second.id });
+    const a = assess([...daily([3, 2]), first, second]);
+    expect(a.pendingCrisis).toMatchObject({ lowerRemeasure: true, awaiting: false });
+    expect(a.pendingCrisis && describePendingCrisis(a.pendingCrisis)).toBe("Non confirmé 195/125 : la remesure était plus basse");
   });
 
   it("disappears once the patient measures again", () => {

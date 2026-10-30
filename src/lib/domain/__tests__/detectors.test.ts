@@ -112,7 +112,7 @@ describe("generated wording (CLAUDE.md examples)", () => {
 
   it("unconfirmed crisis", () => {
     expect(
-      describePendingCrisis({ sessionId: "x", bp: { sys: 195, dia: 125 }, startedAt: new Date(NOW.getTime() - DAY), awaiting: false }),
+      describePendingCrisis({ sessionId: "x", bp: { sys: 195, dia: 125 }, startedAt: new Date(NOW.getTime() - DAY), awaiting: false, lowerRemeasure: false }),
     ).toBe("Non confirmé 195/125, le patient n'a pas remesuré");
   });
 });
