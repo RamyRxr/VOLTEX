@@ -21,17 +21,18 @@
   gap: var(--space-3);
   margin-bottom: var(--space-4);
   padding: var(--space-3) var(--space-4);
-  background: var(--accent-soft);
-  border: 1px solid #c6dade;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  color: var(--accent);
+  color: var(--text);
   font-weight: 600;
   font-size: var(--text-sm);
 }
 
 .requests:hover {
   text-decoration: none;
-  border-color: var(--focus);
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
 }
 
 .requestsAction {
@@ -119,13 +120,9 @@
   background: var(--surface-hover);
 }
 
-.rowUrgent {
-  background: #fff7f5;
-  box-shadow: inset 4px 0 0 var(--danger);
-}
-
-.rowUrgent:hover {
-  background: var(--danger-bg);
+/* Urgent rows: no tint, no stripe — the status badge carries the colour */
+.rowUrgent .name {
+  color: var(--danger);
 }
 
 .name {
