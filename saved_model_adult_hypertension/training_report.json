@@ -1,0 +1,20 @@
+{
+  "metrics": {
+    "n_train": 7480,
+    "n_test": 2494,
+    "positive_prevalence_test": 0.5036,
+    "accuracy": 0.5012,
+    "roc_auc": 0.4955,
+    "recall_sensitivity": 0.5414,
+    "precision": 0.5045,
+    "brier_score": 0.2544,
+    "threshold": 0.5,
+    "confusion_matrix": {
+      "true_negative": 570,
+      "false_positive": 668,
+      "false_negative": 576,
+      "true_positive": 680
+    }
+  },
+  "notice": "Modèle exploratoire entraîné sur un jeu de données adulte. Il ne prédit pas l'hypertension de grossesse et ne doit guider aucune décision médicale."
+}

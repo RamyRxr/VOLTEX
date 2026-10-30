@@ -1,0 +1,125 @@
+{
+  "onnx_path": "C:\\Users\\hp\\OneDrive\\Bureau\\hackathon\\safemaman-hackathon\\ai\\prediction\\saved_model_adult_hypertension\\adult_hypertension.onnx",
+  "onnx_version": "1.23.2",
+  "onnxruntime_version": "1.31.1",
+  "validated_rows": 256,
+  "max_abs_probability_error": 1.1920928955078125e-07,
+  "prediction_enabled": false,
+  "input_schema": [
+    {
+      "name": "Age",
+      "source_name": "Age",
+      "type": "float32",
+      "shape": "[batch, 1]"
+    },
+    {
+      "name": "Gender",
+      "source_name": "Gender",
+      "type": "string",
+      "shape": "[batch, 1]"
+    },
+    {
+      "name": "Cholesterol_Level",
+      "source_name": "Cholesterol Level",
+      "type": "float32",
+      "shape": "[batch, 1]"
+    },
+    {
+      "name": "Exercise_Habits",
+      "source_name": "Exercise Habits",
+      "type": "string",
+      "shape": "[batch, 1]"
+    },
+    {
+      "name": "Smoking",
+      "source_name": "Smoking",
+      "type": "string",
+      "shape": "[batch, 1]"
+    },
+    {
+      "name": "Family_Heart_Disease",
+      "source_name": "Family Heart Disease",
+      "type": "string",
+      "shape": "[batch, 1]"
+    },
+    {
+      "name": "Diabetes",
+      "source_name": "Diabetes",
+      "type": "string",
+      "shape": "[batch, 1]"
+    },
+    {
+      "name": "BMI",
+      "source_name": "BMI",
+      "type": "float32",
+      "shape": "[batch, 1]"
+    },
+    {
+      "name": "Low_HDL_Cholesterol",
+      "source_name": "Low HDL Cholesterol",
+      "type": "string",
+      "shape": "[batch, 1]"
+    },
+    {
+      "name": "High_LDL_Cholesterol",
+      "source_name": "High LDL Cholesterol",
+      "type": "string",
+      "shape": "[batch, 1]"
+    },
+    {
+      "name": "Alcohol_Consumption",
+      "source_name": "Alcohol Consumption",
+      "type": "string",
+      "shape": "[batch, 1]"
+    },
+    {
+      "name": "Stress_Level",
+      "source_name": "Stress Level",
+      "type": "string",
+      "shape": "[batch, 1]"
+    },
+    {
+      "name": "Sleep_Hours",
+      "source_name": "Sleep Hours",
+      "type": "float32",
+      "shape": "[batch, 1]"
+    },
+    {
+      "name": "Sugar_Consumption",
+      "source_name": "Sugar Consumption",
+      "type": "string",
+      "shape": "[batch, 1]"
+    },
+    {
+      "name": "Triglyceride_Level",
+      "source_name": "Triglyceride Level",
+      "type": "float32",
+      "shape": "[batch, 1]"
+    },
+    {
+      "name": "Fasting_Blood_Sugar",
+      "source_name": "Fasting Blood Sugar",
+      "type": "float32",
+      "shape": "[batch, 1]"
+    },
+    {
+      "name": "CRP_Level",
+      "source_name": "CRP Level",
+      "type": "float32",
+      "shape": "[batch, 1]"
+    },
+    {
+      "name": "Homocysteine_Level",
+      "source_name": "Homocysteine Level",
+      "type": "float32",
+      "shape": "[batch, 1]"
+    },
+    {
+      "name": "Heart_Disease_Status",
+      "source_name": "Heart Disease Status",
+      "type": "string",
+      "shape": "[batch, 1]"
+    }
+  ],
+  "notice": "Modèle exploratoire entraîné sur un jeu de données adulte. Il ne prédit pas l'hypertension de grossesse et ne doit guider aucune décision médicale."
+}
