@@ -4,7 +4,7 @@ import type { MissedPillResult } from "./missedPill";
 import type { TrendResult } from "./trend";
 import type { OfficeComparison } from "./whiteCoat";
 import type { BP, SymptomType } from "./types";
-import { bpText, decimal, signed, t, type Lang } from "../i18n";
+import { bpText, decimal, fixed, signed, t, type Lang } from "../i18n";
 
 /** Every reason is generated from computed numbers, never typed (CLAUDE.md §6.7). */
 
@@ -33,8 +33,8 @@ export function describeFinding(f: Finding, lang: Lang = "FR"): string {
       return t("finding.AVERAGE", { avg: bpText(f.avg), target: bpText(f.target) }, lang);
     case "TREND":
       return f.daysToTarget == null
-        ? t("finding.TREND_ABOVE", { slope: signed(f.perWeek) }, lang)
-        : t("finding.TREND", { slope: signed(f.perWeek), days: f.daysToTarget }, lang);
+        ? t("finding.TREND_ABOVE", { slope: signed(f.perWeek, 1, true) }, lang)
+        : t("finding.TREND", { slope: signed(f.perWeek, 1, true), days: f.daysToTarget }, lang);
     case "MISSED_PILL":
       return t("finding.MISSED_PILL", { delta: signed(f.deltaSys, 0) }, lang);
     case "SILENCE":
@@ -84,7 +84,7 @@ export function describeMissedPill(m: MissedPillResult, lang: Lang = "FR"): stri
 
 export function describeTrend(tr: TrendResult, lang: Lang = "FR"): string {
   const key = tr.direction === "up" ? "info.trendUp" : tr.direction === "down" ? "info.trendDown" : "info.trendFlat";
-  const slope = tr.direction === "flat" ? signed(tr.perWeek) : decimal(Math.abs(tr.perWeek));
+  const slope = tr.direction === "flat" ? signed(tr.perWeek, 1, true) : fixed(Math.abs(tr.perWeek));
   return t(key, { slope }, lang);
 }
 
