@@ -40,7 +40,9 @@ export default function DoctorSettings() {
   };
 
   const sendTest = async () => {
-    if (await ensurePermission()) await notifyNow(t("settings.testTitle"), t("settings.testBody"), { url: "/alerts" });
+    if (await ensurePermission()) {
+      await notifyNow(t("settings.testTitle"), t("settings.testBody"), { url: "/alerts" }).catch(() => undefined);
+    }
     setPermission(await getPermission());
   };
 

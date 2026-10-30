@@ -3,7 +3,27 @@ import { AndroidImportance } from "expo-notifications";
 import { Platform } from "react-native";
 
 export const CHANNELS = { alerts: "alerts", reminders: "reminders" } as const;
+type Channel = (typeof CHANNELS)[keyof typeof CHANNELS];
 export const supported = Platform.OS === "ios" || Platform.OS === "android";
+
+const created = new Set<Channel>();
+let channelsReady: Promise<void> = Promise.resolve();
+
+async function createChannel(id: Channel, options: Notifications.NotificationChannelInput): Promise<void> {
+  try {
+    await Notifications.setNotificationChannelAsync(id, options);
+    created.add(id);
+  } catch {
+    // Expo Go on Android rejects channel creation (missing channel provider); real builds don't.
+    // Without the channel, Android shows our notifications in expo-notifications' fallback channel.
+  }
+}
+
+/** The channel to post on, or undefined to let Android use the fallback channel. */
+export async function channelId(id: Channel): Promise<string | undefined> {
+  await channelsReady;
+  return created.has(id) ? id : undefined;
+}
 
 /** Shows notifications even while the app is open. Call once at startup. */
 export function configureNotifications(): void {
@@ -17,15 +37,14 @@ export function configureNotifications(): void {
     }),
   });
   if (Platform.OS === "android") {
-    void Notifications.setNotificationChannelAsync(CHANNELS.alerts, {
-      name: "Alertes",
-      importance: AndroidImportance.MAX,
-      vibrationPattern: [0, 300, 200, 300],
-    });
-    void Notifications.setNotificationChannelAsync(CHANNELS.reminders, {
-      name: "Rappels",
-      importance: AndroidImportance.DEFAULT,
-    });
+    channelsReady = Promise.all([
+      createChannel(CHANNELS.alerts, {
+        name: "Alertes",
+        importance: AndroidImportance.MAX,
+        vibrationPattern: [0, 300, 200, 300],
+      }),
+      createChannel(CHANNELS.reminders, { name: "Rappels", importance: AndroidImportance.DEFAULT }),
+    ]).then(() => undefined);
   }
 }
 
@@ -52,8 +71,9 @@ export async function ensurePermission(): Promise<boolean> {
 /** Fires a notification right away (doctor alerts, tests). */
 export async function notifyNow(title: string, body: string, data: Record<string, string> = {}): Promise<void> {
   if (!supported) return;
+  const channel = await channelId(CHANNELS.alerts);
   await Notifications.scheduleNotificationAsync({
     content: { title, body, data, sound: true },
-    trigger: Platform.OS === "android" ? { channelId: CHANNELS.alerts } : null,
+    trigger: channel ? { channelId: channel } : null,
   });
 }
