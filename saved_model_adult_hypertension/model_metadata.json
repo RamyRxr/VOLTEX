@@ -1,0 +1,73 @@
+{
+  "model_version": "adult-hypertension-xgb-v1.0.0",
+  "trained_at": "2026-10-30T22:45:26+00:00",
+  "dataset_path": "heart_disease.csv",
+  "data_source_license_verified": false,
+  "dataset_rows_used": 9974,
+  "duplicate_rows_removed": 0,
+  "target": "High Blood Pressure",
+  "target_mapping": {
+    "No": 0,
+    "Yes": 1
+  },
+  "features": [
+    "Age",
+    "Gender",
+    "Cholesterol Level",
+    "Exercise Habits",
+    "Smoking",
+    "Family Heart Disease",
+    "Diabetes",
+    "BMI",
+    "Low HDL Cholesterol",
+    "High LDL Cholesterol",
+    "Alcohol Consumption",
+    "Stress Level",
+    "Sleep Hours",
+    "Sugar Consumption",
+    "Triglyceride Level",
+    "Fasting Blood Sugar",
+    "CRP Level",
+    "Homocysteine Level",
+    "Heart Disease Status"
+  ],
+  "excluded_columns": [
+    "Blood Pressure",
+    "High Blood Pressure"
+  ],
+  "excluded_reason": "cible directe et mesure tensionnelle, pour éviter une classification circulaire",
+  "prediction_scope": "hypertension générale chez l'adulte, hors grossesse",
+  "clinical_validation": false,
+  "prediction_enabled": false,
+  "prediction_block_reason": "ROC-AUC inférieur à 0.55 sur le jeu de test : le CSV ne montre pas de signal prédictif exploitable.",
+  "notice": "Modèle exploratoire entraîné sur un jeu de données adulte. Il ne prédit pas l'hypertension de grossesse et ne doit guider aucune décision médicale.",
+  "split": {
+    "method": "train_test_split stratifié",
+    "test_size": 0.25,
+    "random_state": 42
+  },
+  "metrics": {
+    "n_train": 7480,
+    "n_test": 2494,
+    "positive_prevalence_test": 0.5036,
+    "accuracy": 0.5012,
+    "roc_auc": 0.4955,
+    "recall_sensitivity": 0.5414,
+    "precision": 0.5045,
+    "brier_score": 0.2544,
+    "threshold": 0.5,
+    "confusion_matrix": {
+      "true_negative": 570,
+      "false_positive": 668,
+      "false_negative": 576,
+      "true_positive": 680
+    }
+  },
+  "environment": {
+    "python": "3.12.2",
+    "numpy": "2.5.4",
+    "pandas": "2.3.3",
+    "scikit_learn": "1.9.1",
+    "xgboost": "3.4.1"
+  }
+}
