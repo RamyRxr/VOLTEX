@@ -52,9 +52,7 @@ export async function loadPatientState(ctx: Ctx, patient: PatientRow): Promise<P
 export async function syncAlerts(ctx: Ctx, state: PatientState): Promise<void> {
   const { assessment, alerts, patient } = state;
   const toClose = silenceAlertsToClose(alerts, assessment);
-  await Promise.all(
-    toClose.map((id) => ctx.repo.updateAlert(id, { status: "CLOSED", ackAt: alerts.find((a) => a.id === id)?.ackAt ?? null })),
-  );
+  await Promise.all(toClose.map((id) => ctx.repo.updateAlert(id, { status: "CLOSED" })));
 
   const candidate = alertCandidate(assessment.primary);
   if (!candidate || !assessment.primary) return;
