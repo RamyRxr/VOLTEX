@@ -17,5 +17,11 @@ export const CONFIG = {
     ageHigh: 40, // moderate factor
     bmiHigh: 35, // moderate factor
   },
+  // How long a danger answer or a confirmed severe reading keeps the patient at
+  // EMERGENCY / SEVERE, and how long an unconfirmed severe reading is flagged.
+  // Not stated in the spec — TO VALIDATE.
+  acuteWindowHours: 24,
+  watchItemsWindowDays: 7, // watch items answered yes: WATCH level, and the risk is raised one level
+  pregnancyDays: 280, // due date = last menstrual period + 280 days
   dashboardPollMs: 3000,
 } as const;

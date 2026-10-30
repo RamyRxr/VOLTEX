@@ -1,64 +1,74 @@
-/** Hand-drawn icon set (no icon library). Always paired with a visible word. */
+/** Small stroke icon set (16 px grid). Decorative unless a label is given. */
 export type IconName =
-  | "alert-octagon"
-  | "alert-triangle"
+  | "octagon"
+  | "triangle"
+  | "eye"
   | "clock"
-  | "check-circle"
-  | "phone"
-  | "message"
-  | "arrow-right"
-  | "chevron"
-  | "search"
-  | "printer"
+  | "check"
+  | "pulse"
+  | "users"
+  | "bell"
+  | "key"
   | "logout"
-  | "trend-up"
-  | "trend-down"
-  | "trend-flat";
+  | "search"
+  | "chevron-left"
+  | "chevron-right"
+  | "send"
+  | "sparkle"
+  | "note"
+  | "copy"
+  | "phone"
+  | "plus"
+  | "x";
 
-const PATHS: Record<IconName, React.ReactNode> = {
-  "alert-octagon": (
+const PATHS: Readonly<Record<IconName, React.ReactNode>> = {
+  octagon: (
     <>
-      <path d="M5.3 1.5h5.4l3.8 3.8v5.4l-3.8 3.8H5.3L1.5 10.7V5.3Z" />
-      <path d="M8 4.6v4" />
-      <circle cx="8" cy="11.1" r="0.6" fill="currentColor" />
+      <path d="M5.5 1.5h5l4 4v5l-4 4h-5l-4-4v-5Z" />
+      <path d="M8 4.5v4M8 11v.5" />
     </>
   ),
-  "alert-triangle": (
+  triangle: (
     <>
-      <path d="M8 1.8 14.6 13.6H1.4Z" />
-      <path d="M8 6v3.6" />
-      <circle cx="8" cy="11.5" r="0.6" fill="currentColor" />
+      <path d="M8 1.8 15 14H1Z" />
+      <path d="M8 6v3.5M8 11.6v.4" />
+    </>
+  ),
+  eye: (
+    <>
+      <path d="M1 8s2.6-5 7-5 7 5 7 5-2.6 5-7 5-7-5-7-5Z" />
+      <circle cx="8" cy="8" r="2" />
     </>
   ),
   clock: (
     <>
-      <circle cx="8" cy="8" r="6.3" />
-      <path d="M8 4.4V8l2.5 1.6" />
+      <circle cx="8" cy="8" r="6.5" />
+      <path d="M8 4.5V8l2.5 1.5" />
     </>
   ),
-  "check-circle": (
+  check: (
     <>
-      <circle cx="8" cy="8" r="6.3" />
-      <path d="m5.2 8.2 1.9 1.9 3.8-4" />
+      <circle cx="8" cy="8" r="6.5" />
+      <path d="m5 8.2 2 2 4-4.2" />
     </>
   ),
-  phone: (
-    <path d="M3.8 1.9h2.4l1 3-1.5 1.1a8.8 8.8 0 0 0 4.3 4.3l1.1-1.5 3 1v2.4c0 .8-.6 1.4-1.4 1.4A12.3 12.3 0 0 1 2.4 3.3c0-.8.6-1.4 1.4-1.4Z" />
-  ),
-  message: <path d="M2 3h12v8H6.5L3.5 13.5V11H2Z" />,
-  "arrow-right": <path d="M2 8h12M9 3l5 5-5 5" />,
-  chevron: <path d="m6 3 5 5-5 5" />,
-  search: (
+  pulse: <path d="M1 8h3l1.5-4 3 8L10 8h5" />,
+  users: (
     <>
-      <circle cx="7" cy="7" r="4.6" />
-      <path d="m10.5 10.5 3.6 3.6" />
+      <circle cx="6" cy="5" r="2.5" />
+      <path d="M1.5 14c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5M11 2.8a2.5 2.5 0 0 1 0 4.4M12.5 9.8c1.2.6 2 1.9 2 4.2" />
     </>
   ),
-  printer: (
+  bell: (
     <>
-      <path d="M4 6V1.8h8V6" />
-      <path d="M4 11.5H2.2V6h11.6v5.5H12" />
-      <path d="M4 9.5h8v4.7H4Z" />
+      <path d="M4 11V7a4 4 0 0 1 8 0v4l1.5 1.5h-11Z" />
+      <path d="M6.5 14.2a1.6 1.6 0 0 0 3 0" />
+    </>
+  ),
+  key: (
+    <>
+      <circle cx="5" cy="10.5" r="3" />
+      <path d="m7.2 8.3 6.3-6.3M11 4.5l2 2M12.5 3l1.5 1.5" />
     </>
   ),
   logout: (
@@ -67,12 +77,34 @@ const PATHS: Record<IconName, React.ReactNode> = {
       <path d="M10.5 4.5 14 8l-3.5 3.5M14 8H6" />
     </>
   ),
-  "trend-up": <path d="M2 12 14 4M8.5 4H14v5.5" />,
-  "trend-down": <path d="M2 4l12 8M8.5 12H14V6.5" />,
-  "trend-flat": <path d="M2 8h12M10.5 4.5 14 8l-3.5 3.5" />,
+  search: (
+    <>
+      <circle cx="7" cy="7" r="4.5" />
+      <path d="m10.5 10.5 3.5 3.5" />
+    </>
+  ),
+  "chevron-left": <path d="M10 3 5 8l5 5" />,
+  "chevron-right": <path d="m6 3 5 5-5 5" />,
+  send: <path d="M14.5 1.5 7 9M14.5 1.5 10 14.5 7 9 1.5 6Z" />,
+  sparkle: <path d="M8 1.5 9.4 6.6 14.5 8 9.4 9.4 8 14.5 6.6 9.4 1.5 8 6.6 6.6Z" />,
+  note: (
+    <>
+      <path d="M3 1.5h7l3 3v10H3Z" />
+      <path d="M5.5 7h5M5.5 9.5h5M5.5 12h3" />
+    </>
+  ),
+  copy: (
+    <>
+      <rect x="5" y="5" width="9" height="9" rx="1.5" />
+      <path d="M11 5V3a1.5 1.5 0 0 0-1.5-1.5h-6A1.5 1.5 0 0 0 2 3v6a1.5 1.5 0 0 0 1.5 1.5H5" />
+    </>
+  ),
+  phone: <path d="M3 1.5h3l1.5 3.5-2 1.3a8 8 0 0 0 4.2 4.2l1.3-2 3.5 1.5v3A1.5 1.5 0 0 1 13 14.5 11.5 11.5 0 0 1 1.5 3 1.5 1.5 0 0 1 3 1.5Z" />,
+  plus: <path d="M8 2.5v11M2.5 8h11" />,
+  x: <path d="m3.5 3.5 9 9M12.5 3.5l-9 9" />,
 };
 
-export function Icon({ name, size = 14, className }: { name: IconName; size?: number; className?: string }) {
+export function Icon({ name, size = 16, label }: { name: IconName; size?: number; label?: string }) {
   return (
     <svg
       width={size}
@@ -80,12 +112,13 @@ export function Icon({ name, size = 14, className }: { name: IconName; size?: nu
       viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.5}
+      strokeWidth={1.6}
       strokeLinecap="round"
       strokeLinejoin="round"
-      aria-hidden
-      className={className}
-      style={{ flex: "none" }}
+      role={label ? "img" : undefined}
+      aria-label={label}
+      aria-hidden={label ? undefined : true}
+      focusable="false"
     >
       {PATHS[name]}
     </svg>

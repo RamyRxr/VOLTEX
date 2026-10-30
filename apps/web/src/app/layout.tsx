@@ -1,49 +1,31 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, Instrument_Serif } from "next/font/google";
+import { Public_Sans, Source_Serif_4 } from "next/font/google";
 import { QueryProvider } from "@/components/ui/QueryProvider";
-import { currentSession } from "@/lib/auth/server";
-import { isDemoMode } from "@/lib/demo";
-import { dirOf, htmlLang, t } from "@/lib/i18n";
+import { fr } from "@/lib/i18n/fr";
 import "./globals.css";
 
-const serif = Instrument_Serif({
-  subsets: ["latin", "latin-ext"],
-  weight: "400",
-  style: ["normal", "italic"],
-  variable: "--font-serif",
-  display: "swap",
-});
-
-const grotesque = Archivo({
-  subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600"],
-  variable: "--font-grotesque",
-  display: "swap",
-});
+const sans = Public_Sans({ subsets: ["latin", "latin-ext"], variable: "--font-public-sans", display: "swap" });
+const serif = Source_Serif_4({ subsets: ["latin", "latin-ext"], variable: "--font-source-serif", display: "swap" });
 
 export const metadata: Metadata = {
-  title: `${t("app.name")} — ${t("app.tagline")}`,
-  description: t("cover.lede"),
+  title: `${fr.app.name} — Espace médecin`,
+  description: fr.app.tagline,
+  robots: { index: false, follow: false },
 };
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  themeColor: "#0c1233",
-};
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#f6f4ef" };
 
-export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const lang = (await currentSession())?.lang ?? "FR";
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const demoMode = process.env.DEMO_MODE === "true";
   return (
-    <html lang={htmlLang(lang)} dir={dirOf(lang)} className={`${serif.variable} ${grotesque.variable}`}>
+    <html lang="fr" className={`${sans.variable} ${serif.variable}`}>
       <body>
         <a href="#contenu" className="skip-link">
-          {t("common.skip")}
+          {fr.app.skip}
         </a>
-        {isDemoMode() && (
+        {demoMode && (
           <div className="demo-strip" role="note">
-            <i aria-hidden />
-            {t("demo.banner")}
+            {fr.app.demoBanner}
           </div>
         )}
         <QueryProvider>{children}</QueryProvider>

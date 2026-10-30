@@ -1,0 +1,78 @@
+/* Calm clinical: warm quiet surfaces, one deep accent; colour is reserved for status. */
+:root {
+  /* Surfaces */
+  --bg: #f6f4ef;
+  --surface: #ffffff;
+  --surface-sunken: #efece5;
+  --surface-hover: #faf8f4;
+  --border: #e2ddd2;
+  --border-strong: #cfc8ba;
+
+  /* Text */
+  --text: #1c2321;
+  --text-2: #4f5753;
+  --text-3: #7d837f;
+  --text-on-accent: #ffffff;
+
+  /* Accent: deep petrol, for actions and focus only */
+  --accent: #1d4f5c;
+  --accent-hover: #163f4a;
+  --accent-soft: #e4eef0;
+  --focus: #2f7d8f;
+
+  /* Status tones: text (strong), background (soft), edge */
+  --danger: #b42318;
+  --danger-bg: #fdecea;
+  --danger-edge: #f3b8b2;
+  --warning: #b54708;
+  --warning-bg: #fef1e2;
+  --warning-edge: #f5c99a;
+  --watch: #8a6a00;
+  --watch-bg: #fbf4d9;
+  --watch-edge: #e8d48a;
+  --neutral: #475467;
+  --neutral-bg: #eef0f3;
+  --neutral-edge: #cdd2da;
+  --ok: #18794e;
+  --ok-bg: #e6f4ec;
+  --ok-edge: #a9d9bf;
+
+  /* Chart */
+  --chart-sys: #1d4f5c;
+  --chart-dia: #7aa7b2;
+  --chart-grid: #ebe7de;
+
+  /* Type */
+  --font-sans: var(--font-public-sans), "Segoe UI", system-ui, sans-serif;
+  --font-serif: var(--font-source-serif), Georgia, serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.875rem;
+
+  /* Space and shape */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 2px rgb(28 35 33 / 6%);
+  --shadow: 0 1px 2px rgb(28 35 33 / 5%), 0 4px 16px rgb(28 35 33 / 6%);
+  --sidebar-width: 248px;
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --duration: 160ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration: 0ms;
+  }
+}

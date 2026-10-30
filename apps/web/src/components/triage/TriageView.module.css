@@ -1,0 +1,184 @@
+.search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: min(320px, 100%);
+  color: var(--text-3);
+}
+
+.search svg {
+  position: absolute;
+  left: 12px;
+}
+
+.search input {
+  padding-left: 36px;
+}
+
+.requests {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--accent-soft);
+  border: 1px solid #c6dade;
+  border-radius: var(--radius);
+  color: var(--accent);
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.requests:hover {
+  text-decoration: none;
+  border-color: var(--focus);
+}
+
+.requestsAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 38px;
+  padding: 0 var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color var(--duration) var(--ease),
+    background var(--duration) var(--ease);
+}
+
+.chip:hover {
+  border-color: var(--border-strong);
+}
+
+.chip[aria-pressed="true"] {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--surface);
+}
+
+.chipCount {
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+}
+
+.chip-danger svg {
+  color: var(--danger);
+}
+
+.chip-warning svg {
+  color: var(--warning);
+}
+
+.chip-watch svg {
+  color: var(--watch);
+}
+
+.chip-neutral svg {
+  color: var(--neutral);
+}
+
+.chip-ok svg {
+  color: var(--ok);
+}
+
+.chip[aria-pressed="true"] svg {
+  color: inherit;
+}
+
+.table td {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+.row {
+  cursor: pointer;
+  transition: background var(--duration) var(--ease);
+}
+
+.row:hover {
+  background: var(--surface-hover);
+}
+
+.rowUrgent {
+  background: #fff7f5;
+  box-shadow: inset 4px 0 0 var(--danger);
+}
+
+.rowUrgent:hover {
+  background: var(--danger-bg);
+}
+
+.name {
+  color: var(--text);
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.week {
+  white-space: nowrap;
+}
+
+/* Phone: status, patient and last reading only; the full file is one tap away */
+@media (max-width: 700px) {
+  .table th:nth-child(3),
+  .table td:nth-child(3),
+  .table th:nth-child(5),
+  .table td:nth-child(5),
+  .table th:nth-child(6),
+  .table td:nth-child(6) {
+    display: none;
+  }
+
+  .name {
+    white-space: normal;
+  }
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: 2px;
+}
+
+.tags:empty {
+  display: none;
+}
+
+.bp {
+  font-weight: 650;
+}
+
+.reason {
+  min-width: 220px;
+  max-width: 380px;
+  color: var(--text-2);
+}
+
+.chevron {
+  width: 32px;
+  color: var(--text-3);
+}

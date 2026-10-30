@@ -1,18 +1,16 @@
 import Link from "next/link";
-import { t } from "@/lib/i18n";
+import { fr } from "@/lib/i18n/fr";
 
 export default function NotFound() {
   return (
-    <main className="page error-page" id="contenu">
-      <p className="eyebrow">{t("app.name")}</p>
-      <h1 className="title">{t("notFound.title")}</h1>
-      <p className="sub">{t("notFound.body")}</p>
-      <div className="alert-block__actions not-found__links">
-        <Link href="/d" className="btn btn--royal">
-          {t("cover.doctor")}
-        </Link>
-        <Link href="/p" className="btn btn--ghost">
-          {t("cover.patient")}
+    <main id="contenu" style={{ display: "grid", placeItems: "center", minHeight: "100vh", padding: 24, textAlign: "center" }}>
+      <div>
+        <h1>Page introuvable</h1>
+        <p className="muted" style={{ margin: "8px 0 20px" }}>
+          {fr.app.tagline}
+        </p>
+        <Link href="/d" className="btn btn-primary">
+          {fr.common.back}
         </Link>
       </div>
     </main>

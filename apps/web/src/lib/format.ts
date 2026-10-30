@@ -1,66 +1,59 @@
-import { t } from "@/lib/i18n";
-
-/**
- * Dates are always shown in Algerian time, on the server and in the browser,
- * so server-rendered HTML and the hydrated page agree to the minute.
- */
-export const APP_TIME_ZONE = "Africa/Algiers";
-
-const fmt = (options: Intl.DateTimeFormatOptions) =>
-  new Intl.DateTimeFormat("fr-FR", { timeZone: APP_TIME_ZONE, ...options });
-
-const LONG = fmt({ day: "numeric", month: "long", year: "numeric" });
-const WEEKDAY = fmt({ weekday: "long", day: "numeric", month: "long" });
-const SHORT = fmt({ day: "2-digit", month: "2-digit" });
-const CLOCK = fmt({ hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
-const DAY_KEY = fmt({ year: "numeric", month: "2-digit", day: "2-digit" });
-
-const asDate = (d: Date | string) => (typeof d === "string" ? new Date(d) : d);
-
-/** "30 octobre 2026" */
-export const longDate = (d: Date | string) => LONG.format(asDate(d));
-/** "vendredi 30 octobre" */
-export const weekdayDate = (d: Date | string) => WEEKDAY.format(asDate(d));
-/** "30/10" */
-export const shortDate = (d: Date | string) => SHORT.format(asDate(d));
-/** "09:05" */
-export const clock = (d: Date | string) => CLOCK.format(asDate(d));
-/** "30/10 · 09:05" */
-export const stamp = (d: Date | string) => `${shortDate(d)} · ${clock(d)}`;
-/** Same calendar day in Algeria. */
-export const sameDay = (a: Date | string, b: Date | string) => DAY_KEY.format(asDate(a)) === DAY_KEY.format(asDate(b));
+/** French formatting for the dashboard. Pure: `now` is passed in. */
 
 const MINUTE = 60_000;
+const HOUR = 60 * MINUTE;
+const DAY = 24 * HOUR;
 
-/** "à l'instant", "il y a 12 min", "hier"… relative to the data's own clock. */
-export function elapsed(d: Date | string, now: Date | string): string {
-  const mins = Math.max(0, Math.round((asDate(now).getTime() - asDate(d).getTime()) / MINUTE));
-  if (mins < 2) return t("time.now");
-  if (mins < 60) return t("time.minutes", { n: mins });
-  const hours = Math.round(mins / 60);
-  if (hours < 24) return t("time.hours", { n: hours });
-  const days = Math.floor(mins / 1440);
-  if (days === 1) return t("time.yesterday");
-  if (days < 31) return t("time.days", { n: days });
-  return t("time.months", { n: Math.floor(days / 30) });
+const dateTime = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+const dateOnly = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+const timeOnly = new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit" });
+const dayMonth = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short" });
+
+/** "il y a 5 min", "il y a 3 h", "hier", "il y a 4 j". */
+export function relativeTime(iso: string, now: Date): string {
+  const diff = now.getTime() - new Date(iso).getTime();
+  if (diff < 0) return "à l'instant";
+  if (diff < MINUTE) return "à l'instant";
+  if (diff < HOUR) return `il y a ${Math.floor(diff / MINUTE)} min`;
+  if (diff < DAY) return `il y a ${Math.floor(diff / HOUR)} h`;
+  const days = Math.floor(diff / DAY);
+  return days === 1 ? "hier" : `il y a ${days} j`;
 }
 
-/** "+213555000006" → "0555 00 00 06" (national format, easier to read and dial). */
-export function displayPhone(phone: string): string {
-  if (!phone.startsWith("+213")) return phone;
-  const national = `0${phone.slice(4)}`;
-  return national.length === 10 ? national.replace(/^(\d{4})(\d{2})(\d{2})(\d{2})$/, "$1 $2 $3 $4") : national;
+/** Time until a future instant: "dans 23 h", "dans 12 min". */
+export function untilTime(iso: string, now: Date): string {
+  const diff = new Date(iso).getTime() - now.getTime();
+  if (diff <= 0) return "expiré";
+  if (diff < HOUR) return `dans ${Math.max(1, Math.floor(diff / MINUTE))} min`;
+  return `dans ${Math.floor(diff / HOUR)} h`;
 }
 
-/** 0.6 → "60 %" */
-export const pct = (x: number) => `${Math.round(x * 100)} %`;
+export const formatDateTime = (iso: string): string => dateTime.format(new Date(iso));
+/** A date-only field (YYYY-MM-DD) shown as "12 mars 2026". */
+export const formatDate = (isoDate: string): string => dateOnly.format(new Date(`${isoDate}T00:00:00Z`));
+export const formatTime = (iso: string): string => timeOnly.format(new Date(iso));
+export const formatDayMonth = (d: Date): string => dayMonth.format(d);
 
-/** "Ahmed Saidi" → "AS" */
-export const initials = (name: string) =>
-  name
-    .replace(/^Dr\.?\s+/i, "")
+export const formatBp = (bp: { sys: number; dia: number }): string => `${bp.sys}/${bp.dia}`;
+
+/** "31 SA + 4 j" (semaines d'aménorrhée). */
+export function formatWeek(week: { weeks: number; days: number } | null): string {
+  if (!week) return "—";
+  return week.days === 0 ? `${week.weeks} SA` : `${week.weeks} SA + ${week.days} j`;
+}
+
+export function bmi(heightCm: number | null, weightKg: number | null): string | null {
+  if (!heightCm || !weightKg) return null;
+  const m = heightCm / 100;
+  return (weightKg / (m * m)).toFixed(1);
+}
+
+/** Initials for an avatar: "Amina Bensalem" → "AB". */
+export function initials(fullName: string): string {
+  return fullName
     .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() ?? "")
+    .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
+}

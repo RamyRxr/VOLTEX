@@ -1,4 +1,8 @@
 {
   "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // The mobile app compiles this package with this flag on.
+    "noUncheckedIndexedAccess": true
+  },
   "include": ["src"]
 }
