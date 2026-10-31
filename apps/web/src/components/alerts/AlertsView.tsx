@@ -7,7 +7,7 @@ import { useNow } from "@/components/ui/useNow";
 import { errorMessage } from "@/lib/api";
 import { formatDateTime, relativeTime } from "@/lib/format";
 import { fr } from "@/lib/i18n/fr";
-import { useAlertAction, useAlerts, type AlertFilter } from "@/lib/queries";
+import { useAlertAction, useAlerts, usePrefetchPatient, type AlertFilter } from "@/lib/queries";
 import { AlertBadge } from "./AlertBadge";
 import styles from "./AlertsView.module.css";
 
@@ -17,6 +17,7 @@ export function AlertsView() {
   const [filter, setFilter] = useState<AlertFilter>("OPEN");
   const alerts = useAlerts(filter);
   const action = useAlertAction();
+  const prefetch = usePrefetchPatient();
   const now = useNow();
 
   return (
@@ -52,7 +53,7 @@ export function AlertsView() {
                 <li key={a.id} className={a.level === "EMERGENCY" || a.level === "SEVERE" ? `${styles.item} ${styles.urgent}` : styles.item}>
                   <AlertBadge level={a.level} />
                   <div className={styles.body}>
-                    <Link href={`/d/patients/${a.patientId}`} className={styles.patient}>
+                    <Link href={`/d/patients/${a.patientId}`} className={styles.patient} {...prefetch(a.patientId)}>
                       {a.patientName}
                     </Link>
                     <p>{a.reason}</p>

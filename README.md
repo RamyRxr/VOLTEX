@@ -7,28 +7,35 @@ A mobile app for the pregnant patient, a web dashboard for her doctor, and one e
 
 Built for **Hackathon SolveX 3.0 · Problem 2**. The interface is in French.
 
+<p align="center">
+  <img src="docs/screenshots/web/patients.png" alt="Doctor dashboard: patients sorted from most urgent to most stable" width="68%">
+  &nbsp;
+  <img src="docs/screenshots/mobile/home.png" alt="Patient app: home screen" width="22%">
+</p>
+
 ---
 
 ## Contents
 
 1. [Quick start](#quick-start)
-2. [The problem](#the-problem)
-3. [What it does](#what-it-does)
-4. [How it works](#how-it-works)
-5. [Medical rules](#medical-rules)
-6. [Artificial intelligence](#artificial-intelligence)
-7. [Tech stack and repository layout](#tech-stack-and-repository-layout)
-8. [Installation](#installation)
-9. [Run the web dashboard and the API](#run-the-web-dashboard-and-the-api)
-10. [Run the mobile app](#run-the-mobile-app)
-11. [Demo accounts](#demo-accounts)
-12. [Testing](#testing)
-13. [Demo scenario (2 minutes)](#demo-scenario-2-minutes)
-14. [API reference](#api-reference)
-15. [Troubleshooting](#troubleshooting)
-16. [Team and Git workflow](#team-and-git-workflow)
-17. [Security and privacy](#security-and-privacy)
-18. [Roadmap](#roadmap)
+2. [Screenshots](#screenshots)
+3. [The problem](#the-problem)
+4. [What it does](#what-it-does)
+5. [How it works](#how-it-works)
+6. [Medical rules](#medical-rules)
+7. [Artificial intelligence](#artificial-intelligence)
+8. [Tech stack and repository layout](#tech-stack-and-repository-layout)
+9. [Installation](#installation)
+10. [Run the web dashboard and the API](#run-the-web-dashboard-and-the-api)
+11. [Run the mobile app](#run-the-mobile-app)
+12. [Demo accounts](#demo-accounts)
+13. [Testing](#testing)
+14. [Demo scenario (2 minutes)](#demo-scenario-2-minutes)
+15. [API reference](#api-reference)
+16. [Troubleshooting](#troubleshooting)
+17. [Team and Git workflow](#team-and-git-workflow)
+18. [Security and privacy](#security-and-privacy)
+19. [Roadmap](#roadmap)
 
 ---
 
@@ -45,6 +52,34 @@ pnpm --filter mobile start -c         # terminal 2: mobile app → scan the QR c
 Log in on the dashboard as **`docteur@demo.dz` / `Demo1234!`**, and on the phone as **`amina@demo.dz` / `Demo1234!`**.
 
 ---
+
+## Screenshots
+
+All data is fictional (seeded demo patients). Captured with the demo doctor `docteur@demo.dz` and the demo patient `meriem@demo.dz`.
+
+### Web dashboard — for the doctor
+
+| | |
+| --- | --- |
+| ![Patients sorted by urgency](docs/screenshots/web/patients.png) | ![Patient file](docs/screenshots/web/patient-file.png) |
+| **Patientes** — every linked patient, most urgent first, with the reason | **Patient file** — why this level, BP chart with the 140/90 and 160/110 lines, AI summary, chat |
+| ![A danger sign reported from the phone](docs/screenshots/web/patients-emergency.png) | ![Alerts](docs/screenshots/web/alerts.png) |
+| **The loop** — a danger sign answered on the phone puts the patient at the top within seconds | **Alertes** — acknowledge, then close |
+| ![Messages sorted by urgency](docs/screenshots/web/messages.png) | ![New-message notification](docs/screenshots/web/notification.png) |
+| **Messages** — patients who wrote, most urgent first, with unanswered counts | **Live notification** when a patient writes |
+| ![Risk factors and learned risk](docs/screenshots/web/patient-risk.png) | ![Invite codes and link requests](docs/screenshots/web/invites.png) |
+| **Risk** — every contributing factor, plus the experimental learned risk | **Codes et demandes** — one-time invite codes, link requests |
+
+### Mobile app — for the patient
+
+| | | | |
+| --- | --- | --- | --- |
+| <img src="docs/screenshots/mobile/welcome.png" alt="Welcome" width="200"> | <img src="docs/screenshots/mobile/home.png" alt="Home" width="200"> | <img src="docs/screenshots/mobile/measure.png" alt="Blood pressure steppers" width="200"> | <img src="docs/screenshots/mobile/questionnaire.png" alt="Daily questionnaire" width="200"> |
+| Welcome | Home: status, last reading, risk | Measure: large steppers | Daily questionnaire |
+| <img src="docs/screenshots/mobile/emergency.png" alt="Emergency result" width="200"> | <img src="docs/screenshots/mobile/history.png" alt="History chart" width="200"> | <img src="docs/screenshots/mobile/risk.png" alt="Risk explanation" width="200"> | <img src="docs/screenshots/mobile/chat.png" alt="Chat with the doctor" width="200"> |
+| Danger sign → call 14 now | History with threshold lines | Risk and its reasons | Chat with her doctor |
+
+The same app has a light **doctor mode** (open alerts sorted by urgency, "mark as seen"): see the [mobile README](apps/mobile/README.md#screenshots).
 
 ## The problem
 
@@ -73,7 +108,7 @@ SafeMaman closes that gap:
 | Reminders | Local notifications for measurements and the questionnaire |
 | Information assistant | General questions about hypertension in pregnancy (API ready; screen in progress) |
 
-**Light doctor mode** in the same app: patient list sorted by urgency, patient summary, invite-code generator, link requests.
+**Light doctor mode** in the same app: open alerts sorted by urgency, "mark as seen", notification settings. The full patient file stays on the web dashboard.
 
 ### Web dashboard (Next.js) — for the doctor only
 
@@ -82,6 +117,7 @@ SafeMaman closes that gap:
 | Login | Doctor accounts only (patients are refused and sent to the app) |
 | **Patientes** (triage) | All linked patients sorted from most urgent to most stable, filters by level with counts, search, pending-request banner. Each row: status (icon + colour + word), name, pregnancy week, last reading and time, risk, reason. Refreshes every 3 s. |
 | **Patient file** | Why this level (every rule that fired), BP chart with threshold lines (unconfirmed readings shown hollow), full reading history, every questionnaire answer, alerts, risk factors and risk timeline, **learned risk (experimental)**, profile, **AI summary** (stored, or regenerated on demand), doctor notes, live chat with an **AI message suggestion** the doctor edits before sending |
+| **Messages** | Patients who wrote, sorted like the triage list (most urgent first), with the count of messages awaiting a reply; a row opens the patient file on the chat. A card pops up live when a patient writes, and the tab title shows the waiting count. |
 | **Alertes** | Open / acknowledged / closed alerts; acknowledge, close |
 | **Codes et demandes** | Generate one-time invite codes (24 h), accept or refuse link requests (only the name and date are visible before acceptance) |
 

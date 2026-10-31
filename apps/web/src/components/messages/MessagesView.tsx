@@ -8,7 +8,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useNow } from "@/components/ui/useNow";
 import { formatDateTime, relativeTime } from "@/lib/format";
 import { fr } from "@/lib/i18n/fr";
-import { useConversations } from "@/lib/queries";
+import { useConversations, usePrefetchPatient } from "@/lib/queries";
 import { isUrgent } from "@/lib/status";
 import styles from "./MessagesView.module.css";
 
@@ -20,6 +20,7 @@ type Filter = "all" | "awaiting";
  */
 export function MessagesView() {
   const conversations = useConversations();
+  const prefetch = usePrefetchPatient();
   const now = useNow();
   const [filter, setFilter] = useState<Filter>("all");
 
@@ -60,7 +61,12 @@ export function MessagesView() {
                 const urgent = isUrgent(c.level, c.unconfirmedSevere);
                 return (
                   <li key={c.linkId}>
-                    <Link href={`/d/patients/${c.patientId}#chat`} className={styles.row} aria-label={`${t.open} : ${c.fullName}`}>
+                    <Link
+                      href={`/d/patients/${c.patientId}#chat`}
+                      className={styles.row}
+                      aria-label={`${t.open} : ${c.fullName}`}
+                      {...prefetch(c.patientId)}
+                    >
                       <span className={styles.status}>
                         <StatusBadge level={c.level} unconfirmedSevere={c.unconfirmedSevere} />
                       </span>
