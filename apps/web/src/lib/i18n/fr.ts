@@ -187,6 +187,8 @@ export const fr = {
     unanswered: (n: number) => (n === 1 ? "1 message sans réponse" : `${n} messages sans réponse`),
     replied: "Répondu",
     open: "Ouvrir la conversation",
+    newFrom: "Nouveau message de",
+    dismiss: "Fermer la notification",
   },
   alerts: {
     title: "Alertes",

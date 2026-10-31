@@ -15,21 +15,19 @@ const preview = (body: string): string =>
  * (same groups as the triage list), then most recent message first.
  */
 export async function conversations(doctorId: string, doctorProfileId: string, now: Date): Promise<ConversationDto[]> {
-  const links = await db.linkRequest.findMany({
-    where: { doctorId, status: "ACCEPTED" },
-    select: { id: true, patientId: true },
-  });
-  if (links.length === 0) return [];
-
-  const messages = await db.message.findMany({
-    where: { linkId: { in: links.map((l) => l.id) } },
-    orderBy: { createdAt: "desc" },
-    take: MESSAGE_SCAN,
-    select: { linkId: true, senderId: true, body: true, createdAt: true },
-  });
+  const accepted = { doctorId, status: "ACCEPTED" } as const;
+  // Independent reads in parallel: each database round trip is the main cost of this poll.
+  const [links, messages, rows] = await Promise.all([
+    db.linkRequest.findMany({ where: accepted, select: { id: true, patientId: true } }),
+    db.message.findMany({
+      where: { link: accepted },
+      orderBy: { createdAt: "desc" },
+      take: MESSAGE_SCAN,
+      select: { linkId: true, senderId: true, body: true, createdAt: true },
+    }),
+    triage(doctorId, now),
+  ]);
   if (messages.length === 0) return [];
-
-  const rows = await triage(doctorId, now);
   const byPatient = new Map(rows.map((r) => [r.patientId, r]));
 
   const list = links.flatMap((link): ConversationDto[] => {

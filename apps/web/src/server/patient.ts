@@ -10,6 +10,7 @@ import {
   type SessionInput,
   type SessionOutput,
 } from "shared";
+import { forgetViewer } from "./auth";
 import { db } from "./db";
 import { ApiError } from "./http";
 import { riskResultDto, sessionDto, toSessionRecord } from "./mappers";
@@ -76,6 +77,7 @@ export async function saveProfile(userId: string, input: ProfileInput, now: Date
     create: { profileId: userId, consentAt: now, ...fields },
     update: fields,
   });
+  forgetViewer(userId);
 
   const { risk } = await withPatientLock(patient.id, async (tx) =>
     assess(tx, await loadPatientData(tx, patient.id, now), "PROFILE", now),

@@ -3,15 +3,65 @@
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import type { ConversationDto } from "shared";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { ApiCallError } from "@/lib/api";
 import { initials } from "@/lib/format";
 import { fr } from "@/lib/i18n/fr";
-import { useAlerts, useConversations, useLinkRequests, useMe } from "@/lib/queries";
+import { keys, useAlerts, useConversations, useLinkRequests, useMe } from "@/lib/queries";
 import { isUrgent } from "@/lib/status";
 import { supabaseBrowser } from "@/lib/supabase";
 import styles from "./DoctorShell.module.css";
+import { MessageToasts, type MessageToast } from "./MessageToasts";
+import { useIncomingMessages, type IncomingMessage } from "./useIncomingMessages";
+
+const BASE_TITLE = `${fr.app.name} — Espace médecin`;
+const MAX_TOASTS = 3;
+
+/**
+ * Live new-message notifications: the Messages counter refreshes at once and a
+ * card shows who wrote (not when the doctor is already on that patient's page).
+ */
+function useMessageNotifications(myId: string | null) {
+  const qc = useQueryClient();
+  const [toasts, setToasts] = useState<MessageToast[]>([]);
+  const close = useCallback((id: string) => setToasts((list) => list.filter((t) => t.id !== id)), []);
+
+  const onIncoming = useCallback(
+    (message: IncomingMessage) => {
+      const find = () => qc.getQueryData<ConversationDto[]>(keys.conversations)?.find((c) => c.linkId === message.linkId);
+      const show = (conversation: ConversationDto | undefined) => {
+        if (!conversation || window.location.pathname === `/d/patients/${conversation.patientId}`) return;
+        const toast: MessageToast = {
+          id: message.id,
+          patientId: conversation.patientId,
+          fullName: conversation.fullName,
+          level: conversation.level,
+          unconfirmedSevere: conversation.unconfirmedSevere,
+          body: message.body,
+        };
+        setToasts((list) => [...list.filter((t) => t.id !== toast.id), toast].slice(-MAX_TOASTS));
+      };
+      // A patient who already wrote is in the cached list: the card and the counter update at
+      // once, the server copy follows in the background. A first message waits for the refresh.
+      const known = find();
+      if (known) {
+        show(known);
+        const lastMessage = { body: message.body, createdAt: new Date().toISOString(), fromPatient: true };
+        qc.setQueryData<ConversationDto[]>(keys.conversations, (list) =>
+          list?.map((c) => (c.linkId === message.linkId ? { ...c, lastMessage, unanswered: c.unanswered + 1 } : c)),
+        );
+      }
+      const refresh = qc.invalidateQueries({ queryKey: keys.conversations });
+      if (!known) void refresh.then(() => show(find()));
+    },
+    [qc],
+  );
+
+  useIncomingMessages(myId, onIncoming);
+  return { toasts, close };
+}
 
 type AuthState = "checking" | "in" | "out";
 
@@ -78,8 +128,15 @@ function Sidebar() {
   const awaiting = (conversations.data ?? []).filter((c) => c.unanswered > 0);
   const urgentAwaiting = awaiting.some((c) => isUrgent(c.level, c.unconfirmedSevere));
   const name = me.data?.fullName ?? "";
+  const notifications = useMessageNotifications(me.data?.id ?? null);
+
+  // Waiting conversations in the browser tab title, visible from another tab: "(3) SafeMaman — …"
+  useEffect(() => {
+    document.title = awaiting.length > 0 ? `(${awaiting.length}) ${BASE_TITLE}` : BASE_TITLE;
+  }, [awaiting.length]);
 
   return (
+    <>
     <aside className={styles.sidebar}>
       <Link href="/d" className={styles.brand}>
         <span className={styles.mark} aria-hidden />
@@ -101,6 +158,8 @@ function Sidebar() {
         </button>
       </div>
     </aside>
+    <MessageToasts toasts={notifications.toasts} onClose={notifications.close} />
+    </>
   );
 }
 
