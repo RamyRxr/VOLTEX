@@ -1,0 +1,87 @@
+{
+  "model": "hdp-risk-logistic-v1",
+  "trained_at": "2026-10-31T00:53:11+00:00",
+  "task": "Risk of a hypertensive disorder of pregnancy (gestational hypertension or eclampsia), from the profile",
+  "population": "pregnancies without chronic hypertension; not applicable when chronic hypertension is present",
+  "source": "CDC / NCHS natality public-use files 2022 (train) and 2023 (test), US birth certificates, public domain",
+  "average_risk": 0.1001,
+  "intercept": -3.0301220417022705,
+  "factors": [
+    {
+      "code": "age_under_20",
+      "label": "Âge < 20 ans",
+      "weight": -0.02611103095114231
+    },
+    {
+      "code": "age_35_39",
+      "label": "Âge 35–39 ans",
+      "weight": 0.12414181232452393
+    },
+    {
+      "code": "age_40_plus",
+      "label": "Âge ≥ 40 ans",
+      "weight": 0.27635544538497925
+    },
+    {
+      "code": "bmi_25_30",
+      "label": "IMC 25–29,9 (surpoids)",
+      "weight": 0.4764837920665741
+    },
+    {
+      "code": "bmi_30_35",
+      "label": "IMC 30–34,9 (obésité)",
+      "weight": 0.8234081864356995
+    },
+    {
+      "code": "bmi_35_plus",
+      "label": "IMC ≥ 35 (obésité sévère)",
+      "weight": 1.245124340057373
+    },
+    {
+      "code": "bmi_unknown",
+      "label": "IMC non renseigné (taille ou poids manquant)",
+      "weight": 0.49957919120788574
+    },
+    {
+      "code": "first_pregnancy",
+      "label": "Première grossesse",
+      "weight": 0.5131667256355286
+    },
+    {
+      "code": "multiple_pregnancy",
+      "label": "Grossesse multiple",
+      "weight": 0.6811983585357666
+    },
+    {
+      "code": "infertility_treatment",
+      "label": "Grossesse après traitement de l'infertilité (FIV…)",
+      "weight": 0.3705293536186218
+    },
+    {
+      "code": "preexisting_diabetes",
+      "label": "Diabète avant la grossesse",
+      "weight": 0.8879197239875793
+    },
+    {
+      "code": "gestational_diabetes",
+      "label": "Diabète gestationnel",
+      "weight": 0.49704214930534363
+    }
+  ],
+  "test_2023": {
+    "births": 3485785,
+    "roc_auc": 0.6525,
+    "pr_auc": 0.1816,
+    "brier": 0.09162,
+    "top10": {
+      "flagged_share": 0.1102,
+      "sensitivity": 0.2324,
+      "precision": 0.2232
+    },
+    "top20": {
+      "flagged_share": 0.2225,
+      "sensitivity": 0.3999,
+      "precision": 0.1901
+    }
+  }
+}

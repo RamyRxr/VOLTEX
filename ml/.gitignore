@@ -1,0 +1,9 @@
+# Local Python environment and raw CDC data (several GB): never committed.
+.venv/
+data/
+__pycache__/
+
+# Comparison model (3 MB): kept out of Git, regenerate with scripts/train.py
+models/hdp_risk.json
+models/hdp_risk_vectors.json
+reports/*.log
