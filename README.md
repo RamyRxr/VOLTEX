@@ -65,7 +65,7 @@ Patient list sorted by urgency, patient summary, invite-code generator, link req
 | --- | --- |
 | Login | Doctor accounts only (patients are refused and sent to the app) |
 | **Patientes** (triage) | All linked patients sorted from most urgent to most stable, filters by level with counts, search, pending-request banner. Each row: status (icon + colour + word), name, pregnancy week, last reading and time, risk, reason. Refreshes every 3 s. |
-| **Patient file** | Why this level (every rule that fired), BP chart with threshold lines (unconfirmed readings shown hollow), full reading history, every questionnaire answer, alerts, risk factors and risk timeline, profile, AI summary box, doctor notes, live chat |
+| **Patient file** | Why this level (every rule that fired), BP chart with threshold lines (unconfirmed readings shown hollow), full reading history, every questionnaire answer, alerts, risk factors and risk timeline, **learned risk (experimental)**, profile, AI summary box, doctor notes, live chat |
 | **Alertes** | Open / acknowledged / closed alerts; acknowledge, close |
 | **Codes et demandes** | Generate one-time invite codes (24 h), accept or refuse link requests (only the name and date are visible before acceptance) |
 
@@ -110,7 +110,8 @@ apps/
     src/app/d/      dashboard pages
   mobile/         Expo app: patient space + light doctor space
 packages/
-  shared/         rules (evaluate, estimateRisk, triage…) + Zod schemas, with tests
+  shared/         rules (evaluate, estimateRisk, triage…) + Zod schemas + learned-risk scorer, with tests
+ml/               learned risk model: CDC data extraction, training (GPU), model card, reports
 docs/
   MOBILE-GUIDE.md every mobile screen → its API route → its shared schema
 idea.md           the product: what we build, for whom, the expected demo
@@ -141,6 +142,8 @@ All values are initial values from common obstetric guidelines and **must be val
 An unconfirmed severe reading is never hidden: the doctor sees it ("Sévère non confirmée"), right after Emergency and Severe in the triage order.
 
 **Risk** (explainable, rule-based): high-weight factors (previous pre-eclampsia, chronic hypertension, pre-existing diabetes, kidney disease, autoimmune disease, multiple pregnancy) and moderate ones (first pregnancy, age ≥ 40, BMI ≥ 35, family history of pre-eclampsia, IVF). HIGH if ≥ 1 high-weight or ≥ 2 moderate factors, MODERATE if 1 moderate, LOW otherwise; raised by hypertensive readings, a rising trend or recent watch signs; never lowered below the initial category. Every estimate is stored, so the doctor sees the risk timeline.
+
+**Learned risk (experimental, doctor only).** Next to the rule-based risk, the patient file shows a probability learned from **7 million real US births** (CDC natality files: trained on 2022, tested on 2023), from the same profile factors. It is an explainable logistic model: the doctor sees each factor's multiplier (e.g. BMI ≥ 35 ×3.5, pre-existing diabetes ×2.4, twins ×2.0). On 3.5 million births it never saw, it reaches ROC-AUC 0.65 (current rules: 0.60; a GPU XGBoost model reached 0.66 but was kept out because it is not explainable), and its predicted risk matches the observed rates. It is not applicable with chronic hypertension and **never changes levels, alerts or the rule-based risk**. Data, results and limits: [ml/README.md](ml/README.md).
 
 ## Getting started
 
@@ -258,7 +261,7 @@ Every level comes from the rules applied to the seeded readings, never from a ha
 ```bash
 pnpm -r typecheck            # every package
 pnpm -r lint
-pnpm --filter shared test    # rules + schemas (64 tests)
+pnpm --filter shared test    # rules + schemas + learned risk (68 tests)
 pnpm --filter web test       # dashboard helpers (11 tests)
 ```
 

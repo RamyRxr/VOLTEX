@@ -406,3 +406,69 @@
 .notes p {
   white-space: pre-wrap;
 }
+
+/* Learned risk (experimental) */
+.learnedValue {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.learnedValue strong {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  line-height: 1;
+}
+
+.learnedBar {
+  position: relative;
+  height: 8px;
+  margin: var(--space-3) 0 var(--space-2);
+  background: var(--surface-sunken);
+  border-radius: 999px;
+}
+
+.learnedFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--chart-sys);
+  border-radius: 999px;
+}
+
+.learnedAverage {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 2px;
+  background: var(--text);
+}
+
+.learnedHeading {
+  margin: var(--space-4) 0 var(--space-2);
+}
+
+.learnedFactors {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.learnedFactors li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: 6px;
+  border-bottom: 1px dashed var(--border);
+  font-size: var(--text-sm);
+}
+
+.learnedFactors li:last-child {
+  border-bottom: 0;
+}
+
+.learnedFactors li span:last-child {
+  font-weight: 700;
+}

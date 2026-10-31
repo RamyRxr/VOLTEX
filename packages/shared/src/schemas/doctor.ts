@@ -45,6 +45,20 @@ export const triageSchema = z.array(triageRowSchema);
 
 export const noteSchema = z.object({ id: z.uuid(), body: z.string(), createdAt: isoDateTime });
 
+/** Experimental learned risk, doctor only (see ml/README.md). */
+export const learnedRiskSchema = z.discriminatedUnion("applicable", [
+  z.object({
+    applicable: z.literal(true),
+    probability: z.number(),
+    averageRisk: z.number(),
+    factors: z.array(z.object({ code: z.string(), label: z.string(), oddsRatio: z.number() })),
+    model: z.string(),
+    testRocAuc: z.number(),
+    testBirths: z.number().int(),
+  }),
+  z.object({ applicable: z.literal(false), reason: z.literal("CHRONIC_HYPERTENSION"), model: z.string() }),
+]);
+
 /** GET /api/doctor/patients/:id — the full file. */
 export const patientFileSchema = z.object({
   id: z.uuid(),
@@ -63,6 +77,7 @@ export const patientFileSchema = z.object({
   unconfirmedSevere: z.object({ sys: z.number().int(), dia: z.number().int(), takenAt: isoDateTime }).nullable(),
   findings: z.array(z.object({ level: alertLevelSchema, evidence: z.string(), reason: z.string() })),
   risk: riskSchema.nullable(),
+  learnedRisk: learnedRiskSchema,
   risks: z.array(riskSchema),
   sessions: z.array(sessionSchema),
   questionnaires: z.array(questionnaireSchema),
@@ -92,6 +107,7 @@ export type LinkRequestDto = z.infer<typeof linkRequestSchema>;
 export type LinkDecision = z.infer<typeof linkDecisionSchema>;
 export type TriageRow = z.infer<typeof triageRowSchema>;
 export type PatientFile = z.infer<typeof patientFileSchema>;
+export type LearnedRiskDto = z.infer<typeof learnedRiskSchema>;
 export type PatientSettings = z.infer<typeof patientSettingsSchema>;
 export type AlertAction = z.infer<typeof alertActionSchema>;
 export type AlertListItem = z.infer<typeof alertsListSchema>[number];
