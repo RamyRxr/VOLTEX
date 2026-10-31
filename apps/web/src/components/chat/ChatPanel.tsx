@@ -4,18 +4,30 @@ import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { formatDateTime, formatTime } from "@/lib/format";
 import { fr } from "@/lib/i18n/fr";
-import { useMe } from "@/lib/queries";
+import { useDraftAdvice, useMe } from "@/lib/queries";
 import styles from "./ChatPanel.module.css";
 import { useChat } from "./useChat";
 
-export function ChatPanel({ linkId, patientName }: { linkId: string; patientName: string }) {
+export function ChatPanel({ linkId, patientId, patientName }: { linkId: string; patientId: string; patientName: string }) {
   const me = useMe();
   const myId = me.data?.id ?? null;
   const { messages, status, send } = useChat(linkId, myId);
+  const suggest = useDraftAdvice(patientId);
   const [draft, setDraft] = useState("");
+  const [suggested, setSuggested] = useState(false);
   const [failed, setFailed] = useState(false);
   const [sending, setSending] = useState(false);
   const listRef = useRef<HTMLOListElement>(null);
+
+  /** Puts a suggestion in the box: the doctor reads, edits, then sends it himself (spec §9.2). */
+  function suggestMessage() {
+    suggest.mutate(undefined, {
+      onSuccess: ({ text }) => {
+        setDraft(text);
+        setSuggested(true);
+      },
+    });
+  }
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
@@ -29,7 +41,10 @@ export function ChatPanel({ linkId, patientName }: { linkId: string; patientName
     const ok = await send(draft);
     setSending(false);
     setFailed(!ok);
-    if (ok) setDraft("");
+    if (ok) {
+      setDraft("");
+      setSuggested(false);
+    }
   }
 
   return (
@@ -38,6 +53,10 @@ export function ChatPanel({ linkId, patientName }: { linkId: string; patientName
         <h2 id="chat-title">
           <Icon name="send" /> {fr.chat.title}
         </h2>
+        <button type="button" className="btn btn-ghost" onClick={suggestMessage} disabled={suggest.isPending}>
+          <Icon name="sparkle" />
+          {suggest.isPending ? fr.chat.suggesting : fr.chat.suggest}
+        </button>
       </div>
       <p className={styles.banner}>{fr.chat.banner}</p>
       <ol ref={listRef} className={styles.list} aria-live="polite">
@@ -81,6 +100,12 @@ export function ChatPanel({ linkId, patientName }: { linkId: string; patientName
           <span className="sr-only">{fr.chat.send}</span>
         </button>
       </form>
+      {suggested && draft.trim() && <p className={`subtle ${styles.error}`}>{fr.chat.suggestion}</p>}
+      {suggest.isError && (
+        <p className={`notice tone-danger ${styles.error}`} role="alert">
+          {fr.chat.suggestFailed}
+        </p>
+      )}
       {failed && (
         <p className={`notice tone-danger ${styles.error}`} role="alert">
           {fr.chat.failed}

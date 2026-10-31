@@ -99,8 +99,18 @@ export const alertsListSchema = z.array(alertSchema.extend({ patientName: z.stri
 export const noteInputSchema = z.object({ body: z.string().trim().min(1).max(2000) });
 
 /** POST /api/doctor/patients/:id/summary and /draft-advice */
-export const summarySchema = z.object({ text: z.string(), generatedAt: isoDateTime, fromCache: z.boolean() });
-export const draftAdviceSchema = z.object({ text: z.string() });
+/** AI = written by the model; FALLBACK = static text built from the facts (model unavailable). */
+export const textSourceSchema = z.enum(["AI", "FALLBACK"]);
+/** POST body of /summary: `refresh` asks for a new summary instead of the stored one. */
+export const summaryRequestSchema = z.object({ refresh: z.boolean().optional() });
+export const summarySchema = z.object({
+  text: z.string(),
+  /** null for a stored summary (its date is not kept). */
+  generatedAt: isoDateTime.nullable(),
+  fromCache: z.boolean(),
+  source: textSourceSchema.optional(),
+});
+export const draftAdviceSchema = z.object({ text: z.string(), source: textSourceSchema.optional() });
 
 export type Invite = z.infer<typeof inviteSchema>;
 export type LinkRequestDto = z.infer<typeof linkRequestSchema>;

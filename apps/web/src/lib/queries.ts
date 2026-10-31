@@ -5,12 +5,14 @@ import {
   alertSchema,
   alertsListSchema,
   CONFIG,
+  draftAdviceSchema,
   inviteSchema,
   invitesSchema,
   linkRequestsSchema,
   meSchema,
   noteSchema,
   patientFileSchema,
+  summarySchema,
   triageSchema,
 } from "shared";
 import { z } from "zod";
@@ -99,6 +101,21 @@ export function useAlertAction() {
     },
   });
 }
+
+/** New AI summary (spec §9.1); the file is refreshed to show the stored one. */
+export function useGenerateSummary(patientId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => api(`/api/doctor/patients/${patientId}/summary`, summarySchema, { method: "POST", body: { refresh: true } }),
+    onSuccess: (summary) => {
+      if (summary.source === "AI") void qc.invalidateQueries({ queryKey: keys.file(patientId) });
+    },
+  });
+}
+
+/** Message suggestion for the chat (spec §9.2): the doctor edits it before sending. */
+export const useDraftAdvice = (patientId: string) =>
+  useMutation({ mutationFn: () => api(`/api/doctor/patients/${patientId}/draft-advice`, draftAdviceSchema, { method: "POST" }) });
 
 export function useAddNote(patientId: string) {
   const qc = useQueryClient();
