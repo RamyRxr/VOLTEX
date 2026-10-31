@@ -9,6 +9,28 @@ One app, two spaces chosen by the role of the signed-in account:
 | **Patient** | pregnant woman | consent, medical profile, initial risk, add my doctor (code), measure BP (guided steppers), daily questionnaire, result screens (emergency / re-measure countdown), history chart, chat, reminders, info assistant |
 | **Doctor** (light) | doctor | open alerts sorted by urgency, "mark as seen", notifications on new alerts, notification settings. The full patient file stays on the web dashboard. |
 
+## Screenshots
+
+Android emulator, Expo Go, demo mode, fictional demo patient `meriem@demo.dz`.
+
+### Patient space
+
+| | | | |
+| --- | --- | --- | --- |
+| <img src="../../docs/screenshots/mobile/welcome.png" alt="Welcome" width="200"> | <img src="../../docs/screenshots/mobile/login.png" alt="Login" width="200"> | <img src="../../docs/screenshots/mobile/home.png" alt="Home" width="200"> | <img src="../../docs/screenshots/mobile/measure-guide.png" alt="Before measuring" width="200"> |
+| Welcome | Login (demo accounts in one tap) | Home: last reading, risk, doctor | Guidance before measuring |
+| <img src="../../docs/screenshots/mobile/measure.png" alt="Steppers" width="200"> | <img src="../../docs/screenshots/mobile/questionnaire.png" alt="Questionnaire" width="200"> | <img src="../../docs/screenshots/mobile/emergency.png" alt="Emergency result" width="200"> | <img src="../../docs/screenshots/mobile/history.png" alt="History" width="200"> |
+| Large +/− steppers | Daily questionnaire (danger sign highlighted) | Danger sign → call 14 now | History with 140/90 and 160/110 lines |
+| <img src="../../docs/screenshots/mobile/risk.png" alt="Risk explained" width="200"> | <img src="../../docs/screenshots/mobile/chat.png" alt="Chat" width="200"> | <img src="../../docs/screenshots/mobile/reminders.png" alt="Reminders" width="200"> | <img src="../../docs/screenshots/mobile/more.png" alt="Mon espace" width="200"> |
+| Risk with its reasons | Chat with the doctor | Local reminders | Mon espace |
+
+### Doctor mode (light)
+
+| |
+| --- |
+| <img src="../../docs/screenshots/mobile/doctor-alerts.png" alt="Doctor alerts" width="200"> |
+| Open alerts, most urgent first, "mark as seen" |
+
 ## Run it
 
 ```bash
