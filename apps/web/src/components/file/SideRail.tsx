@@ -6,11 +6,18 @@ import { Icon } from "@/components/ui/Icon";
 import { errorMessage } from "@/lib/api";
 import { formatDateTime } from "@/lib/format";
 import { fr } from "@/lib/i18n/fr";
-import { useAddNote } from "@/lib/queries";
+import { useAddNote, useGenerateSummary } from "@/lib/queries";
 import styles from "./file.module.css";
 
-/** AI summary: labelled, never the only source of truth (spec §9.1). */
-export function SummaryCard({ text }: { text: string | null }) {
+/**
+ * AI summary: labelled, never the only source of truth (spec §9.1). A fallback
+ * text (model unavailable) is labelled as such, never as AI.
+ */
+export function SummaryCard({ patientId, text }: { patientId: string; text: string | null }) {
+  const generate = useGenerateSummary(patientId);
+  const fresh = generate.data;
+  const shown = fresh?.text ?? text;
+  const label = fresh?.source === "FALLBACK" ? fr.file.summaryFallbackLabel : fr.file.summaryLabel;
   return (
     <section className={`panel ${styles.summary}`} aria-labelledby="summary-title">
       <div className="panel-head">
@@ -18,10 +25,19 @@ export function SummaryCard({ text }: { text: string | null }) {
           <Icon name="sparkle" /> {fr.file.summary}
         </h2>
       </div>
-      <div className="panel-body">
-        <p className={styles.aiLabel}>{fr.file.summaryLabel}</p>
-        <p className={styles.summaryText}>{text ?? fr.file.summaryEmpty}</p>
-        <p className="subtle">{fr.file.summarySoon}</p>
+      <div className="panel-body" aria-live="polite">
+        <p className={styles.aiLabel}>{label}</p>
+        <p className={styles.summaryText}>{shown ?? fr.file.summaryEmpty}</p>
+        {fresh?.generatedAt && <p className="subtle">{fr.file.summaryGeneratedAt(formatDateTime(fresh.generatedAt))}</p>}
+        {generate.isError && (
+          <p className="notice tone-danger" role="alert">
+            {errorMessage(generate.error)}
+          </p>
+        )}
+        <button type="button" className="btn btn-secondary" onClick={() => generate.mutate()} disabled={generate.isPending}>
+          <Icon name="sparkle" />
+          {generate.isPending ? fr.file.summaryGenerating : fr.file.summaryGenerate}
+        </button>
       </div>
     </section>
   );

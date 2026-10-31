@@ -115,8 +115,8 @@ export function PatientFileView({ id }: { id: string }) {
               </div>
             </div>
             <aside className={styles.rail}>
-              <SummaryCard text={file.data.aiSummary} />
-              <ChatPanel linkId={file.data.linkId} patientName={file.data.fullName} />
+              <SummaryCard patientId={file.data.id} text={file.data.aiSummary} />
+              <ChatPanel linkId={file.data.linkId} patientId={file.data.id} patientName={file.data.fullName} />
               <NotesPanel patientId={file.data.id} notes={file.data.notes} />
             </aside>
           </div>

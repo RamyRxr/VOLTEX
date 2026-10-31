@@ -65,7 +65,7 @@ Patient list sorted by urgency, patient summary, invite-code generator, link req
 | --- | --- |
 | Login | Doctor accounts only (patients are refused and sent to the app) |
 | **Patientes** (triage) | All linked patients sorted from most urgent to most stable, filters by level with counts, search, pending-request banner. Each row: status (icon + colour + word), name, pregnancy week, last reading and time, risk, reason. Refreshes every 3 s. |
-| **Patient file** | Why this level (every rule that fired), BP chart with threshold lines (unconfirmed readings shown hollow), full reading history, every questionnaire answer, alerts, risk factors and risk timeline, **learned risk (experimental)**, profile, AI summary box, doctor notes, live chat |
+| **Patient file** | Why this level (every rule that fired), BP chart with threshold lines (unconfirmed readings shown hollow), full reading history, every questionnaire answer, alerts, risk factors and risk timeline, **learned risk (experimental)**, profile, **AI summary** (stored, or regenerated on demand), doctor notes, live chat with an **AI message suggestion** the doctor edits before sending |
 | **Alertes** | Open / acknowledged / closed alerts; acknowledge, close |
 | **Codes et demandes** | Generate one-time invite codes (24 h), accept or refuse link requests (only the name and date are visible before acceptance) |
 
@@ -180,7 +180,9 @@ cp apps/mobile/.env.example apps/mobile/.env
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Project Settings → **API Keys** → publishable / anon key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Project Settings → **API Keys** → secret / service-role key (**server only**) |
 | `CRON_SECRET` | any random string of 32+ characters (for `/api/jobs/silence`) |
-| `LLM_API_KEY` | the AI provider key (coming with the AI features) |
+| `LLM_BASE_URL` | any OpenAI-compatible API, e.g. `https://api.openai.com/v1`, `https://api.mistral.ai/v1`, `https://api.groq.com/openai/v1` |
+| `LLM_API_KEY` | the AI provider key (leave empty: the app uses its built-in fallback texts) |
+| `LLM_MODEL` | the model name at that provider |
 | `DEMO_MODE` | `true` shortens the severe re-measure delay to 10 s and shows a banner |
 | `ALLOW_DEMO_SEED` | `true` only on a demo project, to allow the seed to run |
 
@@ -262,7 +264,7 @@ Every level comes from the rules applied to the seeded readings, never from a ha
 pnpm -r typecheck            # every package
 pnpm -r lint
 pnpm --filter shared test    # rules + schemas + learned risk (68 tests)
-pnpm --filter web test       # dashboard helpers (11 tests)
+pnpm --filter web test       # dashboard helpers + AI texts and safety (28 tests)
 ```
 
 ### Manual end-to-end test (the demo loop)
@@ -298,12 +300,15 @@ All routes answer JSON; errors are `{ "error": CODE, "message": "French text" }`
 | POST / GET | `/api/patient/link` | patient | submit a doctor's code / link status |
 | POST / GET | `/api/patient/sessions` | patient | new reading → `{ session, evaluation, risk }` / history |
 | POST / GET | `/api/patient/questionnaires` | patient | daily questionnaire → `{ evaluation, risk }` / history |
+| POST | `/api/patient/assistant` | patient | `{ question }` → `{ answer }`: general information only; any symptom or high reading always gets "allez aux urgences de la maternité ou appelez le 14" |
 | POST / GET | `/api/doctor/invites` | doctor | new 6-character code (24 h, single use) / active codes |
 | GET | `/api/doctor/link-requests` | doctor | pending requests (name and date only) |
 | PATCH | `/api/doctor/link-requests/:id` | doctor | `{ action: "ACCEPT" \| "REFUSE" }` |
 | GET | `/api/doctor/patients` | doctor | triage list, sorted by urgency |
 | GET / PATCH | `/api/doctor/patients/:id` | doctor | full patient file / expected readings per day |
 | POST | `/api/doctor/patients/:id/notes` | doctor | add a note or decision |
+| POST | `/api/doctor/patients/:id/summary` | doctor | AI summary: stored one, or `{ "refresh": true }` for a new one → `{ text, generatedAt, fromCache, source }` |
+| POST | `/api/doctor/patients/:id/draft-advice` | doctor | AI message suggestion the doctor edits and sends himself → `{ text, source }` |
 | GET | `/api/doctor/alerts?status=` | doctor | alerts of linked patients |
 | PATCH | `/api/doctor/alerts/:id` | doctor | `{ action: "ACK" \| "CLOSE" }` |
 | GET / POST | `/api/jobs/silence` | cron | silence detection + expiry of pending severe readings (`CRON_SECRET`) |
@@ -355,7 +360,9 @@ Conventions: conventional commits (`feat(web): …`, `fix(mobile): …`), TypeSc
 
 ## Roadmap
 
-Next: AI doctor summary and draft advice (with a static fallback, never sent automatically), the patient information assistant, the indicators page, and deployment (Vercel + Supabase).
+Done recently: the experimental learned risk (see [ml/README.md](ml/README.md)) and the AI texts — doctor summary on demand, message suggestion for the chat, patient information assistant — each with a 10-second timeout and a built-in fallback, so they work without an API key and the demo never depends on a live call.
+
+Next: the patient assistant screen in the mobile app, the indicators page, and deployment (Vercel + Supabase).
 
 Not planned for the hackathon: device import, SMS channel, Arabic RTL, trained ML model, server push notifications, multi-doctor teams.
 

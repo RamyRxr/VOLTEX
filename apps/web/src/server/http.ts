@@ -94,6 +94,9 @@ export const WRITE_LIMITS = {
   profile: { max: 10, windowMs: 60_000 },
   invite: { max: 10, windowMs: 60_000 },
   note: { max: 30, windowMs: 60_000 },
+  summary: { max: 10, windowMs: 60_000 },
+  draft: { max: 10, windowMs: 60_000 },
+  assistant: { max: 10, windowMs: 60_000 },
 } as const;
 
 export function limitWrites(kind: keyof typeof WRITE_LIMITS, userKey: string): void {
