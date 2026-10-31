@@ -2,8 +2,10 @@ import { DefaultTheme, Stack, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
+import { StyleSheet, View } from "react-native";
 import { useSession } from "@/auth/SessionProvider";
 import { AppProviders } from "@/components/AppProviders";
+import { Logo } from "@/components/Logo";
 import { hydrateLastResult } from "@/features/result/lastResult";
 import { hydrateDoctorPrefs } from "@/notifications/doctorAlerts";
 import { configureNotifications } from "@/notifications/setup";
@@ -38,7 +40,14 @@ function RootNavigator() {
   useNotificationRouting(status === "signedIn");
 
   // Keep the splash until the session is known, so guards never redirect a deep link too early.
-  if (status === "loading") return null;
+  // Expo Go has no native splash: the logo shows here instead of an empty screen.
+  if (status === "loading") {
+    return (
+      <View style={styles.boot}>
+        <Logo variant="full" size={220} />
+      </View>
+    );
+  }
 
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
@@ -58,6 +67,11 @@ function RootNavigator() {
     </Stack>
   );
 }
+
+/** Same cream as the native splash (app.json). */
+const styles = StyleSheet.create({
+  boot: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#FAF7EB" },
+});
 
 export default function RootLayout() {
   return (

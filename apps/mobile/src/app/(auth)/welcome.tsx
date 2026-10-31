@@ -30,10 +30,7 @@ export default function Welcome() {
       }
     >
       <View style={styles.hero}>
-        <Logo size={104} />
-        <AppText variant="caption" color={colors.accent} style={styles.brand}>
-          {t("app.name").toUpperCase()}
-        </AppText>
+        <Logo variant="full" size={210} />
         <AppText variant="display" align="center" accessibilityRole="header">
           {t("welcome.title")}
         </AppText>
@@ -57,7 +54,6 @@ export default function Welcome() {
 
 const styles = StyleSheet.create({
   hero: { alignItems: "center", gap: space.md, paddingTop: space.xl },
-  brand: { letterSpacing: 2, fontWeight: "700" },
   points: { gap: space.md, paddingHorizontal: space.sm },
   point: { flexDirection: "row", alignItems: "center", gap: space.md },
   pointIcon: {
