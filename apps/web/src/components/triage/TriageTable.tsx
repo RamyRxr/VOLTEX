@@ -6,11 +6,13 @@ import { Icon } from "@/components/ui/Icon";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatBp, formatWeek, relativeTime } from "@/lib/format";
 import { fr } from "@/lib/i18n/fr";
+import { usePrefetchPatient } from "@/lib/queries";
 import { isUrgent, riskTone } from "@/lib/status";
 import styles from "./TriageView.module.css";
 
 export function TriageTable({ rows, now }: { rows: readonly TriageRow[]; now: Date }) {
   const router = useRouter();
+  const prefetch = usePrefetchPatient();
   const cols = fr.triage.columns;
   return (
     <div className="table-scroll">
@@ -37,6 +39,7 @@ export function TriageTable({ rows, now }: { rows: readonly TriageRow[]; now: Da
                 key={row.patientId}
                 className={urgent ? `${styles.row} ${styles.rowUrgent}` : styles.row}
                 onClick={() => router.push(href)}
+                {...prefetch(row.patientId)}
               >
                 <td>
                   <StatusBadge level={row.level} unconfirmedSevere={row.unconfirmedSevere != null} />

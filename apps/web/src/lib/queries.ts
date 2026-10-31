@@ -43,12 +43,27 @@ export const useTriage = () =>
     refetchInterval: POLL,
   });
 
-export const usePatientFile = (id: string) =>
-  useQuery({
-    queryKey: keys.file(id),
-    queryFn: ({ signal }) => api(`/api/doctor/patients/${id}`, patientFileSchema, { signal }),
-    refetchInterval: POLL,
-  });
+const fileQuery = (id: string) => ({
+  queryKey: keys.file(id),
+  queryFn: ({ signal }: { signal: AbortSignal }) => api(`/api/doctor/patients/${id}`, patientFileSchema, { signal }),
+});
+
+export const usePatientFile = (id: string) => useQuery({ ...fileQuery(id), refetchInterval: POLL });
+
+/** A file loaded less than this long ago is not fetched again on hover. */
+const PREFETCH_FRESH_MS = 10_000;
+
+/**
+ * Starts loading a patient's file when the doctor points at (or focuses) a link to it,
+ * so the page often opens with its data already there. Returns props for the link.
+ */
+export function usePrefetchPatient() {
+  const qc = useQueryClient();
+  return (id: string) => {
+    const prefetch = () => void qc.prefetchQuery({ ...fileQuery(id), staleTime: PREFETCH_FRESH_MS });
+    return { onMouseEnter: prefetch, onFocus: prefetch, onTouchStart: prefetch };
+  };
+}
 
 export type AlertFilter = "OPEN" | "ACKNOWLEDGED" | "CLOSED";
 
