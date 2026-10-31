@@ -12,3 +12,4 @@ export * from "./domain/messages";
 export * from "./domain/triage";
 export * from "./domain/invite";
 export * from "./schemas";
+export * from "./ml/learnedRisk";

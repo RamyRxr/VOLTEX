@@ -137,6 +137,19 @@ export const fr = {
     dueDate: "Terme prévu",
     lmpDate: "Dernières règles",
     expectedPerDay: "Mesures attendues par jour",
+    learned: {
+      title: "Risque estimé par apprentissage",
+      badge: "Expérimental",
+      average: (avg: string) => `Moyenne des grossesses : ${avg}`,
+      relative: (x: string) => `soit ${x} la moyenne`,
+      drivers: "Ce qui augmente l'estimation",
+      noDriver: "Aucun facteur qui augmente l'estimation.",
+      notApplicable:
+        "Non applicable : hypertension chronique. Le modèle ne couvre pas cette situation ; les règles classent déjà la patiente à risque élevé.",
+      about: (births: string, auc: string) =>
+        `Modèle logistique entraîné sur les naissances américaines 2022 (CDC), testé sur ${births} naissances de 2023 (AUC ${auc}). Probabilité d'hypertension gestationnelle ou d'éclampsie d'après le profil.`,
+      disclaimer: "Indicatif : ne modifie ni le niveau, ni les alertes, ni le risque calculé par les règles.",
+    },
     summary: "Synthèse",
     summaryLabel: "Synthèse générée par IA — à vérifier",
     summaryEmpty: "Pas encore de synthèse pour cette patiente.",

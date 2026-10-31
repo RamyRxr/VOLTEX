@@ -1,9 +1,13 @@
 import {
   ageOn,
+  bmiOf,
+  learnedRisk,
   pregnancyWeek,
   triageSort,
   type AlertListItem,
   type EvaluationResult,
+  type LearnedRiskDto,
+  type LearnedRiskInput,
   type PatientFile,
   type TriageRow,
 } from "shared";
@@ -90,6 +94,12 @@ export async function triage(doctorId: string, now: Date): Promise<TriageRow[]> 
   return triageSort(rows).map((r) => r.row);
 }
 
+/** Experimental learned risk for the doctor (never used by the rules). */
+function learnedRiskDto(input: LearnedRiskInput): LearnedRiskDto {
+  const r = learnedRisk(input);
+  return r.applicable ? { ...r, factors: r.factors.map((f) => ({ ...f })) } : { ...r };
+}
+
 /** GET /api/doctor/patients/:id — full file; the caller checked the link. */
 export async function patientFile(patientId: string, linkId: string, now: Date): Promise<PatientFile> {
   const p = await db.patient.findUnique({
@@ -144,6 +154,16 @@ export async function patientFile(patientId: string, linkId: string, now: Date):
     unconfirmedSevere: result.unconfirmedSevere ? bpAt(result.unconfirmedSevere) : null,
     findings: result.findings.map((f) => ({ level: f.level, evidence: f.evidence, reason: f.reason })),
     risk: riskResultDto(risk, now),
+    learnedRisk: learnedRiskDto({
+      age: ageOn(p.birthDate, now),
+      bmi: bmiOf(p.heightCm, p.weightKg),
+      firstPregnancy: p.firstPregnancy,
+      multiplePregnancy: p.multiplePregnancy,
+      ivfPregnancy: p.ivfPregnancy,
+      preexistingDiabetes: p.preexistingDiabetes,
+      gestationalDiabetes: p.gestationalDiabetes,
+      chronicHypertension: p.chronicHypertension,
+    }),
     risks: p.risks.map(riskRowDto),
     sessions: p.sessions.map(sessionDto),
     questionnaires: p.questionnaires.map(questionnaireDto),

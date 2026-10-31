@@ -10,6 +10,7 @@ import { usePatientFile } from "@/lib/queries";
 import { BpChart } from "./BpChart";
 import { FileHeader } from "./FileHeader";
 import { Findings } from "./Findings";
+import { LearnedRiskCard } from "./LearnedRiskCard";
 import { AlertsHistory, QuestionnairesTable, ReadingsTable } from "./History";
 import { ProfilePanel, RiskFactors, RiskTimeline } from "./RiskAndProfile";
 import { NotesPanel, SummaryCard } from "./SideRail";
@@ -50,8 +51,9 @@ function TabContent({ tab, file, now }: { tab: Tab; file: PatientFile; now: Date
           <ChartPanel file={file} now={now} />
           <div className={styles.twoCols}>
             <RiskFactors risk={file.risk} />
-            <ProfilePanel file={file} />
+            <LearnedRiskCard risk={file.learnedRisk} />
           </div>
+          <ProfilePanel file={file} />
         </>
       );
     case "readings":
@@ -78,7 +80,10 @@ function TabContent({ tab, file, now }: { tab: Tab; file: PatientFile; now: Date
     case "risk":
       return (
         <>
-          <RiskFactors risk={file.risk} />
+          <div className={styles.twoCols}>
+            <RiskFactors risk={file.risk} />
+            <LearnedRiskCard risk={file.learnedRisk} />
+          </div>
           <RiskTimeline risks={file.risks} />
         </>
       );
