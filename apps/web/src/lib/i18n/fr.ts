@@ -1,7 +1,7 @@
 /** Every user-facing string of the doctor dashboard (spec rule 11). */
 export const fr = {
   app: {
-    name: "TensioCare",
+    name: "SafeMaman",
     tagline: "Suivi de l'hypertension pendant la grossesse",
     principle: "L'application assiste, le médecin décide.",
     demoBanner: "Mode démo : délais raccourcis",

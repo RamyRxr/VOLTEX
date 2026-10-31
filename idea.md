@@ -1,4 +1,4 @@
-# TensioCare — Project Idea & Roadmap
+# SafeMaman — Project Idea & Roadmap
 
 > Hackathon SolveX 3.0 · Problem 2 (Hypertension) · Focus: **pregnant women**
 > Team: Rey (web dashboard + API) · Friend (mobile app)
@@ -8,7 +8,7 @@
 
 ## 1. The idea in one paragraph
 
-TensioCare helps follow **hypertension during pregnancy** between two consultations. The pregnant woman uses a **mobile app** to fill in her medical profile, record her blood pressure and answer a short symptom questionnaire. The system gives an **explainable risk estimate** (gestational hypertension / pre-eclampsia), updates it as new data comes in, and **detects worrying situations** independently. The doctor follows all his patients on a **web dashboard**, sees who needs attention first and why, chats with them, and gets an **AI summary** of each file. The doctor always decides; the app only assists.
+SafeMaman helps follow **hypertension during pregnancy** between two consultations. The pregnant woman uses a **mobile app** to fill in her medical profile, record her blood pressure and answer a short symptom questionnaire. The system gives an **explainable risk estimate** (gestational hypertension / pre-eclampsia), updates it as new data comes in, and **detects worrying situations** independently. The doctor follows all his patients on a **web dashboard**, sees who needs attention first and why, chats with them, and gets an **AI summary** of each file. The doctor always decides; the app only assists.
 
 **Pitch line:** *"Between two consultations, nothing is invisible anymore — and the doctor stays in charge."*
 
@@ -175,7 +175,7 @@ flowchart LR
 ### Repo structure
 
 ```
-tensiocare/
+safemaman/
 ├── apps/
 │   ├── web/            # Next.js dashboard + API + Prisma (Rey)
 │   └── mobile/         # Expo app (Friend)

@@ -1,18 +1,18 @@
 {
   "expo": {
-    "name": "TensioCare",
-    "slug": "tensiocare",
+    "name": "SafeMaman",
+    "slug": "safemaman",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "tensiocare",
+    "scheme": "safemaman",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "dz.tensiocare.app"
+      "bundleIdentifier": "dz.safemaman.app"
     },
     "android": {
-      "package": "dz.tensiocare.app",
+      "package": "dz.safemaman.app",
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

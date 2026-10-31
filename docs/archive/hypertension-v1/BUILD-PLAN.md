@@ -1,4 +1,4 @@
-# TensioCare — Build Plan
+# SafeMaman — Build Plan
 
 **Read this first.** The spec (`Hypertension Monitoring Platform — Project Spec.pdf`) is frozen. This file is the execution plan: what to build, in what order, by whom, and what "done" means. If this document and the spec disagree, this document wins — tell me and I'll fix the spec.
 
@@ -42,7 +42,7 @@ Companion files:
 ## 1. Repository layout
 
 ```
-tensiocare/
+safemaman/
   prisma/
     schema.prisma
     seed.ts
@@ -103,8 +103,8 @@ tensiocare/
 ## 2. Setup (first 20 minutes, one person, then tell the team)
 
 ```bash
-npx create-next-app@latest tensiocare --ts --tailwind --app --no-src-dir
-cd tensiocare
+npx create-next-app@latest safemaman --ts --tailwind --app --no-src-dir
+cd safemaman
 npm i @prisma/client zod jose @tanstack/react-query recharts date-fns lucide-react
 npm i -D prisma tsx vitest dotenv
 npx prisma init --datasource-provider postgresql

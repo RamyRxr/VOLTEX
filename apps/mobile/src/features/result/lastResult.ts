@@ -18,7 +18,7 @@ export interface LastResult {
   readonly offline: boolean;
 }
 
-const KEY = "tensiocare.lastResult.v1";
+const KEY = "safemaman.lastResult.v1";
 let current: LastResult | null = null;
 const listeners = new Set<() => void>();
 

@@ -20,8 +20,8 @@ export const DEFAULT_REMINDERS: ReminderSettings = {
   questionnaire: { enabled: true, hour: 19, minute: 0 },
 };
 
-const KEY = "tensiocare.reminders.v1";
-const IDS_KEY = "tensiocare.reminders.ids.v1";
+const KEY = "safemaman.reminders.v1";
+const IDS_KEY = "safemaman.reminders.ids.v1";
 
 export async function loadReminders(): Promise<ReminderSettings> {
   try {

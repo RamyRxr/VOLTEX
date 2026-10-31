@@ -1,4 +1,4 @@
-# apps/mobile — TensioCare app (Expo)
+# apps/mobile — SafeMaman app (Expo)
 
 Owner: **Yasser** (branch `yasser`). Read the project spec (§4.1, §8, §11) and `../../idea.md` first.
 

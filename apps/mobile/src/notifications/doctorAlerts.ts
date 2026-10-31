@@ -12,8 +12,8 @@ export interface DoctorNotifyPrefs {
   readonly urgentOnly: boolean;
 }
 
-const PREFS_KEY = "tensiocare.doctorPrefs.v1";
-const SEEN_KEY = "tensiocare.doctorSeen.v1";
+const PREFS_KEY = "safemaman.doctorPrefs.v1";
+const SEEN_KEY = "safemaman.doctorSeen.v1";
 const DEFAULT_PREFS: DoctorNotifyPrefs = { enabled: true, urgentOnly: false };
 
 let prefs: DoctorNotifyPrefs = DEFAULT_PREFS;

@@ -2,7 +2,7 @@
 
 Model card and code for the **"Risque estimé par apprentissage"** card of the doctor's patient file.
 
-> **Experimental, doctor only.** It never changes the levels, alerts or rule-based risk of TensioCare: the rules in `packages/shared/src/domain/` decide. It is not a diagnosis and has no clinical validation.
+> **Experimental, doctor only.** It never changes the levels, alerts or rule-based risk of SafeMaman: the rules in `packages/shared/src/domain/` decide. It is not a diagnosis and has no clinical validation.
 
 ## What it predicts
 
@@ -34,7 +34,7 @@ Population: births with a known outcome, **without chronic (pre-pregnancy) hyper
 | **Logistic regression, bands (shipped)** | **0.653** | every factor readable as an odds multiplier |
 | Logistic regression, continuous | 0.657 | |
 | XGBoost on GPU (RTX 4050), 4 settings tried | 0.659 | 421 trees, not explainable; validation AUC 0.661–0.662 for all settings |
-| TensioCare's current profile rules | 0.603 | same patients, same fields |
+| SafeMaman's current profile rules | 0.603 | same patients, same fields |
 | Chance | 0.500 | |
 
 The shipped model:
