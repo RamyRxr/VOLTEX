@@ -36,10 +36,15 @@ export async function sendMessage(linkId: string, senderId: string, body: string
   return messageSchema.parse(data);
 }
 
-/** Live inserts in this conversation; returns the unsubscribe function. */
+/**
+ * Live inserts in this conversation; returns the unsubscribe function.
+ * Each subscription gets its own channel name: removeChannel is asynchronous, and
+ * supabase.channel(name) returns an existing channel of the same name, so a quick
+ * re-mount would add a listener to an already-subscribed channel and throw.
+ */
 export function subscribeMessages(linkId: string, onMessage: (message: ChatMessage) => void): () => void {
   const channel = supabase
-    .channel(`chat:${linkId}`)
+    .channel(`chat:${linkId}:${randomUUID()}`)
     .on("postgres_changes", { event: "INSERT", schema: "public", table: "Message", filter: `linkId=eq.${linkId}` }, (payload) => {
       const message = messageSchema.safeParse(payload.new);
       if (message.success) onMessage(message.data);

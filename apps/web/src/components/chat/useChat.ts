@@ -52,8 +52,10 @@ export function useChat(linkId: string, senderId: string | null) {
         setStatus("ready");
       });
 
+    // A unique name per subscription: removeChannel is asynchronous and channel(name)
+    // returns an existing channel, so a quick re-mount must not reuse the old one.
     const channel = supabase
-      .channel(`chat:${linkId}`)
+      .channel(`chat:${linkId}:${crypto.randomUUID()}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "Message", filter: `linkId=eq.${linkId}` }, (payload) => {
         const parsed = messageSchema.safeParse(payload.new);
         if (parsed.success) setMessages((list) => withMessage(list, parsed.data));
