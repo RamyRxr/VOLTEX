@@ -1,6 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -139,7 +140,7 @@ function Sidebar() {
     <>
     <aside className={styles.sidebar}>
       <Link href="/d" className={styles.brand}>
-        <span className={styles.mark} aria-hidden />
+        <Image src="/logo-mark.png" alt="" width={31} height={40} className={styles.mark} priority unoptimized />
         <span className={styles.brandText}>{fr.app.name}</span>
       </Link>
       <nav aria-label={fr.nav.menu} className={styles.nav}>

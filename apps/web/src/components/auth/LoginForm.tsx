@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { meSchema } from "shared";
@@ -50,7 +51,7 @@ export function LoginForm() {
     <main id="contenu" className={styles.page}>
       <section className={styles.card} aria-labelledby="login-title">
         <div className={styles.brand}>
-          <span className={styles.mark} aria-hidden />
+          <Image src="/logo-mark.png" alt="" width={37} height={48} className={styles.mark} priority unoptimized />
           {fr.app.name}
         </div>
         <h1 id="login-title">{fr.login.title}</h1>

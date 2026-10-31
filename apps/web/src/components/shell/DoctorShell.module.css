@@ -31,10 +31,9 @@
 }
 
 .mark {
-  width: 24px;
-  height: 24px;
-  border-radius: 7px;
-  background: linear-gradient(135deg, var(--accent), var(--focus));
+  flex: none;
+  width: 31px;
+  height: 40px;
 }
 
 .nav {

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/logo.jpg" alt="SafeMaman logo: a mother holding a heart" width="260">
+</p>
+
 # SafeMaman
 
 **Follow-up of hypertension during pregnancy, between two consultations.**
@@ -7,11 +11,13 @@ A mobile app for the pregnant patient, a web dashboard for her doctor, and one e
 
 Built for **Hackathon SolveX 3.0 · Problem 2**. The interface is in French.
 
-<p align="center">
-  <img src="docs/screenshots/web/patients.png" alt="Doctor dashboard: patients sorted from most urgent to most stable" width="68%">
-  &nbsp;
-  <img src="docs/screenshots/mobile/home.png" alt="Patient app: home screen" width="22%">
-</p>
+### ▶ Watch the 80-second explainer (French)
+
+<a href="docs/media/safemaman-explainer.mp4">
+  <img src="docs/media/explainer-thumbnail.jpg" alt="SafeMaman explainer video: between two appointments, a blind spot" width="100%">
+</a>
+
+The blind spot between two appointments, the explained risk estimate, the daily measurement, and what the doctor sees. [Download the video (MP4, 15 MB)](docs/media/safemaman-explainer.mp4)
 
 ---
 
