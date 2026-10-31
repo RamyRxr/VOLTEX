@@ -1,4 +1,4 @@
-# TensioCare
+# SafeMaman
 
 **Follow-up of hypertension during pregnancy, between two consultations.**
 A mobile app for the pregnant patient, a web dashboard for her doctor, and one explainable rules engine in between.
@@ -50,7 +50,7 @@ Log in on the dashboard as **`docteur@demo.dz` / `Demo1234!`**, and on the phone
 
 Gestational hypertension and pre-eclampsia can turn dangerous within hours, often between two prenatal visits. Patients measure their blood pressure at home but have no simple way to know when a reading or a symptom is urgent, and doctors have no view of what happens between visits.
 
-TensioCare closes that gap:
+SafeMaman closes that gap:
 
 - the **patient** records her blood pressure and a short daily questionnaire on her phone, and gets a clear answer — including *"go to the maternity emergency room or call 14 now"* when needed;
 - the **doctor** sees all her patients sorted by urgency, with the reason, within seconds, and acts (chat, note).
@@ -430,4 +430,4 @@ Conventions: conventional commits (`feat(web): …`, `fix(mobile): …`), TypeSc
 
 ---
 
-**Medical disclaimer.** TensioCare is a hackathon prototype. Its thresholds, danger signs, risk factors and learned model are initial values that must be validated by a doctor or midwife. It does not replace medical care: in case of a worrying symptom, go to the maternity emergency room or call **14**.
+**Medical disclaimer.** SafeMaman is a hackathon prototype. Its thresholds, danger signs, risk factors and learned model are initial values that must be validated by a doctor or midwife. It does not replace medical care: in case of a worrying symptom, go to the maternity emergency room or call **14**.

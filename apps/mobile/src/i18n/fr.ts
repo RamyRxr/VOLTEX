@@ -4,10 +4,10 @@
  */
 export const fr = {
   /* ---------------------------------------------------------------- app */
-  "app.name": "TensioCare",
+  "app.name": "SafeMaman",
   "app.tagline": "Le suivi de votre tension pendant la grossesse",
   "app.disclaimer":
-    "TensioCare ne pose pas de diagnostic et ne remplace pas votre médecin. En cas d'urgence, appelez le 14.",
+    "SafeMaman ne pose pas de diagnostic et ne remplace pas votre médecin. En cas d'urgence, appelez le 14.",
   "demo.banner": "Mode démo : délais raccourcis",
 
   /* ------------------------------------------------------------- common */
@@ -95,7 +95,7 @@ export const fr = {
 
   /* ------------------------------------------------------------ consent */
   "consent.title": "Vos données et votre accord",
-  "consent.intro": "Avant de commencer, voici simplement ce que fait TensioCare avec vos informations.",
+  "consent.intro": "Avant de commencer, voici simplement ce que fait SafeMaman avec vos informations.",
   "consent.collect.title": "Ce que nous enregistrons",
   "consent.collect.body": "Votre profil médical, vos mesures de tension, vos réponses au questionnaire et vos messages.",
   "consent.who.title": "Qui peut les voir",
@@ -370,7 +370,7 @@ export const fr = {
   "doctor.emptySeen": "Aucune alerte vue récemment.",
   "doctor.ack": "Marquer comme vue",
   "doctor.acked": "Vue {when}",
-  "doctor.dashboardHint": "Pour le dossier complet, ouvrez le tableau de bord TensioCare sur ordinateur.",
+  "doctor.dashboardHint": "Pour le dossier complet, ouvrez le tableau de bord SafeMaman sur ordinateur.",
   "doctor.enableTitle": "Activez les notifications",
   "doctor.enableBody": "Pour être prévenu dès qu'une patiente a besoin d'attention.",
   "doctor.enableCta": "Activer",
@@ -394,7 +394,7 @@ export const fr = {
   "settings.permissionUnknown": "Pas encore demandées",
   "settings.test": "Envoyer une notification de test",
   "settings.testTitle": "Notification de test",
-  "settings.testBody": "Les alertes TensioCare s'afficheront comme ceci.",
+  "settings.testBody": "Les alertes SafeMaman s'afficheront comme ceci.",
   "settings.background":
     "Tant que le serveur n'envoie pas de notifications push, les alertes arrivent quand l'application est ouverte ou en arrière-plan récent.",
 } as const;

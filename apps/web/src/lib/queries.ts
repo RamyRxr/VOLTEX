@@ -5,6 +5,7 @@ import {
   alertSchema,
   alertsListSchema,
   CONFIG,
+  conversationsSchema,
   draftAdviceSchema,
   inviteSchema,
   invitesSchema,
@@ -26,6 +27,7 @@ export const keys = {
   file: (id: string) => ["file", id] as const,
   alerts: (status: string) => ["alerts", status] as const,
   requests: ["link-requests"] as const,
+  conversations: ["conversations"] as const,
   invites: ["invites"] as const,
 };
 
@@ -61,6 +63,14 @@ export const useLinkRequests = () =>
   useQuery({
     queryKey: keys.requests,
     queryFn: ({ signal }) => api("/api/doctor/link-requests", linkRequestsSchema, { signal }),
+    refetchInterval: POLL,
+  });
+
+/** Patients who wrote, most urgent first; drives the Messages tab and its counter. */
+export const useConversations = () =>
+  useQuery({
+    queryKey: keys.conversations,
+    queryFn: ({ signal }) => api("/api/doctor/conversations", conversationsSchema, { signal }),
     refetchInterval: POLL,
   });
 

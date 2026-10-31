@@ -1,7 +1,7 @@
 /** Every user-facing string of the doctor dashboard (spec rule 11). */
 export const fr = {
   app: {
-    name: "TensioCare",
+    name: "SafeMaman",
     tagline: "Suivi de l'hypertension pendant la grossesse",
     principle: "L'application assiste, le médecin décide.",
     demoBanner: "Mode démo : délais raccourcis",
@@ -9,6 +9,7 @@ export const fr = {
   },
   nav: {
     patients: "Patientes",
+    messages: "Messages",
     alerts: "Alertes",
     invites: "Codes et demandes",
     logout: "Se déconnecter",
@@ -175,6 +176,19 @@ export const fr = {
     suggesting: "Suggestion…",
     suggestion: "Suggestion à relire et modifier avant l'envoi.",
     suggestFailed: "Suggestion indisponible. Réessayez.",
+  },
+  messages: {
+    title: "Messages",
+    subtitle: "Patientes qui vous ont écrit, de la plus urgente à la plus stable",
+    filters: { all: "Toutes", awaiting: "À répondre" },
+    empty: "Aucun message pour l'instant.",
+    emptyAwaiting: "Aucun message en attente de réponse.",
+    you: "Vous : ",
+    unanswered: (n: number) => (n === 1 ? "1 message sans réponse" : `${n} messages sans réponse`),
+    replied: "Répondu",
+    open: "Ouvrir la conversation",
+    newFrom: "Nouveau message de",
+    dismiss: "Fermer la notification",
   },
   alerts: {
     title: "Alertes",

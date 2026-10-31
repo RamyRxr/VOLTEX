@@ -1,5 +1,5 @@
 /**
- * TensioCare — alert rule engine
+ * SafeMaman — alert rule engine
  *
  * PURE. No Prisma, no fetch, no Date.now(), no process.env.
  * `now` is always injected. Same input -> same output, forever.

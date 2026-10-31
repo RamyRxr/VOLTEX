@@ -2,7 +2,7 @@
 Train the hypertensive-disorder-of-pregnancy risk model on CDC natality data.
 
 Train on 2022 births, test on 2023 births (a full year the model never saw),
-compare with a logistic baseline and with TensioCare's current rules,
+compare with a logistic baseline and with SafeMaman's current rules,
 export the model (XGBoost JSON + reference cases) and write an honest report.
 
 Usage: python scripts/train.py
@@ -66,7 +66,7 @@ def load(year: int) -> pd.DataFrame:
 
 
 def rule_score(df: pd.DataFrame) -> np.ndarray:
-    """TensioCare's initial risk rules on the same fields: 0 LOW, 1 MODERATE, 2 HIGH."""
+    """SafeMaman's initial risk rules on the same fields: 0 LOW, 1 MODERATE, 2 HIGH."""
     high = df[["preexisting_diabetes", "multiple_pregnancy"]].fillna(0).sum(axis=1)
     moderate = (
         df["first_pregnancy"].fillna(0)

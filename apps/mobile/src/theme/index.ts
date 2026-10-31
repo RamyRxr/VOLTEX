@@ -1,5 +1,5 @@
 /**
- * TensioCare mobile — calm, high-contrast, large type.
+ * SafeMaman mobile — calm, high-contrast, large type.
  * One accent colour (indigo) for actions; status colours are reserved for health states
  * and always come with an icon and a word (spec rule 12).
  */

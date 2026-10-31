@@ -27,7 +27,7 @@ p {
 }
 
 h1 {
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-size: var(--text-2xl);
   font-weight: 600;
   line-height: 1.15;

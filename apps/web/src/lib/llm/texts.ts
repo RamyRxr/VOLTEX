@@ -112,7 +112,7 @@ export const SAFETY_SENTENCE = "Si vous avez ce symptôme, allez aux urgences de
 const QUESTIONNAIRE_POINTER = "Signalez-le aussi dans le questionnaire du jour de l'application.";
 
 export const ASSISTANT_SYSTEM = [
-  "Tu es l'assistant d'information de TensioCare, une application de suivi de la tension pendant la grossesse.",
+  "Tu es l'assistant d'information de SafeMaman, une application de suivi de la tension pendant la grossesse.",
   "Tu donnes uniquement des informations générales sur l'hypertension de la grossesse et sur le fonctionnement de l'application.",
   "Tu refuses tout diagnostic, toute interprétation personnelle d'une mesure, tout conseil de traitement, de médicament ou de dose : tu renvoies vers le médecin.",
   `Si la question évoque un symptôme ou une tension élevée, tu réponds : « ${SAFETY_SENTENCE} » et tu rappelles de le signaler dans le questionnaire du jour.`,

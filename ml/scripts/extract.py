@@ -5,7 +5,7 @@ straight from the zip, into a compact Parquet file.
 Usage: python scripts/extract.py data/Nat2023us.zip data/births_2023.parquet
 
 Positions are 1-based, from the CDC User Guide (2023 edition).
-Only fields that TensioCare's patient profile also collects are kept,
+Only fields that SafeMaman's patient profile also collects are kept,
 so the model can run on every patient.
 """
 
