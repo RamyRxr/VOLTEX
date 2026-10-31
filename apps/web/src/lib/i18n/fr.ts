@@ -9,6 +9,7 @@ export const fr = {
   },
   nav: {
     patients: "Patientes",
+    messages: "Messages",
     alerts: "Alertes",
     invites: "Codes et demandes",
     logout: "Se déconnecter",
@@ -175,6 +176,17 @@ export const fr = {
     suggesting: "Suggestion…",
     suggestion: "Suggestion à relire et modifier avant l'envoi.",
     suggestFailed: "Suggestion indisponible. Réessayez.",
+  },
+  messages: {
+    title: "Messages",
+    subtitle: "Patientes qui vous ont écrit, de la plus urgente à la plus stable",
+    filters: { all: "Toutes", awaiting: "À répondre" },
+    empty: "Aucun message pour l'instant.",
+    emptyAwaiting: "Aucun message en attente de réponse.",
+    you: "Vous : ",
+    unanswered: (n: number) => (n === 1 ? "1 message sans réponse" : `${n} messages sans réponse`),
+    replied: "Répondu",
+    open: "Ouvrir la conversation",
   },
   alerts: {
     title: "Alertes",

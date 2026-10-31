@@ -85,23 +85,43 @@
   color: var(--danger);
 }
 
+/* Account row: avatar · name · logout icon on the right */
 .footer {
-  display: grid;
-  gap: var(--space-2);
-  margin-top: auto;
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--border);
-}
-
-.footer button {
-  justify-content: flex-start;
-}
-
-.doctor {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-2);
+  margin-top: auto;
+  padding: var(--space-4) var(--space-2) 0;
+  border-top: 1px solid var(--border);
+}
+
+.logout {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  margin-left: auto;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  transition:
+    background var(--duration) var(--ease),
+    color var(--duration) var(--ease);
+}
+
+.logout:hover {
+  background: var(--surface-sunken);
+  color: var(--danger);
+}
+
+@media (pointer: coarse) {
+  .logout {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 .avatar {
@@ -118,14 +138,12 @@
 }
 
 .doctorName {
+  min-width: 0;
+  overflow: hidden;
   font-weight: 600;
   font-size: var(--text-sm);
-}
-
-.principle {
-  padding: 0 var(--space-2);
-  color: var(--text-3);
-  font-size: var(--text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .main {
@@ -176,28 +194,16 @@
     overflow-x: auto;
   }
 
+  /* Small screens: only the logout icon stays in the top bar */
   .footer {
     position: relative;
-  }
-
-  .footer {
-    display: flex;
     margin: 0;
     padding: 0;
     border: 0;
   }
 
-  /* Icon-only logout on small screens; the label stays for screen readers */
-  .logoutLabel {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-  }
-
-  .doctor,
-  .principle {
+  .avatar,
+  .doctorName {
     display: none;
   }
 

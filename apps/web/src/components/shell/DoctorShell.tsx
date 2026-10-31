@@ -8,7 +8,8 @@ import { Icon, type IconName } from "@/components/ui/Icon";
 import { ApiCallError } from "@/lib/api";
 import { initials } from "@/lib/format";
 import { fr } from "@/lib/i18n/fr";
-import { useAlerts, useLinkRequests, useMe } from "@/lib/queries";
+import { useAlerts, useConversations, useLinkRequests, useMe } from "@/lib/queries";
+import { isUrgent } from "@/lib/status";
 import { supabaseBrowser } from "@/lib/supabase";
 import styles from "./DoctorShell.module.css";
 
@@ -58,6 +59,7 @@ function Sidebar() {
   const me = useMe();
   const alerts = useAlerts("OPEN");
   const requests = useLinkRequests();
+  const conversations = useConversations();
   const qc = useQueryClient();
   const router = useRouter();
 
@@ -73,6 +75,8 @@ function Sidebar() {
   }
 
   const urgentAlerts = (alerts.data ?? []).filter((a) => a.level === "EMERGENCY" || a.level === "SEVERE").length;
+  const awaiting = (conversations.data ?? []).filter((c) => c.unanswered > 0);
+  const urgentAwaiting = awaiting.some((c) => isUrgent(c.level, c.unconfirmedSevere));
   const name = me.data?.fullName ?? "";
 
   return (
@@ -83,21 +87,18 @@ function Sidebar() {
       </Link>
       <nav aria-label={fr.nav.menu} className={styles.nav}>
         <NavLink href="/d" icon="users" label={fr.nav.patients} />
+        <NavLink href="/d/messages" icon="message" label={fr.nav.messages} count={awaiting.length} urgent={urgentAwaiting} />
         <NavLink href="/d/alerts" icon="bell" label={fr.nav.alerts} count={alerts.data?.length} urgent={urgentAlerts > 0} />
         <NavLink href="/d/invites" icon="key" label={fr.nav.invites} count={requests.data?.length} />
       </nav>
       <div className={styles.footer}>
-        <div className={styles.doctor}>
-          <span className={styles.avatar} aria-hidden>
-            {initials(name)}
-          </span>
-          <span className={styles.doctorName}>{name}</span>
-        </div>
-        <button type="button" className="btn btn-ghost" onClick={logout}>
-          <Icon name="logout" />
-          <span className={styles.logoutLabel}>{fr.nav.logout}</span>
+        <span className={styles.avatar} aria-hidden>
+          {initials(name)}
+        </span>
+        <span className={styles.doctorName}>{name}</span>
+        <button type="button" className={styles.logout} onClick={logout} aria-label={fr.nav.logout} title={fr.nav.logout}>
+          <Icon name="logout" size={18} />
         </button>
-        <p className={styles.principle}>{fr.app.principle}</p>
       </div>
     </aside>
   );

@@ -7,6 +7,7 @@ export type IconName =
   | "check"
   | "pulse"
   | "users"
+  | "message"
   | "bell"
   | "key"
   | "logout"
@@ -57,6 +58,12 @@ const PATHS: Readonly<Record<IconName, React.ReactNode>> = {
     <>
       <circle cx="6" cy="5" r="2.5" />
       <path d="M1.5 14c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5M11 2.8a2.5 2.5 0 0 1 0 4.4M12.5 9.8c1.2.6 2 1.9 2 4.2" />
+    </>
+  ),
+  message: (
+    <>
+      <path d="M2 3.5A1.5 1.5 0 0 1 3.5 2h9A1.5 1.5 0 0 1 14 3.5v6a1.5 1.5 0 0 1-1.5 1.5H7l-3.5 3v-3A1.5 1.5 0 0 1 2 9.5Z" />
+      <path d="M5 5.5h6M5 8h4" />
     </>
   ),
   bell: (

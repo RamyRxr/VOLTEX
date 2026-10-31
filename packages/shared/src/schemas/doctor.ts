@@ -45,6 +45,21 @@ export const triageSchema = z.array(triageRowSchema);
 
 export const noteSchema = z.object({ id: z.uuid(), body: z.string(), createdAt: isoDateTime });
 
+/**
+ * GET /api/doctor/conversations — patients who wrote, sorted by urgency (spec §6.5)
+ * then by most recent message. `unanswered` = patient messages after the doctor's last one.
+ */
+export const conversationSchema = z.object({
+  patientId: z.uuid(),
+  linkId: z.uuid(),
+  fullName: z.string(),
+  level: levelSchema,
+  unconfirmedSevere: z.boolean(),
+  lastMessage: z.object({ body: z.string(), createdAt: isoDateTime, fromPatient: z.boolean() }),
+  unanswered: z.number().int(),
+});
+export const conversationsSchema = z.array(conversationSchema);
+
 /** Experimental learned risk, doctor only (see ml/README.md). */
 export const learnedRiskSchema = z.discriminatedUnion("applicable", [
   z.object({
@@ -123,4 +138,5 @@ export type AlertAction = z.infer<typeof alertActionSchema>;
 export type AlertListItem = z.infer<typeof alertsListSchema>[number];
 export type NoteInput = z.infer<typeof noteInputSchema>;
 export type NoteDto = z.infer<typeof noteSchema>;
+export type ConversationDto = z.infer<typeof conversationSchema>;
 export type Summary = z.infer<typeof summarySchema>;

@@ -1,12 +1,16 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { formatDateTime, formatTime } from "@/lib/format";
 import { fr } from "@/lib/i18n/fr";
-import { useDraftAdvice, useMe } from "@/lib/queries";
+import { keys, useDraftAdvice, useMe } from "@/lib/queries";
 import styles from "./ChatPanel.module.css";
 import { useChat } from "./useChat";
+
+/** Anchor used by the Messages tab: /d/patients/:id#chat */
+export const CHAT_ANCHOR = "chat";
 
 export function ChatPanel({ linkId, patientId, patientName }: { linkId: string; patientId: string; patientName: string }) {
   const me = useMe();
@@ -18,6 +22,16 @@ export function ChatPanel({ linkId, patientId, patientName }: { linkId: string; 
   const [failed, setFailed] = useState(false);
   const [sending, setSending] = useState(false);
   const listRef = useRef<HTMLOListElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const qc = useQueryClient();
+
+  // Opened from the Messages tab (/d/patients/:id#chat): bring the chat into view, ready to reply.
+  useEffect(() => {
+    if (window.location.hash !== `#${CHAT_ANCHOR}`) return;
+    sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    inputRef.current?.focus({ preventScroll: true });
+  }, []);
 
   /** Puts a suggestion in the box: the doctor reads, edits, then sends it himself (spec §9.2). */
   function suggestMessage() {
@@ -44,11 +58,12 @@ export function ChatPanel({ linkId, patientId, patientName }: { linkId: string; 
     if (ok) {
       setDraft("");
       setSuggested(false);
+      void qc.invalidateQueries({ queryKey: keys.conversations }); // the Messages counter updates at once
     }
   }
 
   return (
-    <section className={`panel ${styles.panel}`} aria-labelledby="chat-title">
+    <section id={CHAT_ANCHOR} ref={sectionRef} className={`panel ${styles.panel}`} aria-labelledby="chat-title">
       <div className="panel-head">
         <h2 id="chat-title">
           <Icon name="send" /> {fr.chat.title}
@@ -82,6 +97,7 @@ export function ChatPanel({ linkId, patientId, patientName }: { linkId: string; 
         </label>
         <textarea
           id="chat-input"
+          ref={inputRef}
           className="input"
           rows={2}
           maxLength={2000}
