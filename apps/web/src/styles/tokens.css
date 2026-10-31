@@ -43,8 +43,9 @@
   --chart-grid: #ebe7de;
 
   /* Type */
-  --font-sans: var(--font-public-sans), "Segoe UI", system-ui, sans-serif;
-  --font-serif: var(--font-source-serif), Georgia, serif;
+  /* One typeface everywhere: DM Sans for text, titles and patient names */
+  --font-sans: var(--font-dm-sans), "Segoe UI", system-ui, sans-serif;
+  --font-display: var(--font-dm-sans), "Segoe UI", system-ui, sans-serif;
   --text-xs: 0.75rem;
   --text-sm: 0.8125rem;
   --text-base: 0.9375rem;
