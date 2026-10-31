@@ -11,6 +11,8 @@ A mobile app for the pregnant patient, a web dashboard for her doctor, and one e
 
 Built for **Hackathon SolveX 3.0 · Problem 2**. The interface is in French.
 
+**How it works and why each choice was made** (architecture, rules, how the AI was trained, likely questions): [explanation.md](explanation.md)
+
 ### ▶ Watch the 80-second explainer (French)
 
 <a href="docs/media/safemaman-explainer.mp4">
